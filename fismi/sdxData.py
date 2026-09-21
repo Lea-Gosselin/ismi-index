@@ -103,9 +103,4 @@ def getBeaData(table_name, api_key):
     df["TIME_PERIOD"] = pd.to_datetime(df["TimePeriod"].str.replace("M", "-"), format="%Y-%m")
     df["DataValue"] = pd.to_numeric(df["DataValue"].str.replace(",", ""), errors="coerce")
 
-    # LineDescription original BEA table indentation
-    # Hierarchy proxy similar to ECOICOP sub-classes
-    # df["indent_level"] = df["LineDescription"].str.len() - df["LineDescription"].str.lstrip().str.len()
-    # df["LineDescription"] = df["LineDescription"].str.strip()
-
-    return df[["TIME_PERIOD", "LineNumber", "LineDescription", "SeriesCode",  "DataValue"]] #"indent_level",
+    return df[["TIME_PERIOD", "LineNumber", "LineDescription", "SeriesCode",  "DataValue"]]

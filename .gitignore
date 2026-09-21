@@ -13,6 +13,9 @@ venv/
 # Secrets
 .env
 
+# PDF
+.pdf
+
 # Outputs
 output/
 results/
