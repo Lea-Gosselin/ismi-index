@@ -21,7 +21,7 @@ def twoStepsAr(dfInflation, rolling_window=110):
 
         for cat in categories:
             # 120 month rolling window (Lansing & Shapiro, 2026)
-            window_data = dfInflation[cat].iloc[t_idx - rolling_window : t_idx + 1]
+            window_data = dfInflation[cat].iloc[t_idx - rolling_window + 1 : t_idx + 1]
 
             y = window_data.iloc[1:].values        # Inflation rate T
             x = window_data.iloc[:-1].values       # Inflation rate lagged (T-1)
@@ -31,16 +31,20 @@ def twoStepsAr(dfInflation, rolling_window=110):
                 ### 2-step regressions (to get A and Rho coefficients)             
                 #   1) Current inflation shock
                 model1 = sm.OLS(y, x).fit()
-                residuals = model1.resid
+                
+                mu = model1.params[0]
+                rho = model1.params[1]
+                fitted = mu + rho * x[:, 1]
+                residuals = y - fitted
                 
                 # Inflation AR(1) coefficient (constant)
-                a_dict[cat].at[current_date] = model1.params[1]
+                rho_dict[cat].at[current_date] = rho
                 
                 #   2) AR(1) on OLS' residuals
                 yRes = residuals[1:]        
                 xRes = residuals[:-1]
                 model2 = sm.OLS(yRes, xRes).fit()
-                rho_dict[cat].at[current_date] = model2.params[0]
+                a_dict[cat].at[current_date] = model2.params[0]
                 
                 #   3) Store
                 # shocks_dict[cat].at[current_date] = model2.fittedvalues[-1]
