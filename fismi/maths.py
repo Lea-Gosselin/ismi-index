@@ -93,150 +93,102 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
         M = 1
         
     mu, rho_bar, F, H, Q = get_parameters(X0, M)
+    mu = 0
+    rho_bar = 0
     
-    # if abs(F) >= 1:
-    #     raise ValueError("Transition equation non-stationary.")
-
-    # if H <= 0:
-    #     raise ValueError("H must be strictly positive.")
-
-    # if Q < 0:
-    #     raise ValueError("Q must be non-negative.")
-
-    # if T < 2:
-    #     raise ValueError("At least two inflation observations are required.")
+    # On centre les mesures...
+    Y = pi - mu
 
     # ---------------------------------------------------------
     # Storage variables
     # ---------------------------------------------------------
-
-    xi_pred = np.full(T, np.nan)
-    xi_filt = np.full(T, np.nan)
-    P_xi_pred = np.full(T, np.nan)
-    P_xi_filt = np.full(T, np.nan)
-    rho_pred = np.full(T, np.nan)
-    rho_filt = np.full(T, np.nan)
-    pi_pred = np.full(T, np.nan)
-    pi_filt = np.full(T, np.nan)
-    innovation = np.full(T, np.nan)
-    P_pi = np.full(T, np.nan)
-    kalman_gain = np.full(T, np.nan)
-    loglik_t = np.full(T, np.nan)
-
-    # =========================================================
-    # 1. Initialisation
-    # =========================================================
-
-    # E[xi_0] = 0
-    xi_filt[0] = 0.0
-
-    # Unconditional variance of stationary AR(1)
-    # Var(xi_t) = Q / (1 - F^2)
-    P_xi_filt[0] = Q / (1.0 - F**2)
-
-    # Corresponding long-run persistence
-    rho_filt[0] = rho_bar
+    Stf = np.full(T, np.nan)
+    Ytf = np.full(T, np.nan)
+    PtS = np.full(T, np.nan)
+    PtY = np.full(T, np.nan)
+    Pt = np.full(T, np.nan)
+    St = np.full(T, np.nan)
+    Rhot = np.full(T, np.nan)
+    Pit = np.full(T, np.nan)
+    Xt = np.full(T, np.nan)
+    St = np.full(T, np.nan)
+    Err = np.full(T, np.nan)
+    Kt = np.full(T, np.nan)
+    Lt = np.full(T, np.nan)
 
     # =========================================================
     # Kalman filter
     # =========================================================
+    
+    # =========================================================
+    # 1. Initialisation
+    # E[xi_0] = 0
+    St[0] = 0.0
 
+    # Unconditional variance of stationary AR(1)
+    # Var(xi_t) = Q / (1 - F^2)
+    Pt[0] = Q / (1.0 - F**2)
+
+    # Corresponding long-run persistence
+    # rho_filt[0] = rho_bar
+    
     for t in range(1, T):
-        pi_lag = pi[t - 1]
-        pi_t = pi[t]
-
-        # =====================================================
-        # 2. Predict the state
+        Xt = Y[t - 1]
+        Yt = Y[t]
+        
+        # 2. Forecast the states (St)
         # xi_{t|t-1}    = F xi_{t-1|t-1}
         # P^xi_{t|t-1}  = F^2 P^xi_{t-1|t-1} + Q
-        # =====================================================
-
-        xi_pred[t] = F * xi_filt[t - 1]
-        P_xi_pred[t] = (F**2 * P_xi_filt[t - 1] + Q)
-
-        # Predicted persistence...
-        # rho_{t|t-1} = rho_bar + xi_{t|t-1}
-        rho_pred[t] = rho_bar + xi_pred[t]
-
-        # =====================================================
-        # 3. Predict inflation
-        # pi_{t|t-1} = mu + (rho_bar + xi_{t|t-1}) pi_{t-1}
-        # =====================================================
-        pi_pred[t] = (mu + rho_pred[t] * pi_lag)
-
-        # -----------------------------------------------------
-        # Inflation forecast error
-        # e_t^pi = pi_t - pi_{t|t-1}
-        # -----------------------------------------------------
-        innovation[t] = (pi_t - pi_pred[t])
-
-        # -----------------------------------------------------
-        # Forecast-error variance
-        # P^pi_{t|t-1} = pi_{t-1}^2 P^xi_{t|t-1} + H
-        # -----------------------------------------------------
-        P_pi[t] = (pi_lag**2 * P_xi_pred[t] + H)
-
-        # =====================================================
-        # 4. Kalman Gain
-        # K_t = P^xi_{t|t-1} pi_{t-1}
-        # =====================================================
-        kalman_gain[t] = (P_xi_pred[t] * pi_lag / P_pi[t])
-
-        # =====================================================
-        # 5. Update the state
-        # xi_{t|t} = xi_{t|t-1} + K_t e_t^pi
-        # =====================================================
-        xi_filt[t] = (xi_pred[t] + kalman_gain[t] * innovation[t])
-
-        # -----------------------------------------------------
-        # Updated state uncertainty
-        # P^xi_{t|t} = P^xi_{t|t-1} - K_t pi_{t-1} P^xi_{t|t-1}
-        # -----------------------------------------------------
-        P_xi_filt[t] = (P_xi_pred[t] - kalman_gain[t] * pi_lag * P_xi_pred[t])
-
-        # -----------------------------------------------------
-        # Recover filtered persistence
-        # rho_{t|t} = rho_bar + xi_{t|t}
-        # -----------------------------------------------------
-        rho_filt[t] = (rho_bar + xi_filt[t])
+        Stf[t] = F * St[t-1]
+        PtS[t] = F**2 * Pt[t-1] + Q
         
-        # -----------------------------------------------------
-        # Recover filtered inflation
-        # pi_{t|t} = mu + rho_{t|t} * pi_{t-1}
-        # -----------------------------------------------------
-        pi_filt[t] = (mu + rho_filt[t] * pi_lag)
+        # 3. Predict Yt
+        # Y_{t|t-1} = Y_{t-1} xi_{t|t-1} 
+        Ytf[t] = Xt*Stf[t]
+        
+        # 4. Inflation forecast error and variance
+        # e_t^Y = Y_t - Y_{t|t-1}
+        # P^Y_{t|t-1} = Y_{t-1}^2 P^xi_{t|t-1} + H
+        Err[t] = Yt-Ytf[t]
+        PtY[t] = Xt**2 * PtS[t] + H
+        
+        # 5. Updating the states with the Kalman gain
+        # K_t = P^xi_{t|t-1} Y_{t-1} / P^Y_{t|t-1}
+        # xi_{t|t} = xi_{t|t-1} + K_t e_t^pi
+        # P^xi_{t|t} = P^xi_{t|t-1} - K_t * Y_{t-1} * P^xi_{t|t-1}
+        Kt[t] = (PtS[t] * Xt) / PtY[t]
+        St[t] = Stf[t] + Kt[t] * Err[t]
+        Pt[t] = PtS[t] - Kt[t] * Xt * PtS[t]
 
-
+        # 6. Updating filtered variables
+        # rho_t = rho_bar + P^xi_{t|t}
+        # pi_{t|t} = rho_t * (mu + Y_{t-1})
+        Rhot[t] = rho_bar + St[t]
+        Pit[t] = Rhot[t] * (mu + Xt)
+        
+        # 7. Log-likelihood
         # =====================================================
-        # 6. Log-likelihood
-        # =====================================================
-
-        loglik_t[t] = -0.5 * (
+        Lt[t] = -0.5 * (
             np.log(2 * np.pi)
-            + np.log(P_pi[t])
-            + innovation[t]**2 / P_pi[t]
+            + np.log(PtY[t])
+            + Err[t]**2 / PtY[t]
         )
 
     # =========================================================
     # Results...
     # =========================================================
     results = {
-        "Inflation": pi,
-        "InflationPredicted": pi_pred,
-        "InflationFiltered": pi_filt,
-        "Innovation": innovation,
-        "XiPredicted": xi_pred,
-        "XiFiltered": xi_filt,
-        "PxiPredicted": P_xi_pred,
-        "PxiFiltered": P_xi_filt,
-        "RhoPredicted": rho_pred,
-        "RhoFiltered": rho_filt,
-        "PInflation": P_pi,
-        "KalmanGain": kalman_gain,
-        "LogLikelihood": loglik_t
+        "Y": pi,
+        "FittedY": Pit,
+        "Err": Err,
+        "StateMse": Pt,
+        "centeredState": St,
+        "Rho": Rhot,
+        "KalmanGain": Kt,
+        "LogLikelihood": Lt
         }
     
-    loglik = -np.nansum(loglik_t)
+    loglik = -np.nansum(Lt)
 
     if return_loglik:
         return loglik
