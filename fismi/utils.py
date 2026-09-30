@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 # RMSE between actual and fitted
 def rmse(act,fit):
-    meanSquaredError = ((fit - act) ** 2).mean()
+    meanSquaredError = np.nanmean((fit - act) ** 2)
     rmse = np.sqrt(meanSquaredError)
     return rmse
 
