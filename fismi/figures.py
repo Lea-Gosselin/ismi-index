@@ -226,3 +226,57 @@ def figA1Paper(headline, PCE, index="PCE"):
 
     plt.tight_layout()
     plt.show()
+    
+# IR from local projections
+def plotIresponses(R, label=r"Impulse response ($ISMI_t$)", color="darkgrey"):
+    fig, ax = plt.subplots(figsize=(20/3, 6))
+
+    # IRF
+    ax.plot(
+        R.index,
+        R["IRF"],
+        linewidth=2,
+        color=color,
+        label=label
+    )
+
+    # 90% confidence interval
+    ax.fill_between(
+        R.index,
+        R["IC90"],
+        R["IC10"],
+        color=color,
+        alpha=0.2,
+        label="90% CI"
+    )
+
+    # 95% confidence interval
+    ax.fill_between(
+        R.index,
+        R["SD+"],
+        R["SD-"],
+        color=color,
+        alpha=0.1,
+        label="±1 écart-type"
+    )
+
+    # Zero line
+    ax.axhline(
+        y=0,
+        linewidth=1,
+        color="black",
+        linestyle="--"
+    )
+
+    # Labels
+    ax.set_xlabel("Horizon (months)")
+    ax.set_ylabel("Responses (% points)")
+    ax.set_title("Impulse responses")
+
+    # Horizon
+    ax.set_xlim(0, 60)
+
+    ax.legend(frameon=False)
+    plt.grid()
+    plt.tight_layout()
+    plt.show()

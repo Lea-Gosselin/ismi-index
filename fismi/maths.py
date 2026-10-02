@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
+import statsmodels.api as sm
+
 
 def get_parameters(X0, M):
     """
@@ -86,6 +88,7 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
     # ---------------------------------------------------------
     # Consistency checks and data management
     # ---------------------------------------------------------
+    
     T = pi.shape[0]
     try:
         M = pi.shape[1]
@@ -93,7 +96,7 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
         M = 1
         
     mu, rho_bar, F, H, Q = get_parameters(X0, M)
-    mu = 0
+    # mu = 0
     rho_bar = 0
     
     # On centre les mesures...
@@ -221,3 +224,38 @@ def optNegLogLike(X0, pi):
     )
 
     return res
+
+
+# Projections
+def localProjections(Y, X, h=np.arange(61)):
+    coefs = []
+    Err = []
+    IC90 = []
+    IC10 = []
+    SDPlus = []
+    SDMinus = []
+
+    for horz in h:
+        y = Y.iloc[:, horz].values
+
+        # OLS 
+        model = sm.OLS(y, X.values).fit(
+        # cov_type="HAC",
+        # cov_kwds={"maxlags": max(1, horz)}
+        ).get_robustcov_results(cov_type='HAC', maxlags=max(1, horz))
+        coef = model.params
+
+        # Contemporaneous coefficient
+        B0 = coef[0]
+        seB0 = model.bse[0]
+
+        coefs.append(coef)
+        Err.append(model.resid)
+
+        IC10.append(B0 - 1.645 * seB0)
+        IC90.append(B0 + 1.645 * seB0)
+        SDMinus.append(B0 - 1 * seB0)
+        SDPlus.append(B0 + 1 * seB0)
+        
+    finalCoefs = pd.DataFrame(coefs, columns=X.columns)
+    return finalCoefs, IC10, IC90, SDPlus, SDMinus
