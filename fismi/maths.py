@@ -96,7 +96,7 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
         M = 1
         
     mu, rho_bar, F, H, Q = get_parameters(X0, M)
-    # mu = 0
+    mu = 0
     rho_bar = 0
     
     # On centre les mesures...
