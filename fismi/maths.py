@@ -4,7 +4,7 @@ from scipy.optimize import minimize
 import statsmodels.api as sm
 
 
-def get_parameters(X0, M):
+def get_parameters(X0, cMu=True, cRho=True):
     """
     Parameters of the state-space model
 
@@ -39,28 +39,38 @@ def get_parameters(X0, M):
     H       : (M, M)
     Q       : float
     """
-    
+    i=0
     # Long-run monthly inflation
-    mu = X0[0]
-
+    if cMu:
+        mu = X0[0]
+        i += 1
+    else: 
+        mu = 0
+        
     # Long-run persistence
-    rho_bar = X0[M]
+    if cRho:
+        rho_bar = X0[i]
+        i += 1
+    else:
+        rho_bar = 0
+        
+    # Persistence of latent state
+    F = X0[i]
+    i += 1
 
-    # State persistence
-    F = X0[M+1]
-
-    # Variance of state innovation
-    D = X0[M+2]
+    # Measurement innovation variance
+    D = X0[i]
     H = D**2
+    i += 1
 
-    # Variance of measurement errors
-    B = X0[M+3]
+    # State innovation variance
+    B = X0[i]
     Q = B**2
 
     return mu, rho_bar, F, H, Q
 
 # Filter...
-def kalman_filter_inflation(X0, pi, return_loglik=False):
+def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     """
     Kalman filter for the following state-space model:
         pi_t = mu + (rho_bar + xi_t) * pi_{t-1} + w_t
@@ -88,19 +98,16 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
     # ---------------------------------------------------------
     # Consistency checks and data management
     # ---------------------------------------------------------
+    mu, rho_bar, F, H, Q = get_parameters(X0, cMu, cRho)
     
-    T = pi.shape[0]
-    try:
-        M = pi.shape[1]
-    except:
-        M = 1
-        
-    mu, rho_bar, F, H, Q = get_parameters(X0, M)
-    mu = 0
-    rho_bar = 0
+    # Inflation centered around its long-run level (mu)
+    Xt = pi[:-1] - mu
+
+    # Reduced-form dependent variable:
+    # \tilde Y_t = (pi_t - mu) - rho_bar * (pi_{t-1} - mu)
+    Yt = (pi[1:] - mu) - rho_bar * Xt
     
-    # On centre les mesures...
-    Y = pi - mu
+    T = Yt.shape[0]
 
     # ---------------------------------------------------------
     # Storage variables
@@ -113,16 +120,12 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
     St = np.full(T, np.nan)
     Rhot = np.full(T, np.nan)
     Pit = np.full(T, np.nan)
-    Xt = np.full(T, np.nan)
-    St = np.full(T, np.nan)
     Err = np.full(T, np.nan)
     Kt = np.full(T, np.nan)
     Lt = np.full(T, np.nan)
 
     # =========================================================
     # Kalman filter
-    # =========================================================
-    
     # =========================================================
     # 1. Initialisation
     # E[xi_0] = 0
@@ -131,14 +134,8 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
     # Unconditional variance of stationary AR(1)
     # Var(xi_t) = Q / (1 - F^2)
     Pt[0] = Q / (1.0 - F**2)
-
-    # Corresponding long-run persistence
-    # rho_filt[0] = rho_bar
     
     for t in range(1, T):
-        Xt = Y[t - 1]
-        Yt = Y[t]
-        
         # 2. Forecast the states (St)
         # xi_{t|t-1}    = F xi_{t-1|t-1}
         # P^xi_{t|t-1}  = F^2 P^xi_{t-1|t-1} + Q
@@ -147,27 +144,27 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
         
         # 3. Predict Yt
         # Y_{t|t-1} = Y_{t-1} xi_{t|t-1} 
-        Ytf[t] = Xt*Stf[t]
+        Ytf[t] = Xt[t] * Stf[t]
         
         # 4. Inflation forecast error and variance
         # e_t^Y = Y_t - Y_{t|t-1}
         # P^Y_{t|t-1} = Y_{t-1}^2 P^xi_{t|t-1} + H
-        Err[t] = Yt-Ytf[t]
-        PtY[t] = Xt**2 * PtS[t] + H
+        Err[t] = Yt[t] - Ytf[t]
+        PtY[t] = Xt[t]**2 * PtS[t] + H
         
         # 5. Updating the states with the Kalman gain
         # K_t = P^xi_{t|t-1} Y_{t-1} / P^Y_{t|t-1}
         # xi_{t|t} = xi_{t|t-1} + K_t e_t^pi
         # P^xi_{t|t} = P^xi_{t|t-1} - K_t * Y_{t-1} * P^xi_{t|t-1}
-        Kt[t] = (PtS[t] * Xt) / PtY[t]
+        Kt[t] = (PtS[t] * Xt[t]) / PtY[t]
         St[t] = Stf[t] + Kt[t] * Err[t]
-        Pt[t] = PtS[t] - Kt[t] * Xt * PtS[t]
+        Pt[t] = PtS[t] - Kt[t] * Xt[t] * PtS[t]
 
         # 6. Updating filtered variables
         # rho_t = rho_bar + P^xi_{t|t}
         # pi_{t|t} = rho_t * (mu + Y_{t-1})
         Rhot[t] = rho_bar + St[t]
-        Pit[t] = Rhot[t] * (mu + Xt)
+        Pit[t] = (rho_bar + St[t]) * Xt[t] + mu
         
         # 7. Log-likelihood
         # =====================================================
@@ -181,7 +178,7 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
     # Results...
     # =========================================================
     results = {
-        "Y": pi,
+        "Y": pi[1:],
         "FittedY": Pit,
         "Err": Err,
         "StateMse": Pt,
@@ -200,20 +197,20 @@ def kalman_filter_inflation(X0, pi, return_loglik=False):
 
 
 # Optimise -LogLikelihood
-def optNegLogLike(X0, pi):
+def optNegLogLike(X0, pi, cRho=True, cMu=True):
 
     bounds = [
-        (None, None),      # mu
-        (None, None),      # rho_bar
-        (0, 0.999),        # F
-        (1e-6, None),      # D
-        (1e-6, None),      # B
+        (None, None),                    # mu
+        (None, None),                    # rho_bar
+        (-0.999, 0.999),                 # F
+        (1e-6, None),                    # D
+        (1e-6, None),                    # B
     ]
 
     res = minimize(
         kalman_filter_inflation,
         X0,
-        args=(pi, True),
+        args=(pi, cRho, cMu, True),
         method="L-BFGS-B",
         bounds=bounds,
         options={

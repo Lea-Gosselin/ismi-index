@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
+from fismi import utils
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.stattools import pacf
 
 # 1) Aggrégé versus officiel
 def plotAggregatedIndex(dfW,dfICP,col="Personal consumption expenditures",niv="4"):
@@ -278,5 +281,152 @@ def plotIresponses(R, label=r"Impulse response ($ISMI_t$)", color="darkgrey"):
 
     ax.legend(frameon=False)
     plt.grid()
+    plt.tight_layout()
+    plt.show()
+    
+    
+def plotFourFrames(results, xAxis, lag=12):
+    # Inflation fit and diagnostic on residuals
+    fitted = results["FittedY"]
+    pi = results["Y"]
+    MSE = results["Err"] # Attention, erreurs sur la spécification centrée réduite
+    rmse = utils.rmse(pi, fitted)
+
+    # Figure...
+    fig, axes = plt.subplots(
+        2, 2,
+        figsize=(20, 10)
+    )
+
+    # Figure 1 : Observed versus fitted inflation
+    ax = axes[0, 0]
+
+    ax.plot(
+        xAxis,
+        pi * 100,
+        label=f"Observed {lag}-month inflation",
+        color="grey",
+        linewidth=1
+    )
+
+    ax.plot(
+        xAxis,
+        fitted * 100,
+        label=f"Fitted {lag}-month inflation (RMSE = {rmse*100:.2f} bps)",
+        color="darkgreen",
+        linewidth=1
+    )
+
+    ax.set_title(f"Observed and fitted Headline {lag}-month Inflation")
+    ax.set_ylabel("Inflation (%)")
+    ax.legend()
+    ax.grid(True, linestyle="--", alpha=0.5)
+
+
+    # Figure 2 : Residuals
+    ax = axes[0, 1]
+
+    ax.plot(
+        xAxis,
+        MSE * 100,
+        color="darkgrey",
+        linewidth=1,
+        label=f"Measurement errors"
+    )
+
+    ax.axhline(
+        0,
+        color="black",
+        linewidth=0.8,
+        linestyle="--"
+    )
+
+    ax.set_title("Measurement errors")
+    ax.set_ylabel("Error (bps)")
+    ax.legend()
+    ax.grid(True, linestyle="--", alpha=0.5)
+
+
+    # Figure 3 : ACF
+    nlags = 36
+    plot_acf(
+        MSE[1:],
+        lags=36,
+        ax=axes[1, 0],
+        zero=False
+    )
+
+    axes[1, 0].set_title("ACF — Measurement errors")
+    axes[1, 0].set_xlabel("Lags")
+    axes[1, 0].grid(True, linestyle="--", alpha=0.3)
+
+
+    # Figure 4 : PACF
+    plot_pacf(
+        MSE[1:],
+        lags=nlags,
+        ax=axes[1, 1],
+        zero=False,
+        method="ywm"
+    )
+
+    axes[1, 1].set_title("PACF — Measurement errors")
+    axes[1, 1].set_xlabel("Lags")
+    axes[1, 1].grid(True, linestyle="--", alpha=0.3)
+
+
+    # Formatting...
+    fig.suptitle(
+        "Kalman Filter Results: Inflation Fit and Residual Diagnostics",
+        fontsize=16,
+        fontweight="bold"
+    )
+
+    plt.tight_layout()
+    plt.show()
+    
+
+def plotHeadlineRho(results, xAxis, lag):
+    # Rolling persistance coefficient since 1959 against headline PCE
+    Rho = results["Rho"]
+    pi = results["Y"]
+    fig, ax1 = plt.subplots(figsize=(20, 6))
+
+    # --- Left axis (HICP inflation - 12-month) ---
+    ax1.plot(
+        xAxis,
+        pi*100,
+        label=f"Headline {lag}-month inflation",
+        color="black",
+        linewidth=1
+    )
+
+    ax1.set_xlabel("Dates", fontsize=12)
+    ax1.set_ylabel(f"Headline {lag}-month inflation (%)")
+    ax1.set_ylim(-4, 12)
+    ax1.grid(True, linestyle="--", alpha=0.5)
+
+    # --- Right axis (AR coefficients) ---
+    ax2 = ax1.twinx()
+
+    ax2.plot(
+        xAxis,
+        Rho,
+        label=r'$\hat \rho_t$ coefficient',
+        color="darkgrey",
+        linewidth=1
+    )
+
+    ax2.set_ylabel("AR(1) coefficients value", fontsize=12)
+    ax2.set_ylim(0.8, 1.2)
+    ax2.tick_params(axis="y")
+
+    # --- Title, legend ---
+    plt.title(f"KF estimates of AR(1) coefficients for Headline {lag}-month Inflation", fontsize=14, fontweight="bold")
+
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc="best", fontsize=11)
+
     plt.tight_layout()
     plt.show()
