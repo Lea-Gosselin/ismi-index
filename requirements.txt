@@ -8,3 +8,4 @@ scipy
 pyarrow
 statsmodels
 openpyxl
+pip install ruptures==1.1.2rc1

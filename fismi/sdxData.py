@@ -2,6 +2,16 @@ import requests
 import pandas as pd
 import io
 
+# Query and transform data from FRED API
+def queryFredData(url):
+    r = requests.get(url).json()
+    df = pd.DataFrame.from_dict(r["observations"])
+    df["date"] = pd.to_datetime(df["date"])
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+
+    df = df[["date","value"]].set_index("date",drop=True)
+    return df
+
 # Get data from ECB Api
 def getEcbData(url: str, colName: str,
             headers={"Accept": "text/csv"},

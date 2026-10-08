@@ -390,7 +390,7 @@ def plotHeadlineRho(results, xAxis, lag):
     # Rolling persistance coefficient since 1959 against headline PCE
     Rho = results["Rho"]
     pi = results["Y"]
-    fig, ax1 = plt.subplots(figsize=(20, 6))
+    _, ax1 = plt.subplots(figsize=(20, 6))
 
     # --- Left axis (HICP inflation - 12-month) ---
     ax1.plot(
@@ -418,7 +418,7 @@ def plotHeadlineRho(results, xAxis, lag):
     )
 
     ax2.set_ylabel("AR(1) coefficients value", fontsize=12)
-    ax2.set_ylim(0.8, 1.2)
+    # ax2.set_ylim(0.8, 1.2)
     ax2.tick_params(axis="y")
 
     # --- Title, legend ---
@@ -430,3 +430,4 @@ def plotHeadlineRho(results, xAxis, lag):
 
     plt.tight_layout()
     plt.show()
+    return ax1, ax2
