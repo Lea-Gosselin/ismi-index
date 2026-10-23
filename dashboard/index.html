@@ -1,0 +1,82 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inflation Monitor | Research Dashboard</title><link rel="stylesheet" href="style.css?v=3"><script defer src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script><script defer src="app.js"></script></head><body>
+<header class="site-header"><div class="shell header-inner"><div class="brand"><span class="brand-mark">IM<span class="brand-dot">.</span></span><span class="brand-sub">MACRO RESEARCH</span></div><a class="header-link" href="#methodology">Methodology ↗</a></div></header>
+<main class="shell"><section class="intro"><p class="eyebrow">RESEARCH DASHBOARD / INFLATION DYNAMICS</p><h1>Inflation <em>Monitor</em><span class="period">.</span></h1><p class="lede">Inflation shock momentum, time-varying persistence and headline inflation.</p></section>
+<section class="controls"><div class="control-group"><label for="country">Economy</label><select id="country"><option value="US">United States</option><option value="EA">Euro Area</option></select></div><div class="control-group"><span class="control-label">Time horizon</span><div class="segmented"><button data-range="1Y">1Y</button><button data-range="10Y">10Y</button><button data-range="FULL" class="active">Full</button></div></div><div class="control-group right"><span class="control-label">Data</span><button id="download" class="export-btn">↓ Export CSV</button></div></section>
+<p id="status" class="status" role="status"></p>
+<section class="dashboard-panel"><div class="panel-top"><div><p class="eyebrow">PERSISTENCE AND SHOCK MOMENTUM</p><h2>Inflation momentum & persistence</h2><p class="chart-description">Shaded periods indicate headline inflation ≥ 3%.</p></div></div><div id="chart-rho" class="chart" aria-label="ISMI and time varying persistence"></div></section>
+<section class="dashboard-panel"><div class="panel-top"><div><p class="eyebrow">INFLATION BREADTH</p><h2>Inflation shock momentum & headline inflation</h2><p class="chart-description">Positive and negative momentum, net ISMI and year-over-year inflation.</p></div></div><div id="chart-headline" class="chart" aria-label="Momentum and headline inflation"></div><div class="panel-footer"><span id="sample">—</span><span>Source: model estimates · <span id="updated">—</span></span></div></section>
+<section class="method" id="methodology">
+  <div class="method-intro"><p class="eyebrow">ABOUT THE INDICATORS</p><h2>Methodology</h2><p class="method-credit">Research &amp; implementation<br><strong>Léa Gosselin</strong><br>lea_gosselin@outlook.fr</p></div>
+  <div class="methodology-grid">
+
+    <div class="methodology-item">
+      <span class="methodology-label">01 / ISMI</span>
+      <h3>Shock momentum</h3>
+
+      <p>
+        The Inflation Shock Momentum Index (ISMI) measures
+        the share of PCE categories experiencing consecutive
+        months of positive inflation shocks minus the share
+        experiencing consecutive negative shocks.
+        The index provides a real-time measure of inflation
+        momentum across different product categories.
+      </p>
+
+      <p class="method-note">
+        Here, the methodology is applied to US PCE and
+        euro area HICP components.
+      </p>
+    </div>
+
+    <div class="methodology-item">
+      <span class="methodology-label">02 / PERSISTENCE</span>
+      <h3>Time-varying persistence</h3>
+
+      <p>
+        A state-space model estimates time-varying inflation
+        persistence. The dashed horizontal line represents
+        the estimated long-run persistence parameter.
+      </p>
+    </div>
+
+    <div class="methodology-item">
+      <span class="methodology-label">03 / REFERENCES</span>
+      <h3>Research &amp; attribution</h3>
+
+      <p>
+        The ISMI methodology follows Shapiro and Lansing (2026).
+        The data and indicators shown here are our own
+        independent estimates, replicating and extending
+        their work. All estimates, interpretations and any
+        errors are solely the responsibility of the author;
+        they do not represent the views of the original
+        researchers or their institutions.
+      </p>
+
+      <a
+        href="https://adamshap.github.io/ismi-webapp/ism_webapp.html"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Shapiro &amp; Lansing — Original ISMI dashboard ↗
+      </a>
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="shell footer-inner">
+    <span>INFLATION MONITOR</span>
+    <span>
+      © Léa Gosselin · Independent research &amp; implementation
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>
+
