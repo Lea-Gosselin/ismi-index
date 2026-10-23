@@ -289,8 +289,8 @@ def plotFourFrames(results, xAxis, lag=12):
     # Inflation fit and diagnostic on residuals
     fitted = results["FittedY"]
     pi = results["Y"]
-    MSE = results["Err"] # Attention, erreurs sur la spécification centrée réduite
-    rmse = utils.rmse(pi, fitted)
+    MSE = results["Err"]            # Erreurs de prévision sur l'état et la mesure centrées directement, T sachant T-1
+    rmse = utils.rmse(pi, fitted)   # Différence entre les données observées et filtrées
 
     # Figure...
     fig, axes = plt.subplots(
@@ -298,7 +298,7 @@ def plotFourFrames(results, xAxis, lag=12):
         figsize=(20, 10)
     )
 
-    # Figure 1 : Observed versus fitted inflation
+    # Figure 1 : Observed versus filtered inflation
     ax = axes[0, 0]
 
     ax.plot(
@@ -312,12 +312,12 @@ def plotFourFrames(results, xAxis, lag=12):
     ax.plot(
         xAxis,
         fitted * 100,
-        label=f"Fitted {lag}-month inflation (RMSE = {rmse*100:.2f} bps)",
+        label=f"Filtered {lag}-month inflation (RMSE = {rmse*10000:.2f} bps)",
         color="darkgreen",
         linewidth=1
     )
 
-    ax.set_title(f"Observed and fitted Headline {lag}-month Inflation")
+    ax.set_title(f"Observed and filtered Headline {lag}-month Inflation")
     ax.set_ylabel("Inflation (%)")
     ax.legend()
     ax.grid(True, linestyle="--", alpha=0.5)
@@ -331,7 +331,7 @@ def plotFourFrames(results, xAxis, lag=12):
         MSE * 100,
         color="darkgrey",
         linewidth=1,
-        label=f"Measurement errors"
+        label=f"Forecast errors"
     )
 
     ax.axhline(
@@ -341,8 +341,8 @@ def plotFourFrames(results, xAxis, lag=12):
         linestyle="--"
     )
 
-    ax.set_title("Measurement errors")
-    ax.set_ylabel("Error (bps)")
+    ax.set_title("Forecast errors")
+    ax.set_ylabel("Forecast errors (percentage points)")
     ax.legend()
     ax.grid(True, linestyle="--", alpha=0.5)
 
@@ -356,7 +356,7 @@ def plotFourFrames(results, xAxis, lag=12):
         zero=False
     )
 
-    axes[1, 0].set_title("ACF — Measurement errors")
+    axes[1, 0].set_title("Forecast errors (ACF)")
     axes[1, 0].set_xlabel("Lags")
     axes[1, 0].grid(True, linestyle="--", alpha=0.3)
 
@@ -370,7 +370,7 @@ def plotFourFrames(results, xAxis, lag=12):
         method="ywm"
     )
 
-    axes[1, 1].set_title("PACF — Measurement errors")
+    axes[1, 1].set_title("Forecast errors (PACF)")
     axes[1, 1].set_xlabel("Lags")
     axes[1, 1].grid(True, linestyle="--", alpha=0.3)
 
@@ -386,10 +386,12 @@ def plotFourFrames(results, xAxis, lag=12):
     plt.show()
     
 
-def plotHeadlineRho(results, xAxis, lag):
+def plotHeadlineRho(results, pi, xAxis, lag):
     # Rolling persistance coefficient since 1959 against headline PCE
     Rho = results["Rho"]
-    pi = results["Y"]
+    stdState = np.sqrt(results["StateMse"])
+    uB = Rho+1.645*stdState
+    lB = Rho-1.645*stdState
     _, ax1 = plt.subplots(figsize=(20, 6))
 
     # --- Left axis (HICP inflation - 12-month) ---
@@ -397,7 +399,7 @@ def plotHeadlineRho(results, xAxis, lag):
         xAxis,
         pi*100,
         label=f"Headline {lag}-month inflation",
-        color="black",
+        color="darkgrey",
         linewidth=1
     )
 
@@ -413,8 +415,18 @@ def plotHeadlineRho(results, xAxis, lag):
         xAxis,
         Rho,
         label=r'$\hat \rho_t$ coefficient',
-        color="darkgrey",
+        color="purple",
         linewidth=1
+    )
+
+    # IC
+    ax2.fill_between(
+        xAxis,
+        lB,
+        uB,
+        color="purple",
+        alpha=0.05,
+        label="Conditional IC (90%)"
     )
 
     ax2.set_ylabel("AR(1) coefficients value", fontsize=12)

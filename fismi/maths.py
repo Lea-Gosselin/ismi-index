@@ -2,6 +2,12 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
+# RMSE between actual and fitted
+def rmse(act,fit):
+    meanSquaredError = np.nanmean((fit - act) ** 2)
+    rmse = np.sqrt(meanSquaredError)
+    return rmse
+
 # Projections
 def localProjections(Y, X, h=np.arange(61)):
     coefs = []

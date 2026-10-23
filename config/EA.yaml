@@ -1,0 +1,23 @@
+
+country: EA
+
+data:
+  source: ECB
+  index: HICP
+  level: 3
+  headline_ticker: HICP.M.U2.N.000000.4D0.INX
+  incomplete_tickers:
+    - "022000"
+    - "133090"
+    - "011370"
+
+ismi:
+  rolling_window: 120
+  momentum_lags: 3
+  inflation_lag: 1
+
+persistence:
+  model: simple
+  inflation_lag: 1
+  estimate_mu: false
+  estimate_rho_bar: true

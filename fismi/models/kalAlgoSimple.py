@@ -105,12 +105,15 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     mu, rho_bar, F, H, Q = get_parameters(X0, cMu, cRho)
     
     # Inflation centered around its long-run level (mu)
-    Xt = pi[:-1] - mu
+    # Xt = pi[:-1] - mu
+    Xt = pi[:-1]
 
     # Reduced-form dependent variable:
     # \tilde Y_t = (pi_t - mu) - rho_bar * (pi_{t-1} - mu)
+    # Yt = (pi[1:] - mu) - rho_bar * Xt
     Yt = (pi[1:] - mu) - rho_bar * Xt
-    
+    # Yt = (pi[1:] - mu) 
+
     T = Yt.shape[0]
 
     # ---------------------------------------------------------
@@ -133,21 +136,20 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     # =========================================================
     # 1. Initialisation
     # E[xi_0] = 0
-    St[0] = 0.0
+    SForecast = 0.0
+    # St[0] = rho_bar/(1.0 - F)
 
     # Unconditional variance of stationary AR(1)
     # Var(xi_t) = Q / (1 - F^2)
-    Pt[0] = Q / (1.0 - F**2)
-    # Pt[0] = 0.3
-
-
+    PForecast = Q / (1.0 - F**2)
     
-    for t in range(1, T):
+    for t in range(T):
         # 2. Forecast the states (St)
         # xi_{t|t-1}    = F xi_{t-1|t-1}
         # P^xi_{t|t-1}  = F^2 P^xi_{t-1|t-1} + Q
-        Stf[t] = F * St[t-1]
-        PtS[t] = F**2 * Pt[t-1] + Q
+        Stf[t] = F * SForecast
+        # Stf[t] = rho_bar + F * St[t-1]
+        PtS[t] = F**2 * PForecast + Q
         
         # 3. Predict Yt
         # Y_{t|t-1} = Y_{t-1} xi_{t|t-1} 
@@ -171,8 +173,10 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
         # rho_t = rho_bar + P^xi_{t|t}
         # pi_{t|t} = rho_t * (mu + Y_{t-1})
         Rhot[t] = rho_bar + St[t]
+        # Rhot[t] = St[t]
         Pit[t] = (rho_bar + St[t]) * Xt[t] + mu
-        
+        # Pit[t] = St[t] * Xt[t] + mu
+
         # 7. Log-likelihood
         # =====================================================
         Lt[t] = -0.5 * (
@@ -181,6 +185,8 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
             + Err[t]**2 / PtY[t]
         )
 
+        SForecast = St[t]
+        PForecast = Pt[t]
     # =========================================================
     # Results...
     # =========================================================
@@ -203,12 +209,43 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     return results
 
 
+def objective(X0, pi, cRho=True, cMu=True):
+
+    # Original negative log-likelihood
+    nll = kalman_filter_inflation(
+        X0, pi, cRho, cMu, return_loglik=True
+    )
+
+    # Retrieve filtered persistence
+    results = kalman_filter_inflation(
+        X0, pi, cRho, cMu, return_loglik=False
+    )
+
+    rho = np.asarray(results["Rho"])
+    rho = rho[np.isfinite(rho)]
+
+    if not np.isfinite(nll) or len(rho) == 0:
+        return 1e12
+
+    # Penalize violations of stationarity bounds
+    excess = np.maximum(np.abs(rho) - 0.99, 0.0)
+    
+    # Penalize inconditional variance of the states
+    # _, _, F, H, Q = get_parameters(X0, cMu, cRho)
+    # sigma_rho = np.sqrt(Q / (1 - F**2))
+    # excess = max(0.0, sigma_rho - 0.2)
+    penalty = 1e6 * np.sum(excess**2)
+
+
+
+    return nll + penalty
+
 # Optimise -LogLikelihood
 def optNegLogLike(
     X0,
     pi,
-    cRho=True,
-    cMu=True
+    cMu=True,
+    cRho=True
 ):
 
     bounds = []
@@ -217,24 +254,40 @@ def optNegLogLike(
         bounds.append((None, None))             # mu
         
     if cRho:
+        # bounds.append((0.2, 0.7))             # rho_bar
         bounds.append((None, None))             # rho_bar
 
     bounds += [
-        (-0.999, 0.999),                        # F
-        (1e-6, None),                           # D
-        (1e-6, None),                           # B
+        (-0.999, 0.999),                           # F
+        (1e-3, None),      # D: std of inflation shocks
+        (1e-6, 8e-2),      # B: std of rho_t innovations
+        # (1e-6, None),      # B: std of rho_t innovations
+
     ]
 
+    # res = minimize(
+    #     kalman_filter_inflation,
+    #     X0,
+    #     args=(pi, cRho, cMu, True),
+    #     method="L-BFGS-B",
+    #     bounds=bounds,
+    #     options={
+    #         "ftol": 1e-12,
+    #         "gtol": 1e-8,
+    #         "maxiter": 10000
+    #     }
+    # )
+    
     res = minimize(
-        kalman_filter_inflation,
+        objective,
         X0,
-        args=(pi, cRho, cMu, True),
+        args=(pi, cRho, cMu),
         method="L-BFGS-B",
         bounds=bounds,
         options={
-            "ftol": 1e-12,
-            "gtol": 1e-8,
-            "maxiter": 10000
+            "ftol": 1e-6,
+            "gtol": 1e-6,
+            "maxiter": 100000
         }
     )
 

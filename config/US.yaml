@@ -1,0 +1,20 @@
+
+country: US
+
+data:
+  source: BEA
+  index: PCE
+  level: 4
+  price_table: U20404
+  weights_table: U20405
+
+ismi:
+  rolling_window: 120
+  momentum_lags: 3
+  inflation_lag: 1
+
+persistence:
+  model: simple
+  inflation_lag: 1
+  estimate_mu: false
+  estimate_rho_bar: true

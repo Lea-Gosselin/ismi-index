@@ -83,7 +83,6 @@ def getEcoicopCodes(namespace="http://data.europa.eu/ed1/ecoicop2/",
 
 
 # Get US PCE data from BEA website 
-
 def getBeaData(table_name, api_key):
     """
     Gather 'Underlying Detail' table from BEA (NIPA) at a monthly frequency

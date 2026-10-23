@@ -138,7 +138,7 @@ def kalman_filter_inflation(
 
     # Transform observed inflation
     # Y_{t-1} = pi_{t-1} - mu
-    Xt = pi[:-1] - mu
+    Xt = pi[:-1] # - mu
 
     # cY_t = Y_t - rho_bar Y_{t-1}
     Yt = (pi[1:] - mu) - rho_bar * Xt
@@ -264,7 +264,7 @@ def kalman_filter_inflation(
 
         # Structural equation:
         # pi_t - mu = Rhot_t (pi_{t-1} - mu) + u_t
-        Pit[t] = (mu + Rhot[t] * Xt[t] + Ut[t])
+        Pit[t] = (mu + Rhot[t] * Xt[t]) # + Ut[t]
 
         # 7. Log-likelihood
         # ====================================================
@@ -304,6 +304,30 @@ def kalman_filter_inflation(
 # ============================================================
 # OPTIMISATION
 # ============================================================
+def objective(X0, pi, cRho=True, cMu=True):
+
+    # Original negative log-likelihood
+    nll = kalman_filter_inflation(
+        X0, pi, cRho, cMu, return_loglik=True
+    )
+
+    # Retrieve filtered persistence
+    results = kalman_filter_inflation(
+        X0, pi, cRho, cMu, return_loglik=False
+    )
+
+    rho = np.asarray(results["Rho"])
+    rho = rho[np.isfinite(rho)]
+
+    if not np.isfinite(nll) or len(rho) == 0:
+        return 1e12
+
+    # Penalize violations of stationarity bounds
+    excess = np.maximum(np.abs(rho) - 0.99, 0.0)
+    penalty = 1e6 * np.sum(excess**2)
+
+    return nll + penalty
+
 def optNegLogLike(
     X0,
     pi,
@@ -322,21 +346,34 @@ def optNegLogLike(
     bounds += [
         (-0.999, 0.999),                        # F
         (-0.999, 0.999),                        # phi
-        (1e-6, None),                           # D
-        (1e-6, None),                           # B
+        (1e-6, None),      # D: std of inflation shocks
+        (1e-6, 6e-2),      # B: std of rho_t innovations
     ]
 
     res = minimize(
-        kalman_filter_inflation,
+        objective,
         X0,
-        args=(pi, cRho, cMu, True),
+        args=(pi, cRho, cMu),
         method="L-BFGS-B",
         bounds=bounds,
         options={
-            "ftol": 1e-12,
-            "gtol": 1e-8,
-            "maxiter": 10000
+            "ftol": 1e-6,
+            "gtol": 1e-6,
+            "maxiter": 100000
         }
     )
+    
+    # res = minimize(
+    #     kalman_filter_inflation,
+    #     X0,
+    #     args=(pi, cRho, cMu, True),
+    #     method="L-BFGS-B",
+    #     bounds=bounds,
+    #     options={
+    #         "ftol": 1e-12,
+    #         "gtol": 1e-8,
+    #         "maxiter": 10000
+    #     }
+    # )
 
     return res

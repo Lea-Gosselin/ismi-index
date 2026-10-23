@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: fismi
+Version: 0.1.0
+Summary: Inflation Shock Momentum and Persistence
+Requires-Python: >=3.10
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: scipy
+Requires-Dist: statsmodels
+Requires-Dist: requests
+Requires-Dist: matplotlib
+Requires-Dist: pyarrow
+Requires-Dist: pyyaml
+Requires-Dist: openpyxl
+Requires-Dist: jupyter
