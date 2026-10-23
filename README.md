@@ -157,13 +157,7 @@ ismi-index/
 
 ### Inflation Shock Momentum Index (ISMI)
 
-Following Lansing and Shapiro (2026), the ISMI summarizes the relative weight of consumption categories experiencing consecutive positive versus consecutive negative inflation shocks:
-
-\[
-\mathrm{ISMI}_t = S_t^{+} - S_t^{-}.
-\]
-
-Here, \(S_t^{+}\) and \(S_t^{-}\) represent the expenditure-weighted shares of categories with consecutive positive and negative inflation innovations, respectively. The underlying inflation measure and component classification differ by economy: **PCE for the US** and **HICP for the euro area**.
+Following [Lansing and Shapiro (2026)](https://www.frbsf.org/wp-content/uploads/wp2026-10.pdf), the Inflation Shock Momentum Index (ISMI) measures the share of PCE categories experiencing consecutive months of positive inflation shocks minus the share experiencing consecutive negative shocks. The index provides a real-time measure of inflation momentum across different product categories. The underlying inflation measure and component classification differ by economy: **PCE for the US** and **HICP for the euro area**.
 
 ### Time-varying inflation persistence
 
