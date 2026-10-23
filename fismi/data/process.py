@@ -62,6 +62,6 @@ def prepare_data(prices, weights, headline="HEADLINE"):
         raise ValueError("No available components for some dates")
 
     # Normalize weights to sum to 1 each month
-    weights.div(total, axis=0)
+    weights = weights.div(total, axis=0)
 
     return prices, weights

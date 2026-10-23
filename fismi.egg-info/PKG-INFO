@@ -13,3 +13,4 @@ Requires-Dist: pyarrow
 Requires-Dist: pyyaml
 Requires-Dist: openpyxl
 Requires-Dist: jupyter
+Requires-Dist: python-dotenv

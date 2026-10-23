@@ -2,15 +2,15 @@
 
 ## 0. Settings
 - Environment variables
-- API Keys
+- API Keys "api_key_env" .yaml file for the US ; adjust for you (BEA API)
 - Requirements
 - Python version
 
 ## 1. How-to update
 ```bash
-python3 run.py --country EA
-python3 run.py --country US
-python3 run.py --country all
+python3 run.py --country [Country] [Step]
+- [Country]: EA, US or all
+- [Step]: --step ismi, --step persistence, --refresh-data
 ```
 
 ismi-index/

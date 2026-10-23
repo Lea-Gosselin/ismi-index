@@ -167,3 +167,71 @@ def replicateIsmi(dfInflation, df_shocks, dfW, rolling_window=120, k=3):
     print("Done")
 
     return posItems, negItems, posIsmi, negIsmi, ismIndex
+
+
+def estimate_ismi(prices, weights, config):
+    """
+    Estimate the Inflation Shock Momentum Index and surprises breadth
+
+    Parameters
+    ----------
+    prices : pd.DataFrame, monthly price indices including "HEADLINE"
+    weights : pd.DataFrame, monthly normalized component weights
+    config : dict, country .yaml file
+
+    Returns
+    -------
+    dict : dataframe with main results (ISMI, ISMI+ and ISMI- contributions), dataframes with booleans (+ and -) and coefficients
+    """
+
+    params = config["ismi"]
+    window = params["rolling_window"]
+    k = params["momentum_lags"]
+    lag = params["inflation_lag"]
+
+    # 1. Compute component inflation
+    components = prices.columns.drop("HEADLINE")
+
+    inflation = (
+        np.log(prices[components])
+        .diff(lag) * 100
+    )
+
+    # 2. Estimate AR innovations
+    shocks, a_coef, rho_coef = (
+        twoStepsAr(
+            inflation,
+            rolling_window=window
+        )
+    )
+
+    # 3. Compute ISMI using existing algorithm
+    pos_items, neg_items, pos_ismi, neg_ismi, index = (
+        replicateIsmi(
+            inflation,
+            shocks,
+            weights,
+            rolling_window=window,
+            k=k
+        )
+    )
+
+    # 4. Consolidate results
+    results = pd.concat(
+        [
+            index.rename("ISMI"),
+            pos_ismi.rename("ISMI_Pos"),
+            neg_ismi.rename("ISMI_Neg"),
+        ],
+        axis=1,
+    )
+
+    # 5. Store all outputs
+    return {
+        "results": results,
+        "posItems": pos_items,
+        "negItems": neg_items,
+        "shocks": shocks,
+        "aCoef": a_coef,
+        "rhoCoef": rho_coef,
+    }

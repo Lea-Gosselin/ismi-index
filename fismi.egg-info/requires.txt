@@ -8,3 +8,4 @@ pyarrow
 pyyaml
 openpyxl
 jupyter
+python-dotenv

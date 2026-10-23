@@ -12,10 +12,14 @@ venv/
 
 # Secrets
 .env
+.env.*
+!.env.example
 
 # PDF
 .pdf
 
 # Outputs
 output/
+archive/
 results/
+dashboard/

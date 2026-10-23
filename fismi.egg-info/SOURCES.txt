@@ -11,8 +11,10 @@ fismi.egg-info/dependency_links.txt
 fismi.egg-info/requires.txt
 fismi.egg-info/top_level.txt
 fismi/data/__init__.py
+fismi/data/ea.py
 fismi/data/process.py
 fismi/data/query.py
+fismi/data/us.py
 fismi/data/validation.py
 fismi/models/__init__.py
 fismi/models/ismiReplication.py
