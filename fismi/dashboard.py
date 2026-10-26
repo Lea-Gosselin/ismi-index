@@ -18,7 +18,7 @@ def export_dashboard(country):
     persistence = pd.read_parquet(ROOT / 'results' / f'{country}Persistence.parquet')
     
     # Resize for the dashboard...
-    sd = "2007-01-01"
+    sd = "2008-01-01"
     yoy = yoy[yoy.index >= sd]
     ismi = ismi[ismi.index >= sd]
     persistence = persistence[persistence.index >= sd]
@@ -67,5 +67,5 @@ def export_dashboard(country):
 
 
 if __name__ == '__main__':
-    for c in ('EA', 'US'):
+    for c in ('EA', 'US', 'UK'):
         export_dashboard(c)

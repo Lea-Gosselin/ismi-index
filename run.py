@@ -10,7 +10,7 @@ def main():
 
     parser.add_argument(
         "--country",
-        choices=["EA", "US", "all"],
+        choices=["EA", "US", "UK", "all"],
         default="all"
     )
 
@@ -28,7 +28,7 @@ def main():
     args = parser.parse_args()
 
     countries = (
-        ["EA", "US"]
+        ["EA", "US", "UK"]
         if args.country == "all"
         else [args.country]
     )

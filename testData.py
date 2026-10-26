@@ -6,12 +6,12 @@ from fismi.data import collect_data
 
 
 # 1. Load country configuration
-for country in ["EA", "US"]:
+countries = ["UK"] #["EA", "US"]
+for country in countries:
     config = load_config(country)
 
     print("Country:", config["country"])
-    print("Disaggregation level:", config["data"]["level"])
-
+    
     # 2. Collect and prepare data
     prices, weights = collect_data(country)
 

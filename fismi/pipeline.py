@@ -19,7 +19,7 @@ def run_pipeline(country, step="all", refresh_data=False):
 
     Parameters
     ----------
-    country : str, EA or US (UK, JP incoming)
+    country : str, EA, US or UK (JP incoming)
     step : str, data, ismi, persistence or all
     refresh_data : bool, Whether to collect fresh data
     """

@@ -32,8 +32,9 @@ From the repository root:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate          # macOS and Linux
-python -m pip install --upgrade pip
-python -m pip install -e .
+python3 -m pip install --upgrade pip
+python3 -m pip install -e .
+pip install --upgrade certifi
 ```
 
 On Windows, activate the virtual environment with `.venv\Scripts\activate` instead.

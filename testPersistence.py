@@ -2,7 +2,7 @@ from fismi.io import load_input, save_persistence, load_config
 from fismi.models import estimate_persistence
 
 
-for country in ["EA", "US"]:
+for country in ["UK"]:
 
     print(f"\n--- {country} ---")
 

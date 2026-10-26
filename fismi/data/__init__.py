@@ -1,6 +1,7 @@
 from .process import prepare_data
 from .ea import collect_ea
 from .us import collect_us
+from .uk import collect_uk
 from fismi.io import load_config
 
 
@@ -14,7 +15,7 @@ def collect_data(country):
     collectors = {
         "EA": collect_ea,
         "US": collect_us,
-        # "UK": collect_uk,
+        "UK": collect_uk,
         # "JP": collect_jp,
     }
 

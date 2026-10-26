@@ -1,0 +1,28 @@
+
+country: UK
+
+data:
+  source: ONS
+  index: CPI
+  headline_ticker: D7BT
+  startDate: "2008 JAN"
+  price_url: https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/datasets/consumerpriceindices/current/mm23.xlsx
+  ecoicop: 
+    url: https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/datasets/consumerpriceinflation/current/consumerpriceinflationdetailedreferencetables.xlsx
+    sheet: "Table 4"
+  weights:
+    url: "https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/datasets/consumerpriceinflationupdatingweightsannexatablesw1tow3/annexatablesw1tow3weights{yyyy}/annexaw1w3weights{yyyy}.xlsx"
+    sheet: "W1-CPI"
+
+ismi:
+  rolling_window: 120
+  momentum_lags: 3
+  inflation_lag: 1
+
+persistence:
+  model: simple
+  inflation_lag: 1
+  estimate_mu: true
+  estimate_rho_bar: true
+  initial_params: [0.0017, 0.48, 0.95, 1, 1] # mu, rho_bar, F, (phi if augmented), D and B
+
