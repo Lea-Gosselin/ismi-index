@@ -6,7 +6,7 @@ from fismi.data import collect_data
 
 
 # 1. Load country configuration
-countries = ["UK"] 
+countries = ["EA","UK"] 
 for country in countries:
     config = load_config(country)
 
@@ -32,3 +32,8 @@ for country in countries:
     print(f"Prices (incl. aggregate price index): {prices.shape}")
     print(f"Weights: {weights.shape}")
     print(f"Weight sums: {weights.sum(axis=1).describe()}")
+    
+    # Sort en .csv et .xlsx
+    dfTemp = pd.read_parquet(f"input/{country}IPC.parquet")
+    dfTemp.to_excel(f"input/{country}IPC.xlsx")
+    dfTemp.to_csv(f"input/{country}IPC.csv")
