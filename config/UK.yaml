@@ -5,7 +5,7 @@ data:
   source: ONS
   index: CPI
   headline_ticker: D7BT
-  startDate: "2008 JAN"
+  startDate: "1996 JAN"
   price_url: https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/datasets/consumerpriceindices/current/mm23.xlsx
   ecoicop: 
     url: https://www.ons.gov.uk/file?uri=/economy/inflationandpriceindices/datasets/consumerpriceinflation/current/consumerpriceinflationdetailedreferencetables.xlsx
