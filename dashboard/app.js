@@ -548,6 +548,7 @@ async function load() {
 
     Plotly.purge('chart-rho');
     Plotly.purge('chart-headline');
+    Plotly.purge('chart-rho-ci');
   }
 }
 
