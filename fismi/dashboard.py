@@ -3,6 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 from fismi.io import load_input, ROOT, load_config
+from scipy.stats import norm
 
 
 def export_dashboard(country):
@@ -54,6 +55,22 @@ def export_dashboard(country):
         persistence[[rho_col]].rename(columns={rho_col: 'Rho'}),
         yoy.rename('HeadlineInflation'),
     ], axis=1).sort_index()
+
+    # Smoothed persistence and conditional uncertainty
+    variance = persistence["VarStateSmoothed"].clip(lower=0)
+    std = np.sqrt(variance)
+
+    # Match the dates of the dashboard dataframe
+    std = std.reindex(df.index)
+    df["RhoStd"] = std
+
+    # Pointwise Gaussian confidence intervals
+    for level in (75, 90, 95, 99):
+        z = norm.ppf((1 + level / 100) / 2)
+
+        df[f"RhoCI{level}Lower"] = df["Rho"] - z * std
+        df[f"RhoCI{level}Upper"] = df["Rho"] + z * std
+
     df['RhoBar'] = rho_bar
     df.index.name = 'date'
     df = df.reset_index()
