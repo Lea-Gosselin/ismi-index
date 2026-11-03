@@ -1,2027 +1,2027 @@
 [
   {
     "date":"2008-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":null,
+    "ISMI":-0.114,
+    "ISMI_Pos":0.12,
+    "ISMI_Neg":0.234,
+    "Rho":-0.022447355,
     "HeadlineInflation":2.2332506203,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":null,
+    "ISMI":-0.033,
+    "ISMI_Pos":0.066,
+    "ISMI_Neg":0.099,
+    "Rho":-0.0154599668,
     "HeadlineInflation":2.4691358025,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4767478742,
+    "ISMI":-0.061,
+    "ISMI_Pos":0.033,
+    "ISMI_Neg":0.094,
+    "Rho":-0.0026663377,
     "HeadlineInflation":2.457002457,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4925215794,
+    "ISMI":0.25,
+    "ISMI_Pos":0.324,
+    "ISMI_Neg":0.074,
+    "Rho":0.0070816851,
     "HeadlineInflation":2.9411764706,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.5054052091,
+    "ISMI":0.201,
+    "ISMI_Pos":0.267,
+    "ISMI_Neg":0.066,
+    "Rho":0.0129696414,
     "HeadlineInflation":3.4229828851,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.5163080264,
+    "ISMI":0.149,
+    "ISMI_Pos":0.206,
+    "ISMI_Neg":0.057,
+    "Rho":0.0132384187,
     "HeadlineInflation":3.9024390244,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4738129664,
+    "ISMI":-0.025,
+    "ISMI_Pos":0.118,
+    "ISMI_Neg":0.143,
+    "Rho":0.0079887372,
     "HeadlineInflation":4.4171779141,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4676709093,
+    "ISMI":0.001,
+    "ISMI_Pos":0.153,
+    "ISMI_Neg":0.152,
+    "Rho":0.0068664151,
     "HeadlineInflation":4.7677261614,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4667943651,
+    "ISMI":-0.074,
+    "ISMI_Pos":0.11,
+    "ISMI_Neg":0.184,
+    "Rho":0.0066532365,
     "HeadlineInflation":5.1282051282,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4421802898,
+    "ISMI":0.032,
+    "ISMI_Pos":0.182,
+    "ISMI_Neg":0.15,
+    "Rho":0.0037434718,
     "HeadlineInflation":4.3742405832,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4477465633,
+    "ISMI":0.04,
+    "ISMI_Pos":0.199,
+    "ISMI_Neg":0.159,
+    "Rho":0.0044074029,
     "HeadlineInflation":4.0,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2008-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4542822064,
+    "ISMI":-0.265,
+    "ISMI_Pos":0.045,
+    "ISMI_Neg":0.31,
+    "Rho":0.0037273283,
     "HeadlineInflation":3.0120481928,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.478369277,
+    "ISMI":-0.264,
+    "ISMI_Pos":0.089,
+    "ISMI_Neg":0.353,
+    "Rho":0.0019159648,
     "HeadlineInflation":3.0339805825,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4153612577,
+    "ISMI":-0.156,
+    "ISMI_Pos":0.053,
+    "ISMI_Neg":0.209,
+    "Rho":-0.0053271989,
     "HeadlineInflation":3.1325301205,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3995698249,
+    "ISMI":-0.087,
+    "ISMI_Pos":0.15,
+    "ISMI_Neg":0.237,
+    "Rho":-0.0057318846,
     "HeadlineInflation":2.8776978417,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4033089098,
+    "ISMI":0.04,
+    "ISMI_Pos":0.185,
+    "ISMI_Neg":0.145,
+    "Rho":-0.0062536289,
     "HeadlineInflation":2.380952381,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4116439035,
+    "ISMI":0.01,
+    "ISMI_Pos":0.159,
+    "ISMI_Neg":0.149,
+    "Rho":-0.0068023883,
     "HeadlineInflation":2.1276595745,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4149312387,
+    "ISMI":0.039,
+    "ISMI_Pos":0.187,
+    "ISMI_Neg":0.148,
+    "Rho":-0.008270632,
     "HeadlineInflation":1.7605633803,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4087541032,
+    "ISMI":-0.016,
+    "ISMI_Pos":0.144,
+    "ISMI_Neg":0.16,
+    "Rho":-0.010674302,
     "HeadlineInflation":1.8801410106,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4124487698,
+    "ISMI":-0.178,
+    "ISMI_Pos":0.154,
+    "ISMI_Neg":0.332,
+    "Rho":-0.0117881063,
     "HeadlineInflation":1.5169194866,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4099130033,
+    "ISMI":-0.161,
+    "ISMI_Pos":0.159,
+    "ISMI_Neg":0.32,
+    "Rho":-0.0129137825,
     "HeadlineInflation":1.1614401858,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4125451461,
+    "ISMI":-0.067,
+    "ISMI_Pos":0.147,
+    "ISMI_Neg":0.214,
+    "Rho":-0.0134160236,
     "HeadlineInflation":1.5133876601,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4175194075,
+    "ISMI":-0.11,
+    "ISMI_Pos":0.131,
+    "ISMI_Neg":0.241,
+    "Rho":-0.013713077,
     "HeadlineInflation":1.9813519814,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2009-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.429425786,
+    "ISMI":-0.156,
+    "ISMI_Pos":0.087,
+    "ISMI_Neg":0.243,
+    "Rho":-0.0142401015,
     "HeadlineInflation":2.9239766082,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3982552116,
+    "ISMI":-0.08,
+    "ISMI_Pos":0.101,
+    "ISMI_Neg":0.181,
+    "Rho":-0.016738782,
     "HeadlineInflation":3.4157832744,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.394209278,
+    "ISMI":-0.026,
+    "ISMI_Pos":0.128,
+    "ISMI_Neg":0.154,
+    "Rho":-0.0150164288,
     "HeadlineInflation":3.0373831776,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4082295049,
+    "ISMI":0.055,
+    "ISMI_Pos":0.184,
+    "ISMI_Neg":0.129,
+    "Rho":-0.0124735852,
     "HeadlineInflation":3.37995338,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4207879124,
+    "ISMI":0.157,
+    "ISMI_Pos":0.261,
+    "ISMI_Neg":0.104,
+    "Rho":-0.0125081996,
     "HeadlineInflation":3.7209302326,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4149070578,
+    "ISMI":0.044,
+    "ISMI_Pos":0.171,
+    "ISMI_Neg":0.127,
+    "Rho":-0.0157287104,
     "HeadlineInflation":3.4722222222,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4153387041,
+    "ISMI":-0.024,
+    "ISMI_Pos":0.103,
+    "ISMI_Neg":0.127,
+    "Rho":-0.0189841836,
     "HeadlineInflation":3.229527105,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4141706835,
+    "ISMI":-0.305,
+    "ISMI_Pos":0.044,
+    "ISMI_Neg":0.349,
+    "Rho":-0.0218275568,
     "HeadlineInflation":2.9988465975,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4071636265,
+    "ISMI":-0.227,
+    "ISMI_Pos":0.106,
+    "ISMI_Neg":0.333,
+    "Rho":-0.0238464605,
     "HeadlineInflation":3.2183908046,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3906777227,
+    "ISMI":-0.154,
+    "ISMI_Pos":0.074,
+    "ISMI_Neg":0.228,
+    "Rho":-0.0246813746,
     "HeadlineInflation":3.0998851894,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3953271487,
+    "ISMI":-0.114,
+    "ISMI_Pos":0.037,
+    "ISMI_Neg":0.151,
+    "Rho":-0.0235249076,
     "HeadlineInflation":3.2110091743,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4015088503,
+    "ISMI":-0.142,
+    "ISMI_Pos":0.037,
+    "ISMI_Neg":0.179,
+    "Rho":-0.0223806027,
     "HeadlineInflation":3.2,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2010-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4277455694,
+    "ISMI":-0.066,
+    "ISMI_Pos":0.139,
+    "ISMI_Neg":0.205,
+    "Rho":-0.0216444252,
     "HeadlineInflation":3.6363636364,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3886098648,
+    "ISMI":0.134,
+    "ISMI_Pos":0.238,
+    "ISMI_Neg":0.104,
+    "Rho":-0.0251586492,
     "HeadlineInflation":3.986332574,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3989076358,
+    "ISMI":-0.008,
+    "ISMI_Pos":0.09,
+    "ISMI_Neg":0.098,
+    "Rho":-0.0271108015,
     "HeadlineInflation":4.3083900227,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3864125743,
+    "ISMI":-0.084,
+    "ISMI_Pos":0.067,
+    "ISMI_Neg":0.151,
+    "Rho":-0.0300492855,
     "HeadlineInflation":3.9458850056,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4073779221,
+    "ISMI":-0.058,
+    "ISMI_Pos":0.115,
+    "ISMI_Neg":0.173,
+    "Rho":-0.0331237329,
     "HeadlineInflation":4.4843049327,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3766810843,
+    "ISMI":-0.017,
+    "ISMI_Pos":0.137,
+    "ISMI_Neg":0.154,
+    "Rho":-0.039289352,
     "HeadlineInflation":4.4742729306,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3757603289,
+    "ISMI":-0.117,
+    "ISMI_Pos":0.034,
+    "ISMI_Neg":0.151,
+    "Rho":-0.0459395919,
     "HeadlineInflation":4.2458100559,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3823034374,
+    "ISMI":-0.291,
+    "ISMI_Pos":0.038,
+    "ISMI_Neg":0.329,
+    "Rho":-0.051438855,
     "HeadlineInflation":4.4792833147,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3873951769,
+    "ISMI":-0.218,
+    "ISMI_Pos":0.046,
+    "ISMI_Neg":0.264,
+    "Rho":-0.0573696147,
     "HeadlineInflation":4.4543429844,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.4048550952,
+    "ISMI":-0.111,
+    "ISMI_Pos":0.06,
+    "ISMI_Neg":0.171,
+    "Rho":-0.0633133731,
     "HeadlineInflation":5.1224944321,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3912911362,
+    "ISMI":-0.079,
+    "ISMI_Pos":0.088,
+    "ISMI_Neg":0.167,
+    "Rho":-0.0731770359,
     "HeadlineInflation":5.0,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3950016148,
+    "ISMI":-0.219,
+    "ISMI_Pos":0.093,
+    "ISMI_Neg":0.312,
+    "Rho":-0.0822320712,
     "HeadlineInflation":4.7619047619,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2011-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.402539293,
+    "ISMI":-0.265,
+    "ISMI_Pos":0.071,
+    "ISMI_Neg":0.336,
+    "Rho":-0.0910974444,
     "HeadlineInflation":4.2763157895,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3637496905,
+    "ISMI":-0.248,
+    "ISMI_Pos":0.058,
+    "ISMI_Neg":0.306,
+    "Rho":-0.1005137098,
     "HeadlineInflation":3.6144578313,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3432952581,
+    "ISMI":-0.31,
+    "ISMI_Pos":0.059,
+    "ISMI_Neg":0.369,
+    "Rho":-0.1037902351,
     "HeadlineInflation":3.3695652174,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3490447475,
+    "ISMI":-0.282,
+    "ISMI_Pos":0.079,
+    "ISMI_Neg":0.361,
+    "Rho":-0.1049661717,
     "HeadlineInflation":3.4707158351,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3659609533,
+    "ISMI":0.017,
+    "ISMI_Pos":0.173,
+    "ISMI_Neg":0.156,
+    "Rho":-0.1073788032,
     "HeadlineInflation":3.0042918455,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3442691948,
+    "ISMI":-0.063,
+    "ISMI_Pos":0.073,
+    "ISMI_Neg":0.136,
+    "Rho":-0.1120521479,
     "HeadlineInflation":2.6766595289,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3564731111,
+    "ISMI":-0.105,
+    "ISMI_Pos":0.045,
+    "ISMI_Neg":0.15,
+    "Rho":-0.1139939988,
     "HeadlineInflation":2.3579849946,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3592809202,
+    "ISMI":-0.256,
+    "ISMI_Pos":0.012,
+    "ISMI_Neg":0.268,
+    "Rho":-0.1170903752,
     "HeadlineInflation":2.4651661308,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3687103356,
+    "ISMI":-0.209,
+    "ISMI_Pos":0.026,
+    "ISMI_Neg":0.235,
+    "Rho":-0.1214106334,
     "HeadlineInflation":2.4520255864,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3773776225,
+    "ISMI":-0.234,
+    "ISMI_Pos":0.066,
+    "ISMI_Neg":0.3,
+    "Rho":-0.1262727014,
     "HeadlineInflation":2.2245762712,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.390250283,
+    "ISMI":-0.207,
+    "ISMI_Pos":0.086,
+    "ISMI_Neg":0.293,
+    "Rho":-0.1333182341,
     "HeadlineInflation":2.6455026455,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3874902152,
+    "ISMI":-0.042,
+    "ISMI_Pos":0.124,
+    "ISMI_Neg":0.166,
+    "Rho":-0.1427314211,
     "HeadlineInflation":2.7484143763,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2012-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3955317895,
+    "ISMI":-0.165,
+    "ISMI_Pos":0.058,
+    "ISMI_Neg":0.223,
+    "Rho":-0.1525827457,
     "HeadlineInflation":2.6288117771,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3681786146,
+    "ISMI":-0.226,
+    "ISMI_Pos":0.033,
+    "ISMI_Neg":0.259,
+    "Rho":-0.1631721955,
     "HeadlineInflation":2.6427061311,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3387531731,
+    "ISMI":-0.318,
+    "ISMI_Pos":0.045,
+    "ISMI_Neg":0.363,
+    "Rho":-0.1691706758,
     "HeadlineInflation":2.8391167192,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3396075131,
+    "ISMI":-0.264,
+    "ISMI_Pos":0.075,
+    "ISMI_Neg":0.339,
+    "Rho":-0.1717713313,
     "HeadlineInflation":2.8301886792,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3452275419,
+    "ISMI":-0.031,
+    "ISMI_Pos":0.087,
+    "ISMI_Neg":0.118,
+    "Rho":-0.1767603692,
     "HeadlineInflation":2.3958333333,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3517457246,
+    "ISMI":-0.121,
+    "ISMI_Pos":0.083,
+    "ISMI_Neg":0.204,
+    "Rho":-0.1819047546,
     "HeadlineInflation":2.7111574557,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3502423911,
+    "ISMI":-0.172,
+    "ISMI_Pos":0.033,
+    "ISMI_Neg":0.205,
+    "Rho":-0.1870988393,
     "HeadlineInflation":2.9319371728,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.358694616,
+    "ISMI":-0.318,
+    "ISMI_Pos":0.038,
+    "ISMI_Neg":0.356,
+    "Rho":-0.1909769056,
     "HeadlineInflation":2.8242677824,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3650333277,
+    "ISMI":-0.279,
+    "ISMI_Pos":0.022,
+    "ISMI_Neg":0.301,
+    "Rho":-0.1957777643,
     "HeadlineInflation":2.7055150884,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3746434012,
+    "ISMI":-0.223,
+    "ISMI_Pos":0.009,
+    "ISMI_Neg":0.232,
+    "Rho":-0.2005950425,
     "HeadlineInflation":2.6943005181,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3681367744,
+    "ISMI":-0.207,
+    "ISMI_Pos":0.097,
+    "ISMI_Neg":0.304,
+    "Rho":-0.2071486161,
     "HeadlineInflation":2.1649484536,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3739767696,
+    "ISMI":-0.116,
+    "ISMI_Pos":0.142,
+    "ISMI_Neg":0.258,
+    "Rho":-0.2127366985,
     "HeadlineInflation":2.0576131687,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2013-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3815022341,
+    "ISMI":-0.245,
+    "ISMI_Pos":0.026,
+    "ISMI_Neg":0.271,
+    "Rho":-0.2183416196,
     "HeadlineInflation":2.0491803279,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3509504935,
+    "ISMI":-0.273,
+    "ISMI_Pos":0.008,
+    "ISMI_Neg":0.281,
+    "Rho":-0.2242879024,
     "HeadlineInflation":1.9567456231,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3258553836,
+    "ISMI":-0.306,
+    "ISMI_Pos":0.042,
+    "ISMI_Neg":0.348,
+    "Rho":-0.2252881563,
     "HeadlineInflation":1.7382413088,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3279413021,
+    "ISMI":-0.165,
+    "ISMI_Pos":0.094,
+    "ISMI_Neg":0.259,
+    "Rho":-0.2249307147,
     "HeadlineInflation":1.630988787,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3391760669,
+    "ISMI":-0.093,
+    "ISMI_Pos":0.092,
+    "ISMI_Neg":0.185,
+    "Rho":-0.225289801,
     "HeadlineInflation":1.8311291963,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3315156693,
+    "ISMI":-0.161,
+    "ISMI_Pos":0.093,
+    "ISMI_Neg":0.254,
+    "Rho":-0.2263824257,
     "HeadlineInflation":1.5228426396,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3385882737,
+    "ISMI":-0.186,
+    "ISMI_Pos":0.088,
+    "ISMI_Neg":0.274,
+    "Rho":-0.2259022555,
     "HeadlineInflation":1.9328585961,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3358216087,
+    "ISMI":-0.203,
+    "ISMI_Pos":0.029,
+    "ISMI_Neg":0.232,
+    "Rho":-0.2255272195,
     "HeadlineInflation":1.6276703967,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3363489996,
+    "ISMI":-0.212,
+    "ISMI_Pos":0.039,
+    "ISMI_Neg":0.251,
+    "Rho":-0.2235632105,
     "HeadlineInflation":1.5197568389,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3391292725,
+    "ISMI":-0.274,
+    "ISMI_Pos":0.033,
+    "ISMI_Neg":0.307,
+    "Rho":-0.221603997,
     "HeadlineInflation":1.2108980827,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3455759582,
+    "ISMI":-0.184,
+    "ISMI_Pos":0.101,
+    "ISMI_Neg":0.285,
+    "Rho":-0.2193431638,
     "HeadlineInflation":1.3118062563,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3477532248,
+    "ISMI":-0.285,
+    "ISMI_Pos":0.065,
+    "ISMI_Neg":0.35,
+    "Rho":-0.2169194879,
     "HeadlineInflation":0.9072580645,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2014-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3562604821,
+    "ISMI":-0.348,
+    "ISMI_Pos":0.014,
+    "ISMI_Neg":0.362,
+    "Rho":-0.2136739667,
     "HeadlineInflation":0.5020080321,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3627277601,
+    "ISMI":-0.468,
+    "ISMI_Pos":0.001,
+    "ISMI_Neg":0.469,
+    "Rho":-0.2119045443,
     "HeadlineInflation":0.303030303,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3434028655,
+    "ISMI":-0.295,
+    "ISMI_Pos":0.0,
+    "ISMI_Neg":0.295,
+    "Rho":-0.21015194,
     "HeadlineInflation":0.0,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3499788568,
+    "ISMI":-0.31,
+    "ISMI_Pos":0.012,
+    "ISMI_Neg":0.322,
+    "Rho":-0.2110455313,
     "HeadlineInflation":0.0,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3561744329,
+    "ISMI":-0.182,
+    "ISMI_Pos":0.031,
+    "ISMI_Neg":0.213,
+    "Rho":-0.2119990291,
     "HeadlineInflation":-0.1998001998,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3620114254,
+    "ISMI":-0.252,
+    "ISMI_Pos":0.053,
+    "ISMI_Neg":0.305,
+    "Rho":-0.2130113849,
     "HeadlineInflation":0.1,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3655683073,
+    "ISMI":-0.288,
+    "ISMI_Pos":0.051,
+    "ISMI_Neg":0.339,
+    "Rho":-0.2140815989,
     "HeadlineInflation":0.0,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3676495444,
+    "ISMI":-0.377,
+    "ISMI_Pos":0.006,
+    "ISMI_Neg":0.383,
+    "Rho":-0.2148781406,
     "HeadlineInflation":0.1001001001,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3692911974,
+    "ISMI":-0.363,
+    "ISMI_Pos":0.02,
+    "ISMI_Neg":0.383,
+    "Rho":-0.215015393,
     "HeadlineInflation":0.0998003992,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3640639969,
+    "ISMI":-0.304,
+    "ISMI_Pos":0.038,
+    "ISMI_Neg":0.342,
+    "Rho":-0.2150826214,
     "HeadlineInflation":-0.0997008973,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3703515283,
+    "ISMI":-0.129,
+    "ISMI_Pos":0.134,
+    "ISMI_Neg":0.263,
+    "Rho":-0.2138481114,
     "HeadlineInflation":-0.0996015936,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3741005838,
+    "ISMI":-0.232,
+    "ISMI_Pos":0.089,
+    "ISMI_Neg":0.321,
+    "Rho":-0.2128815714,
     "HeadlineInflation":0.1998001998,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2015-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3796255822,
+    "ISMI":-0.135,
+    "ISMI_Pos":0.063,
+    "ISMI_Neg":0.198,
+    "Rho":-0.2115862508,
     "HeadlineInflation":0.1998001998,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3848587608,
+    "ISMI":-0.346,
+    "ISMI_Pos":0.002,
+    "ISMI_Neg":0.348,
+    "Rho":-0.2103077405,
     "HeadlineInflation":0.2014098691,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3550616278,
+    "ISMI":-0.295,
+    "ISMI_Pos":0.0,
+    "ISMI_Neg":0.295,
+    "Rho":-0.2090460088,
     "HeadlineInflation":0.3015075377,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.365382997,
+    "ISMI":-0.321,
+    "ISMI_Pos":0.016,
+    "ISMI_Neg":0.337,
+    "Rho":-0.2090840323,
     "HeadlineInflation":0.5015045135,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3595514513,
+    "ISMI":-0.155,
+    "ISMI_Pos":0.091,
+    "ISMI_Neg":0.246,
+    "Rho":-0.2102991821,
     "HeadlineInflation":0.3003003003,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3658449067,
+    "ISMI":-0.126,
+    "ISMI_Pos":0.109,
+    "ISMI_Neg":0.235,
+    "Rho":-0.2105619673,
     "HeadlineInflation":0.2997002997,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3711207993,
+    "ISMI":-0.184,
+    "ISMI_Pos":0.118,
+    "ISMI_Neg":0.302,
+    "Rho":-0.2108415374,
     "HeadlineInflation":0.3992015968,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3722126721,
+    "ISMI":-0.349,
+    "ISMI_Pos":0.07,
+    "ISMI_Neg":0.419,
+    "Rho":-0.2111732872,
     "HeadlineInflation":0.6,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3778373863,
+    "ISMI":-0.271,
+    "ISMI_Pos":0.078,
+    "ISMI_Neg":0.349,
+    "Rho":-0.2109008653,
     "HeadlineInflation":0.5982053838,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.380920149,
+    "ISMI":-0.25,
+    "ISMI_Pos":0.011,
+    "ISMI_Neg":0.261,
+    "Rho":-0.2106452366,
     "HeadlineInflation":0.8982035928,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3833745594,
+    "ISMI":-0.154,
+    "ISMI_Pos":0.058,
+    "ISMI_Neg":0.212,
+    "Rho":-0.2105564203,
     "HeadlineInflation":0.8973080758,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3883992288,
+    "ISMI":-0.132,
+    "ISMI_Pos":0.121,
+    "ISMI_Neg":0.253,
+    "Rho":-0.2101898006,
     "HeadlineInflation":1.0967098704,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2016-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3982075176,
+    "ISMI":-0.216,
+    "ISMI_Pos":0.035,
+    "ISMI_Neg":0.251,
+    "Rho":-0.2098200959,
     "HeadlineInflation":1.5952143569,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3612075837,
+    "ISMI":-0.146,
+    "ISMI_Pos":0.059,
+    "ISMI_Neg":0.205,
+    "Rho":-0.2104583406,
     "HeadlineInflation":1.9095477387,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.333539883,
+    "ISMI":-0.063,
+    "ISMI_Pos":0.067,
+    "ISMI_Neg":0.13,
+    "Rho":-0.2060705562,
     "HeadlineInflation":2.3046092184,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-03-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3409602746,
+    "ISMI":-0.034,
+    "ISMI_Pos":0.057,
+    "ISMI_Neg":0.091,
+    "Rho":-0.1987956688,
     "HeadlineInflation":2.2954091816,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-04-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3516556476,
+    "ISMI":0.049,
+    "ISMI_Pos":0.226,
+    "ISMI_Neg":0.177,
+    "Rho":-0.1949279428,
     "HeadlineInflation":2.6946107784,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-05-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3615927548,
+    "ISMI":0.024,
+    "ISMI_Pos":0.202,
+    "ISMI_Neg":0.178,
+    "Rho":-0.1926015687,
     "HeadlineInflation":2.8884462151,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-06-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3567561047,
+    "ISMI":-0.167,
+    "ISMI_Pos":0.066,
+    "ISMI_Neg":0.233,
+    "Rho":-0.1917930336,
     "HeadlineInflation":2.6838966203,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-07-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3631972049,
+    "ISMI":-0.248,
+    "ISMI_Pos":0.062,
+    "ISMI_Neg":0.31,
+    "Rho":-0.1899983978,
     "HeadlineInflation":2.5844930417,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-08-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3650503797,
+    "ISMI":-0.289,
+    "ISMI_Pos":0.028,
+    "ISMI_Neg":0.317,
+    "Rho":-0.1882200388,
     "HeadlineInflation":2.8741328048,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-09-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3663183594,
+    "ISMI":-0.134,
+    "ISMI_Pos":0.019,
+    "ISMI_Neg":0.153,
+    "Rho":-0.1859264692,
     "HeadlineInflation":2.9673590504,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-10-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3675586442,
+    "ISMI":-0.157,
+    "ISMI_Pos":0.034,
+    "ISMI_Neg":0.191,
+    "Rho":-0.1852441181,
     "HeadlineInflation":2.9644268775,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-11-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3751551203,
+    "ISMI":-0.044,
+    "ISMI_Pos":0.153,
+    "ISMI_Neg":0.197,
+    "Rho":-0.1841912386,
     "HeadlineInflation":3.1558185404,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2017-12-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3799075966,
+    "ISMI":-0.122,
+    "ISMI_Pos":0.085,
+    "ISMI_Neg":0.207,
+    "Rho":-0.1834257419,
     "HeadlineInflation":2.9440628067,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-01-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3645178455,
+    "ISMI":-0.172,
+    "ISMI_Pos":0.044,
+    "ISMI_Neg":0.216,
+    "Rho":-0.1834784451,
     "HeadlineInflation":2.9585798817,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-02-01",
-    "ISMI":null,
-    "ISMI_Pos":null,
-    "ISMI_Neg":null,
-    "Rho":0.3480523387,
+    "ISMI":-0.251,
+    "ISMI_Pos":0.021,
+    "ISMI_Neg":0.272,
+    "Rho":-0.1804361383,
     "HeadlineInflation":2.7424094025,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-03-01",
     "ISMI":-0.228,
     "ISMI_Pos":0.064,
     "ISMI_Neg":0.292,
-    "Rho":0.3443906822,
+    "Rho":-0.1761333564,
     "HeadlineInflation":2.4390243902,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-04-01",
     "ISMI":-0.046,
     "ISMI_Pos":0.134,
     "ISMI_Neg":0.18,
-    "Rho":0.3531838696,
+    "Rho":-0.1714435343,
     "HeadlineInflation":2.4295432459,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-05-01",
     "ISMI":-0.046,
     "ISMI_Pos":0.156,
     "ISMI_Neg":0.202,
-    "Rho":0.3627831345,
+    "Rho":-0.1670319816,
     "HeadlineInflation":2.4201355276,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-06-01",
     "ISMI":-0.065,
     "ISMI_Pos":0.166,
     "ISMI_Neg":0.231,
-    "Rho":0.3580878908,
+    "Rho":-0.163971597,
     "HeadlineInflation":2.4201355276,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-07-01",
     "ISMI":-0.002,
     "ISMI_Pos":0.147,
     "ISMI_Neg":0.149,
-    "Rho":0.3644586486,
+    "Rho":-0.1598709532,
     "HeadlineInflation":2.519379845,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-08-01",
     "ISMI":-0.024,
     "ISMI_Pos":0.11,
     "ISMI_Neg":0.134,
-    "Rho":0.3704929153,
+    "Rho":-0.1557858414,
     "HeadlineInflation":2.6011560694,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-09-01",
     "ISMI":-0.034,
     "ISMI_Pos":0.078,
     "ISMI_Neg":0.112,
-    "Rho":0.3566272024,
+    "Rho":-0.1517161608,
     "HeadlineInflation":2.4015369837,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-10-01",
     "ISMI":-0.115,
     "ISMI_Pos":0.108,
     "ISMI_Neg":0.223,
-    "Rho":0.3621735578,
+    "Rho":-0.1472636709,
     "HeadlineInflation":2.3992322457,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-11-01",
     "ISMI":-0.141,
     "ISMI_Pos":0.096,
     "ISMI_Neg":0.237,
-    "Rho":0.3691099564,
+    "Rho":-0.1426355036,
     "HeadlineInflation":2.2944550669,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2018-12-01",
     "ISMI":-0.224,
     "ISMI_Pos":0.027,
     "ISMI_Neg":0.251,
-    "Rho":0.3702130867,
+    "Rho":-0.1381215758,
     "HeadlineInflation":2.0972354623,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-01-01",
     "ISMI":-0.216,
     "ISMI_Pos":0.029,
     "ISMI_Neg":0.245,
-    "Rho":0.367292947,
+    "Rho":-0.1331660449,
     "HeadlineInflation":1.8199233716,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-02-01",
     "ISMI":-0.172,
     "ISMI_Pos":0.034,
     "ISMI_Neg":0.206,
-    "Rho":0.3317969169,
+    "Rho":-0.1267275378,
     "HeadlineInflation":1.8112488084,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-03-01",
     "ISMI":-0.055,
     "ISMI_Pos":0.094,
     "ISMI_Neg":0.149,
-    "Rho":0.3337728334,
+    "Rho":-0.1185158194,
     "HeadlineInflation":1.9047619048,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-04-01",
     "ISMI":-0.021,
     "ISMI_Pos":0.165,
     "ISMI_Neg":0.186,
-    "Rho":0.3473379439,
+    "Rho":-0.1104147895,
     "HeadlineInflation":2.0872865275,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-05-01",
     "ISMI":-0.023,
     "ISMI_Pos":0.165,
     "ISMI_Neg":0.188,
-    "Rho":0.3501377238,
+    "Rho":-0.1034115733,
     "HeadlineInflation":1.9848771267,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-06-01",
     "ISMI":-0.124,
     "ISMI_Pos":0.061,
     "ISMI_Neg":0.185,
-    "Rho":0.350169735,
+    "Rho":-0.0974038421,
     "HeadlineInflation":1.9848771267,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-07-01",
     "ISMI":-0.291,
     "ISMI_Pos":0.037,
     "ISMI_Neg":0.328,
-    "Rho":0.3569587145,
+    "Rho":-0.0904725492,
     "HeadlineInflation":1.9848771267,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-08-01",
     "ISMI":-0.159,
     "ISMI_Pos":0.068,
     "ISMI_Neg":0.227,
-    "Rho":0.3633891131,
+    "Rho":-0.0835550731,
     "HeadlineInflation":1.7840375587,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-09-01",
     "ISMI":-0.128,
     "ISMI_Pos":0.095,
     "ISMI_Neg":0.223,
-    "Rho":0.3589621251,
+    "Rho":-0.0766512429,
     "HeadlineInflation":1.7823639775,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-10-01",
     "ISMI":-0.044,
     "ISMI_Pos":0.191,
     "ISMI_Neg":0.235,
-    "Rho":0.3619232692,
+    "Rho":-0.0689741938,
     "HeadlineInflation":1.4995313964,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-11-01",
     "ISMI":-0.002,
     "ISMI_Pos":0.18,
     "ISMI_Neg":0.182,
-    "Rho":0.3664359663,
+    "Rho":-0.0606863091,
     "HeadlineInflation":1.4018691589,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2019-12-01",
     "ISMI":-0.116,
     "ISMI_Pos":0.082,
     "ISMI_Neg":0.198,
-    "Rho":0.3682343278,
+    "Rho":-0.0525858652,
     "HeadlineInflation":1.3071895425,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-01-01",
     "ISMI":-0.095,
     "ISMI_Pos":0.071,
     "ISMI_Neg":0.166,
-    "Rho":0.3740691704,
+    "Rho":-0.0438237681,
     "HeadlineInflation":1.7873941675,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-02-01",
     "ISMI":-0.099,
     "ISMI_Pos":0.124,
     "ISMI_Neg":0.223,
-    "Rho":0.3709976222,
+    "Rho":-0.0350743348,
     "HeadlineInflation":1.6853932584,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-03-01",
     "ISMI":-0.097,
     "ISMI_Pos":0.116,
     "ISMI_Neg":0.213,
-    "Rho":0.3658275422,
+    "Rho":-0.0257457036,
     "HeadlineInflation":1.4953271028,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-04-01",
     "ISMI":-0.012,
     "ISMI_Pos":0.131,
     "ISMI_Neg":0.143,
-    "Rho":0.3717895066,
+    "Rho":-0.0150789862,
     "HeadlineInflation":0.8364312268,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-05-01",
     "ISMI":-0.016,
     "ISMI_Pos":0.086,
     "ISMI_Neg":0.102,
-    "Rho":0.3785908918,
+    "Rho":-0.0044242222,
     "HeadlineInflation":0.5560704356,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-06-01",
     "ISMI":-0.083,
     "ISMI_Pos":0.063,
     "ISMI_Neg":0.146,
-    "Rho":0.3838787208,
+    "Rho":0.0058666184,
     "HeadlineInflation":0.6487488415,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-07-01",
     "ISMI":-0.056,
     "ISMI_Pos":0.096,
     "ISMI_Neg":0.152,
-    "Rho":0.3913446601,
+    "Rho":0.0161460234,
     "HeadlineInflation":1.1121408712,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-08-01",
     "ISMI":-0.059,
     "ISMI_Pos":0.062,
     "ISMI_Neg":0.121,
-    "Rho":0.3592577806,
+    "Rho":0.0260669297,
     "HeadlineInflation":0.184501845,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-09-01",
     "ISMI":-0.036,
     "ISMI_Pos":0.079,
     "ISMI_Neg":0.115,
-    "Rho":0.3444567008,
+    "Rho":0.041317589,
     "HeadlineInflation":0.5529953917,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-10-01",
     "ISMI":-0.068,
     "ISMI_Pos":0.158,
     "ISMI_Neg":0.226,
-    "Rho":0.3371863786,
+    "Rho":0.0584452727,
     "HeadlineInflation":0.7386888273,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-11-01",
     "ISMI":-0.219,
     "ISMI_Pos":0.031,
     "ISMI_Neg":0.25,
-    "Rho":0.3446611138,
+    "Rho":0.0775203781,
     "HeadlineInflation":0.3686635945,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2020-12-01",
     "ISMI":-0.045,
     "ISMI_Pos":0.07,
     "ISMI_Neg":0.115,
-    "Rho":0.3484862436,
+    "Rho":0.0965858189,
     "HeadlineInflation":0.6451612903,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-01-01",
     "ISMI":-0.16,
     "ISMI_Pos":0.061,
     "ISMI_Neg":0.221,
-    "Rho":0.3433616799,
+    "Rho":0.1158320568,
     "HeadlineInflation":0.7393715342,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-02-01",
     "ISMI":-0.159,
     "ISMI_Pos":0.073,
     "ISMI_Neg":0.232,
-    "Rho":0.350585657,
+    "Rho":0.1371004961,
     "HeadlineInflation":0.4604051565,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-03-01",
     "ISMI":-0.223,
     "ISMI_Pos":0.107,
     "ISMI_Neg":0.33,
-    "Rho":0.3581028538,
+    "Rho":0.1580159638,
     "HeadlineInflation":0.7366482505,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-04-01",
     "ISMI":-0.029,
     "ISMI_Pos":0.067,
     "ISMI_Neg":0.096,
-    "Rho":0.3748465934,
+    "Rho":0.1788785171,
     "HeadlineInflation":1.4746543779,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-05-01",
     "ISMI":0.037,
     "ISMI_Pos":0.161,
     "ISMI_Neg":0.124,
-    "Rho":0.394598022,
+    "Rho":0.1981033155,
     "HeadlineInflation":2.1198156682,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-06-01",
     "ISMI":0.146,
     "ISMI_Pos":0.251,
     "ISMI_Neg":0.105,
-    "Rho":0.4012628862,
+    "Rho":0.2143930124,
     "HeadlineInflation":2.4861878453,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-07-01",
     "ISMI":0.039,
     "ISMI_Pos":0.215,
     "ISMI_Neg":0.176,
-    "Rho":0.3909079131,
+    "Rho":0.2297939136,
     "HeadlineInflation":2.0164986251,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-08-01",
     "ISMI":0.205,
     "ISMI_Pos":0.319,
     "ISMI_Neg":0.114,
-    "Rho":0.3955451809,
+    "Rho":0.2476793131,
     "HeadlineInflation":3.2228360958,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-09-01",
     "ISMI":0.093,
     "ISMI_Pos":0.169,
     "ISMI_Neg":0.076,
-    "Rho":0.3881611419,
+    "Rho":0.2655592535,
     "HeadlineInflation":3.0247479377,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-10-01",
     "ISMI":0.187,
     "ISMI_Pos":0.276,
     "ISMI_Neg":0.089,
-    "Rho":0.4126793359,
+    "Rho":0.2852531635,
     "HeadlineInflation":4.1246562786,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-11-01",
     "ISMI":0.253,
     "ISMI_Pos":0.315,
     "ISMI_Neg":0.062,
-    "Rho":0.4330756698,
+    "Rho":0.3015972753,
     "HeadlineInflation":5.1423324151,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2021-12-01",
     "ISMI":0.265,
     "ISMI_Pos":0.369,
     "ISMI_Neg":0.104,
-    "Rho":0.4367213389,
+    "Rho":0.3137402075,
     "HeadlineInflation":5.4029304029,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-01-01",
     "ISMI":0.148,
     "ISMI_Pos":0.268,
     "ISMI_Neg":0.12,
-    "Rho":0.4143831909,
+    "Rho":0.3252944215,
     "HeadlineInflation":5.4128440367,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-02-01",
     "ISMI":0.161,
     "ISMI_Pos":0.28,
     "ISMI_Neg":0.119,
-    "Rho":0.4074675931,
+    "Rho":0.3418184718,
     "HeadlineInflation":6.1411549038,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-03-01",
     "ISMI":0.167,
     "ISMI_Pos":0.305,
     "ISMI_Neg":0.138,
-    "Rho":0.4525481203,
+    "Rho":0.3600953961,
     "HeadlineInflation":7.0383912249,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-04-01",
     "ISMI":0.319,
     "ISMI_Pos":0.391,
     "ISMI_Neg":0.072,
-    "Rho":0.6078664261,
+    "Rho":0.370546812,
     "HeadlineInflation":8.9918256131,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-05-01",
     "ISMI":0.333,
     "ISMI_Pos":0.388,
     "ISMI_Neg":0.055,
-    "Rho":0.4726356676,
+    "Rho":0.3476551336,
     "HeadlineInflation":9.0252707581,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-06-01",
     "ISMI":0.398,
     "ISMI_Pos":0.459,
     "ISMI_Neg":0.061,
-    "Rho":0.4864970278,
+    "Rho":0.3416385863,
     "HeadlineInflation":9.4339622642,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-07-01",
     "ISMI":0.34,
     "ISMI_Pos":0.438,
     "ISMI_Neg":0.098,
-    "Rho":0.4866972559,
+    "Rho":0.3315774384,
     "HeadlineInflation":10.0628930818,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-08-01",
     "ISMI":0.337,
     "ISMI_Pos":0.449,
     "ISMI_Neg":0.112,
-    "Rho":0.4881035143,
+    "Rho":0.3205651912,
     "HeadlineInflation":9.8126672614,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-09-01",
     "ISMI":0.37,
     "ISMI_Pos":0.496,
     "ISMI_Neg":0.126,
-    "Rho":0.4931573378,
+    "Rho":0.3088412961,
     "HeadlineInflation":10.1423487544,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-10-01",
     "ISMI":0.463,
     "ISMI_Pos":0.517,
     "ISMI_Neg":0.054,
-    "Rho":0.5510114488,
+    "Rho":0.2956092109,
     "HeadlineInflation":11.0915492958,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-11-01",
     "ISMI":0.424,
     "ISMI_Pos":0.507,
     "ISMI_Neg":0.083,
-    "Rho":0.4565299486,
+    "Rho":0.2680713888,
     "HeadlineInflation":10.6550218341,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2022-12-01",
     "ISMI":0.297,
     "ISMI_Pos":0.384,
     "ISMI_Neg":0.087,
-    "Rho":0.4590023741,
+    "Rho":0.2516525774,
     "HeadlineInflation":10.5125977411,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-01-01",
     "ISMI":0.107,
     "ISMI_Pos":0.222,
     "ISMI_Neg":0.115,
-    "Rho":0.4346753649,
+    "Rho":0.2348089896,
     "HeadlineInflation":10.0087032202,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-02-01",
     "ISMI":0.073,
     "ISMI_Pos":0.181,
     "ISMI_Neg":0.108,
-    "Rho":0.3810042455,
+    "Rho":0.2241839778,
     "HeadlineInflation":10.4490500864,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-03-01",
     "ISMI":0.131,
     "ISMI_Pos":0.217,
     "ISMI_Neg":0.086,
-    "Rho":0.3988364481,
+    "Rho":0.2249569134,
     "HeadlineInflation":10.0768573868,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-04-01",
     "ISMI":0.379,
     "ISMI_Pos":0.457,
     "ISMI_Neg":0.078,
-    "Rho":0.4388047358,
+    "Rho":0.2201897827,
     "HeadlineInflation":8.6666666667,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-05-01",
     "ISMI":0.302,
     "ISMI_Pos":0.411,
     "ISMI_Neg":0.109,
-    "Rho":0.4422371577,
+    "Rho":0.2056711453,
     "HeadlineInflation":8.6920529801,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-06-01",
     "ISMI":0.252,
     "ISMI_Pos":0.36,
     "ISMI_Neg":0.108,
-    "Rho":0.4296799859,
+    "Rho":0.1869375216,
     "HeadlineInflation":7.9638752053,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-07-01",
     "ISMI":0.131,
     "ISMI_Pos":0.267,
     "ISMI_Neg":0.136,
-    "Rho":0.4248688524,
+    "Rho":0.1705528367,
     "HeadlineInflation":6.8571428571,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-08-01",
     "ISMI":0.057,
     "ISMI_Pos":0.239,
     "ISMI_Neg":0.182,
-    "Rho":0.4162326207,
+    "Rho":0.1559605975,
     "HeadlineInflation":6.6612510154,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-09-01",
     "ISMI":0.124,
     "ISMI_Pos":0.249,
     "ISMI_Neg":0.125,
-    "Rho":0.4252237626,
+    "Rho":0.1424677381,
     "HeadlineInflation":6.6235864297,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-10-01",
     "ISMI":0.159,
     "ISMI_Pos":0.273,
     "ISMI_Neg":0.114,
-    "Rho":0.4119812888,
+    "Rho":0.1276628958,
     "HeadlineInflation":4.5958795563,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-11-01",
     "ISMI":0.082,
     "ISMI_Pos":0.23,
     "ISMI_Neg":0.148,
-    "Rho":0.4155055017,
+    "Rho":0.1154771092,
     "HeadlineInflation":3.9463299132,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2023-12-01",
     "ISMI":0.032,
     "ISMI_Pos":0.214,
     "ISMI_Neg":0.182,
-    "Rho":0.4128932745,
+    "Rho":0.103282596,
     "HeadlineInflation":3.9308176101,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-01-01",
     "ISMI":-0.0386141884,
     "ISMI_Pos":0.0964674711,
     "ISMI_Neg":0.1350816595,
-    "Rho":0.3891439118,
+    "Rho":0.0917278951,
     "HeadlineInflation":4.0348101266,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-02-01",
     "ISMI":-0.0179862946,
     "ISMI_Pos":0.120102464,
     "ISMI_Neg":0.1380887586,
-    "Rho":0.3643384385,
+    "Rho":0.0851619769,
     "HeadlineInflation":3.4401876466,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-03-01",
     "ISMI":0.0328227902,
     "ISMI_Pos":0.1615064515,
     "ISMI_Neg":0.1286836614,
-    "Rho":0.3777006156,
+    "Rho":0.0822937321,
     "HeadlineInflation":3.1807602793,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-04-01",
     "ISMI":0.2923960123,
     "ISMI_Pos":0.3955685813,
     "ISMI_Neg":0.103172569,
-    "Rho":0.3836170316,
+    "Rho":0.0769289588,
     "HeadlineInflation":2.3773006135,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-05-01",
     "ISMI":0.2072453378,
     "ISMI_Pos":0.313386006,
     "ISMI_Neg":0.1061406682,
-    "Rho":0.3884217588,
+    "Rho":0.0706424677,
     "HeadlineInflation":1.9801980198,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-06-01",
     "ISMI":0.0371549889,
     "ISMI_Pos":0.1338876598,
     "ISMI_Neg":0.096732671,
-    "Rho":0.3898302038,
+    "Rho":0.0640829273,
     "HeadlineInflation":1.9771863118,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-07-01",
     "ISMI":-0.0943785717,
     "ISMI_Pos":0.0682733795,
     "ISMI_Neg":0.1626519512,
-    "Rho":0.3886237037,
+    "Rho":0.0580104009,
     "HeadlineInflation":2.2154316272,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-08-01",
     "ISMI":-0.1890263433,
     "ISMI_Pos":0.0893000732,
     "ISMI_Neg":0.2783264165,
-    "Rho":0.3872695946,
+    "Rho":0.0530727052,
     "HeadlineInflation":2.284843869,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-09-01",
     "ISMI":-0.1629827511,
     "ISMI_Pos":0.089973973,
     "ISMI_Neg":0.2529567241,
-    "Rho":0.3791482436,
+    "Rho":0.0486982783,
     "HeadlineInflation":1.6666666667,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-10-01",
     "ISMI":-0.1364743591,
     "ISMI_Pos":0.0940842718,
     "ISMI_Neg":0.2305586308,
-    "Rho":0.3812086207,
+    "Rho":0.0463097493,
     "HeadlineInflation":2.2727272727,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-11-01",
     "ISMI":-0.0701971789,
     "ISMI_Pos":0.1670503499,
     "ISMI_Neg":0.2372475288,
-    "Rho":0.3692504719,
+    "Rho":0.0443643431,
     "HeadlineInflation":2.5816249051,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2024-12-01",
     "ISMI":-0.2176017347,
     "ISMI_Pos":0.0663683801,
     "ISMI_Neg":0.2839701148,
-    "Rho":0.3762785899,
+    "Rho":0.0442073858,
     "HeadlineInflation":2.5718608169,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-01-01",
     "ISMI":-0.1313270525,
     "ISMI_Pos":0.1471897589,
     "ISMI_Neg":0.2785168114,
-    "Rho":0.3662692762,
+    "Rho":0.0438733146,
     "HeadlineInflation":2.9657794677,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-02-01",
     "ISMI":-0.0163237065,
     "ISMI_Pos":0.1242907497,
     "ISMI_Neg":0.1406144562,
-    "Rho":0.3675189811,
+    "Rho":0.0459414173,
     "HeadlineInflation":2.7966742252,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-03-01",
     "ISMI":-0.0122752049,
     "ISMI_Pos":0.0848632339,
     "ISMI_Neg":0.0971384389,
-    "Rho":0.3751248754,
+    "Rho":0.0485337162,
     "HeadlineInflation":2.6315789474,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-04-01",
     "ISMI":0.1211944485,
     "ISMI_Pos":0.2215685886,
     "ISMI_Neg":0.1003741401,
-    "Rho":0.4129413736,
+    "Rho":0.0502717851,
     "HeadlineInflation":3.5205992509,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-05-01",
     "ISMI":0.0967610387,
     "ISMI_Pos":0.2045545818,
     "ISMI_Neg":0.1077935431,
-    "Rho":0.3617664309,
+    "Rho":0.0459859176,
     "HeadlineInflation":3.3607169529,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-06-01",
     "ISMI":0.1382009553,
     "ISMI_Pos":0.2378814952,
     "ISMI_Neg":0.0996805399,
-    "Rho":0.3697635903,
+    "Rho":0.0446151184,
     "HeadlineInflation":3.5794183445,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-07-01",
     "ISMI":0.0267129107,
     "ISMI_Pos":0.2328472931,
     "ISMI_Neg":0.2061343825,
-    "Rho":0.3685292883,
+    "Rho":0.0429371066,
     "HeadlineInflation":3.8863976084,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-08-01",
     "ISMI":-0.1258270503,
     "ISMI_Pos":0.1136395455,
     "ISMI_Neg":0.2394665958,
-    "Rho":0.3745309309,
+    "Rho":0.0422874443,
     "HeadlineInflation":3.7230081906,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-09-01",
     "ISMI":-0.1932061773,
     "ISMI_Pos":0.04996672,
     "ISMI_Neg":0.2431728973,
-    "Rho":0.375324916,
+    "Rho":0.0416484566,
     "HeadlineInflation":3.8002980626,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-10-01",
     "ISMI":-0.0881234352,
     "ISMI_Pos":0.0906486363,
     "ISMI_Neg":0.1787720715,
-    "Rho":0.3807852475,
+    "Rho":0.0418538643,
     "HeadlineInflation":3.5555555556,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-11-01",
     "ISMI":-0.1162525465,
     "ISMI_Pos":0.1072645429,
     "ISMI_Neg":0.2235170894,
-    "Rho":0.3689683619,
+    "Rho":0.0420487258,
     "HeadlineInflation":3.2568467802,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2025-12-01",
     "ISMI":-0.1696627679,
     "ISMI_Pos":0.0511180204,
     "ISMI_Neg":0.2207807883,
-    "Rho":0.3677433676,
+    "Rho":0.0449654202,
     "HeadlineInflation":3.3185840708,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-01-01",
     "ISMI":-0.2039769,
     "ISMI_Pos":0.0286636,
     "ISMI_Neg":0.2326405,
-    "Rho":0.343604275,
+    "Rho":0.048613863,
     "HeadlineInflation":3.0280649926,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-02-01",
     "ISMI":-0.136091,
     "ISMI_Pos":0.078497,
     "ISMI_Neg":0.214588,
-    "Rho":0.3339844668,
+    "Rho":0.0570906317,
     "HeadlineInflation":3.0147058824,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-03-01",
     "ISMI":-0.1457272,
     "ISMI_Pos":0.0545254,
     "ISMI_Neg":0.2002526,
-    "Rho":0.3549241101,
+    "Rho":0.067145633,
     "HeadlineInflation":3.2967032967,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-04-01",
     "ISMI":0.0505816,
     "ISMI_Pos":0.2272836,
     "ISMI_Neg":0.176702,
-    "Rho":0.3838790641,
+    "Rho":0.0744798138,
     "HeadlineInflation":2.8219971056,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-05-01",
     "ISMI":0.0920559,
     "ISMI_Pos":0.2852001,
     "ISMI_Neg":0.1931442,
-    "Rho":0.3717782668,
+    "Rho":0.076508644,
     "HeadlineInflation":2.8901734104,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-06-01",
     "ISMI":-0.0201676,
     "ISMI_Pos":0.2279979,
     "ISMI_Neg":0.2481655,
-    "Rho":0.3742369549,
+    "Rho":0.0795437344,
     "HeadlineInflation":2.5917926566,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-07-01",
     "ISMI":-0.1655554,
     "ISMI_Pos":0.0881194,
     "ISMI_Neg":0.2536748,
-    "Rho":0.3803524028,
+    "Rho":0.0831874489,
     "HeadlineInflation":2.8057553957,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-08-01",
     "ISMI":-0.1602123,
     "ISMI_Pos":0.0792063,
     "ISMI_Neg":0.2394186,
-    "Rho":0.3912317361,
+    "Rho":0.0867703034,
     "HeadlineInflation":3.0868628859,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   },
   {
     "date":"2026-09-01",
     "ISMI":-0.1405406,
     "ISMI_Pos":0.0347128,
     "ISMI_Neg":0.1752534,
-    "Rho":0.3955861151,
+    "Rho":0.0892568549,
     "HeadlineInflation":3.4458004307,
-    "RhoBar":0.4787049192
+    "RhoBar":0.4685462682
   }
 ]

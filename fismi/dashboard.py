@@ -10,7 +10,7 @@ def export_dashboard(country):
     config = load_config(country)
     prices, _ = load_input(country)
     headline = prices['HEADLINE'].sort_index().astype(float)
-    rho_col = "Rho"
+    rho_col = "RhoSmoothed"
     
     # Year-over-year headline inflation, in percent (simple index change)
     yoy = headline.pct_change(12, fill_method=None) * 100

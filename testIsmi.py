@@ -3,7 +3,7 @@ from fismi.io import load_input, save_ismi, load_config
 from fismi.models import estimate_ismi
 
 
-for country in ["UK"]:
+for country in ["US"]:
 
     print(f"\n--- {country} ---")
 

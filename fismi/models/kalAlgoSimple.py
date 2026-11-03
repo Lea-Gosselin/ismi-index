@@ -194,8 +194,10 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
         "Y": pi[1:],
         "FittedY": Pit,
         "Err": Err,
-        "StateMse": Pt,
-        "centeredState": St,
+        "forecastVarState": PtS,
+        "filteredVarState": Pt,
+        "forecastState":Stf,
+        "filteredState": St,
         "Rho": Rhot,
         "KalmanGain": Kt,
         "LogLikelihood": Lt
@@ -208,6 +210,37 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
 
     return results
 
+def kalman_smoother(results, parameters):
+    # Get parameters
+    F = parameters[2]
+    rhoBar = parameters[1]
+    
+    # Forecast and filtered estimates
+    Stf = results["forecastState"]
+    St = results["filteredState"]
+    PtS = results["forecastVarState"]
+    Pt = results["filteredVarState"]
+    
+    T = Stf.shape[0]
+    
+    # Store smoothed estimates
+    StSmoothed = np.full(T, np.nan)
+    PtSmoothed = np.full(T, np.nan)
+    
+    # Initialise at T
+    StSmoothed[-1] = St[-1]
+    PtSmoothed[-1] = Pt[-1]
+    
+    # Backward recursion
+    for t in range(T-2, -1, -1):
+        J = Pt[t] * F / PtS[t+1]
+        StSmoothed[t] = St[t] + J * (StSmoothed[t+1] - Stf[t+1])
+        PtSmoothed[t] = Pt[t] + J**2 * (PtSmoothed[t+1] - PtS[t+1])
+    return {
+        "smoothedState": StSmoothed,
+        "smoothedVarState": PtSmoothed,
+        "smoothedRho": StSmoothed + rhoBar,
+    }
 
 def objective(X0, pi, cRho=True, cMu=True):
 

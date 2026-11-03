@@ -12,13 +12,15 @@ def estimate_persistence(prices, config):
     """
 
     params = config["persistence"]
+    sDate = params["startDate"]
     model_name = params["model"].lower()
     lag = params["inflation_lag"]
-
-    # 1. Compute inflation
+    
+    # 1. Compute inflation on selected sample
     headline = prices["HEADLINE"].dropna()
     inflation = np.log(headline).diff(lag).dropna()
-
+    inflation = inflation[inflation.index >= sDate]
+    
     # 2. Select model
     models = {
         "simple": kalAlgoSimple,
@@ -59,17 +61,37 @@ def estimate_persistence(prices, config):
         {
             "Inflation": filtered["Y"],
             "FittedInflation": filtered["FittedY"],
-            "Rho": filtered["Rho"],
+            "RhoFiltered": filtered["Rho"],
             "Residuals": filtered["Err"],
         },
         index=dates,
     )
-
+    
+    # 6. Smooth estimates
+    smoothed = model.kalman_smoother(filtered, estimation.x)
+    
+    rhoSmoothed = pd.DataFrame(
+        {
+            "RhoSmoothed": smoothed["smoothedRho"],
+            "VarStateSmoothed": smoothed["smoothedVarState"]
+        },
+        index=dates,
+    )
+    
+    # 7. Merge with results
+    results = pd.merge(
+        results,
+        rhoSmoothed,
+        right_index = True,
+        left_index = True
+    )
+    
     return {
         "results": results,
         "parameters": estimation.x,
         "loglikelihood": -estimation.fun,
         "optimization": estimation,
         "filtered": filtered,
+        "smoothed": smoothed,
         "model": model_name,
     }
