@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from scipy.stats import norm
+import statsmodels.api as sm 
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.stats.diagnostic import acorr_ljungbox
 
 for country in ["US"]:
 
@@ -36,13 +39,44 @@ config["persistence"]["inflation_lag"] + 1:
 # Results
 df = persistence["results"]
 
-fig, axes = plt.subplots(
-2, 1, figsize=(16, 8),
-sharex=True,
-gridspec_kw={"height_ratios": [2, 1]}
-)
+## 1) Estimate an AR(p) on the full sample
+p = 1
 
-# 1. Observed vs fitted inflation
+# AR(1) à coefficient constant
+Y = df["Inflation"][p:].to_numpy()
+X = sm.add_constant(df["Inflation"][:-p].to_numpy())
+model = sm.OLS(Y, X).fit()
+print(model.summary())
+resid = model.resid
+
+# ACF and PACF
+fig, axes = plt.subplots(2, 2, figsize=(14, 8))
+
+plot_acf(Y, lags=36, ax=axes[0, 0])
+axes[0, 0].set_title("ACF")
+
+plot_pacf(Y, lags=36, ax=axes[0, 1], method="ywm")
+axes[0, 1].set_title("PACF") 
+
+plot_acf(resid, lags=36, ax=axes[1, 0])
+axes[1, 0].set_title("Residuals (ACF)")
+
+plot_pacf(resid, lags=36, ax=axes[1, 1], method="ywm")
+axes[1, 1].set_title("Residuals (PACF)")
+
+for ax in axes.flat:
+    ax.grid(True, linestyle="--", alpha=0.4)
+
+plt.tight_layout()
+plt.show()
+
+# 2) Observed vs fitted inflation
+fig, axes = plt.subplots(
+    2, 1,
+    figsize=(16, 8),
+    sharex=True,
+    gridspec_kw={"height_ratios": [2, 1]}
+)
 axes[0].plot(df.index, df["Inflation"] * 100,
             color="darkgrey", label="Observed inflation")
 axes[0].plot(df.index, df["FittedInflation"] * 100,

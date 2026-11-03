@@ -31,7 +31,6 @@ def estimate_persistence(prices, config):
     
     model = models[model_name]
 
-    # 3. Estimate parameters
     x0 = np.asarray(params["initial_params"], dtype=float)
 
     estimation = model.optNegLogLike(
