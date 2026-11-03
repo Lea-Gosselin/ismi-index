@@ -145,10 +145,10 @@ function renderPersistenceCI(rows, x, longrun, cfg) {
   // Confidence intervals, from widest to narrowest
 
     const confidenceLevels = [
-    { level: 99, color: 'rgba(239,196,108,0.45)' },
-    { level: 95, color: 'rgba(239,196,108,0.35)' },
-    { level: 90, color: 'rgba(239,196,108,0.25)' },
-    { level: 75, color: 'rgba(239,196,108,0.15)' }
+    { level: 99, color: 'rgba(239,196,108,0.2)' },
+    { level: 95, color: 'rgba(239,196,108,0.15)' },
+    { level: 90, color: 'rgba(239,196,108,0.1)' },
+    { level: 75, color: 'rgba(239,196,108,0.05)' }
     ];
 
 
