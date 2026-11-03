@@ -143,12 +143,14 @@ function renderPersistenceCI(rows, x, longrun, cfg) {
   const rhoStd = series(rows, 'RhoStd');
 
   // Confidence intervals, from widest to narrowest
-  const confidenceLevels = [
-    { level: 99, color: 'rgba(144,107,178,0.10)' },
-    { level: 95, color: 'rgba(144,107,178,0.14)' },
-    { level: 90, color: 'rgba(144,107,178,0.19)' },
-    { level: 75, color: 'rgba(144,107,178,0.25)' }
-  ];
+
+    const confidenceLevels = [
+    { level: 99, color: 'rgba(242,107,91,0.035)' },
+    { level: 95, color: 'rgba(242,107,91,0.055)' },
+    { level: 90, color: 'rgba(242,107,91,0.075)' },
+    { level: 75, color: 'rgba(242,107,91,0.110)' }
+    ];
+
 
   const traces = [];
 

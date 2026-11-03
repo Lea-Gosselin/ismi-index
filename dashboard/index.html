@@ -10,17 +10,28 @@
 <section class="dashboard-panel"><div class="panel-top"><div><p class="eyebrow">PERSISTENCE AND SHOCK MOMENTUM</p><h2>Inflation momentum & persistence</h2><p class="chart-description">Shaded periods indicate headline inflation ≥ 3%.</p></div></div><div id="chart-rho" class="chart" aria-label="ISMI and time varying persistence"></div></section>
 
 
+
 <section class="dashboard-panel">
-  <h2>Smoothed inflation persistence</h2>
+  <div class="panel-top">
+    <div>
+      <p class="eyebrow">TIME-VARYING PERSISTENCE</p>
 
-  <p class="panel-description">
-    RTS-smoothed AR(1) coefficient with pointwise
-    Gaussian confidence intervals at
-    75%, 90%, 95% and 99%.
-  </p>
+      <h2>Inflation persistence & confidence bounds</h2>
 
-  <div id="chart-rho-ci" class="chart"></div>
+      <p class="chart-description">
+        RTS-smoothed AR(1) persistence coefficient with pointwise
+        Gaussian confidence intervals at 75%, 90%, 95% and 99%.
+      </p>
+    </div>
+  </div>
+
+  <div
+    id="chart-rho-ci"
+    class="chart"
+    aria-label="Smoothed inflation persistence and confidence intervals"
+  ></div>
 </section>
+
 
 
 <section class="dashboard-panel"><div class="panel-top"><div><p class="eyebrow">INFLATION BREADTH</p><h2>Inflation shock momentum & headline inflation</h2><p class="chart-description">Positive and negative momentum, net ISMI and year-over-year inflation.</p></div></div><div id="chart-headline" class="chart" aria-label="Momentum and headline inflation"></div><div class="panel-footer"><span id="sample">—</span><span>Source: model estimates · <span id="updated">—</span></span></div></section>
