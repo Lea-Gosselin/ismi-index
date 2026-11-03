@@ -477,6 +477,7 @@ function render() {
     `${rows.length} observations · ${x[0]} to ${x.at(-1)}`;
 
   el('updated').textContent = x.at(-1);
+}
 
 
 // --------------------------------------------------
