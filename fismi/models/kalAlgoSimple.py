@@ -212,10 +212,13 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
 
     return results
 
-def kalman_smoother(results, parameters):
+def kalman_smoother(results, parameters, cMu=True, cRho=True):
     # Get parameters
-    F = parameters[2]
-    rhoBar = parameters[1]
+    mu, rho_bar, F, H, Q = get_parameters(
+        parameters,
+        cMu=cMu,
+        cRho=cRho
+    )
     
     # Forecast and filtered estimates
     Stf = results["forecastState"]
@@ -241,7 +244,7 @@ def kalman_smoother(results, parameters):
     return {
         "smoothedState": StSmoothed,
         "smoothedVarState": PtSmoothed,
-        "smoothedRho": StSmoothed + rhoBar,
+        "smoothedRho": StSmoothed + rho_bar,
     }
 
 def objective(X0, pi, cRho=True, cMu=True):
@@ -251,36 +254,36 @@ def objective(X0, pi, cRho=True, cMu=True):
         X0, pi, cRho, cMu, return_loglik=True
     )
 
-    # Retrieve filtered persistence
+    return nll if np.isfinite(nll) else 1e12
+
+# Ensures the second order stationarity of measurement equation
+def persistence_constraint(
+    X0, pi, cRho=True, cMu=True, rho_max=0.99
+):
+    mu, rho_bar, F, H, Q = get_parameters(X0, cMu, cRho)
+
     results = kalman_filter_inflation(
-        X0, pi, cRho, cMu, return_loglik=False
+        X0, pi,
+        cRho=cRho,
+        cMu=cMu,
+        return_loglik=False
     )
 
-    rho = np.asarray(results["Rho"])
-    rho = rho[np.isfinite(rho)]
+    rho_filtered = np.asarray(results["Rho"])
+    rho_forecast = rho_bar + np.asarray(results["forecastState"])
 
-    if not np.isfinite(nll) or len(rho) == 0:
-        return 1e12
+    rho_all = np.concatenate([rho_filtered, rho_forecast])
 
-    # Penalize violations of stationarity bounds
-    excess = np.maximum(np.abs(rho) - 0.99, 0.0)
-    
-    # Penalize inconditional variance of the states
-    # _, _, F, H, Q = get_parameters(X0, cMu, cRho)
-    # sigma_rho = np.sqrt(Q / (1 - F**2))
-    # excess = max(0.0, sigma_rho - 0.2)
-    penalty = 1e6 * np.sum(excess**2)
-
-
-
-    return nll + penalty
+    # Constraint >= 0
+    return rho_max - np.abs(rho_all)
 
 # Optimise -LogLikelihood
 def optNegLogLike(
     X0,
     pi,
     cMu=True,
-    cRho=True
+    cRho=True,
+    rho_max=0.99
 ):
 
     bounds = []
@@ -289,42 +292,34 @@ def optNegLogLike(
         bounds.append((None, None))             # mu
         
     if cRho:
-        # bounds.append((0.2, 0.7))             # rho_bar
-        bounds.append((None, None))             # rho_bar
+        bounds.append((-rho_max, rho_max))      
 
     bounds += [
-        # (0, 0),                           # F
-        (-0.999, 0.999),                           # F
-        # (1e-8, None),      # D: std of inflation shocks
-        # (1e-8, 8e-2),      # B: std of rho_t innovations
+        (-0.999, 0.999),                    # F
         (1e-8, None),      # D: std of inflation shocks
         (1e-8, None),      # B: std of rho_t innovations
-
     ]
 
-    # res = minimize(
-    #     kalman_filter_inflation,
-    #     X0,
-    #     args=(pi, cRho, cMu, True),
-    #     method="L-BFGS-B",
-    #     bounds=bounds,
-    #     options={
-    #         "ftol": 1e-12,
-    #         "gtol": 1e-8,
-    #         "maxiter": 10000
-    #     }
-    # )
+    constraints = [
+        {
+            "type": "ineq",
+            "fun": persistence_constraint,
+            "args": (pi, cRho, cMu, rho_max)
+        }
+    ]
     
     res = minimize(
         objective,
         X0,
         args=(pi, cRho, cMu),
+        # method="SLSQP",
         method="L-BFGS-B",
         bounds=bounds,
+        constraints=constraints,
         options={
-            "ftol": 1e-6,
-            "gtol": 1e-6,
-            "maxiter": 100000
+            "ftol": 1e-9,
+            # "gtol": 1e-6,
+            "maxiter": 10000
         }
     )
 

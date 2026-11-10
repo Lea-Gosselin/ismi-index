@@ -5,7 +5,6 @@ import pandas as pd
 from fismi.models import kalAlgoSimple
 from fismi.models import kalAlgoAugmented
 
-
 def estimate_persistence(prices, config):
     """
     Estimate time-varying inflation persistence using a state-space model
@@ -44,13 +43,16 @@ def estimate_persistence(prices, config):
         raise RuntimeError(
             f"Kalman optimization failed: {estimation.message}"
         )
+    
+    print("Maximum constraint violation (< tol):",
+      -np.min(model.persistence_constraint(estimation.x, inflation.to_numpy())))
 
     # 4. Run Kalman filter with estimated parameters
     filtered = model.kalman_filter_inflation(
         estimation.x,
         inflation.to_numpy(),
         cMu=params["estimate_mu"],
-        cRho=params["estimate_rho_bar"],
+        cRho=params["estimate_rho_bar"]
     )
 
     # 5. Convert filtered series to DataFrame
@@ -75,7 +77,12 @@ def estimate_persistence(prices, config):
     )
     
     # 6. Smooth estimates
-    smoothed = model.kalman_smoother(filtered, estimation.x)
+    smoothed = model.kalman_smoother(
+        filtered,
+        estimation.x,
+        cMu=params["estimate_mu"],
+        cRho=params["estimate_rho_bar"]
+        )
     
     rhoSmoothed = pd.DataFrame(
         {
