@@ -1,5 +1,6 @@
 from fismi.io import load_input, save_persistence, load_config
 from fismi.models import estimate_persistence
+from fismi.utils import olsToLatex
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -48,6 +49,7 @@ X = sm.add_constant(df["Inflation"][:-p].to_numpy())
 model = sm.OLS(Y, X).fit()
 print(model.summary())
 resid = model.resid
+olsToLatex(model,save=True)
 
 # ACF and PACF
 fig, axes = plt.subplots(2, 2, figsize=(14, 8))

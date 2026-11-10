@@ -60,8 +60,16 @@ def estimate_persistence(prices, config):
         {
             "Inflation": filtered["Y"],
             "FittedInflation": filtered["FittedY"],
+            "ForecastInflation": filtered["ForecastY"],
             "RhoFiltered": filtered["Rho"],
             "Residuals": filtered["Err"],
+            "forecastVarState": filtered["forecastVarState"],
+            "filteredVarState": filtered["filteredVarState"],
+            "forecastVarY": filtered["forecastVarY"],
+            "forecastState":filtered["forecastState"],
+            "filteredState": filtered["filteredState"],
+            "KalmanGain": filtered["KalmanGain"],
+            "LogLikelihood": filtered["LogLikelihood"]
         },
         index=dates,
     )

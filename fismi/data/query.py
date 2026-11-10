@@ -17,7 +17,7 @@ def getEcbData(url: str, colName: str,
             headers={"Accept": "text/csv"},
             params={"format": "SDMX-CSV", "startPeriod": 1996}):
 
-    request_kwargs = {"verify": False}
+    request_kwargs = {"timeout": 60}
     if headers:
         request_kwargs["headers"] = headers
     if params:

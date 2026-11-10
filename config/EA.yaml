@@ -5,7 +5,7 @@ data:
   source: ECB
   index: HICP
   level: 3
-  headline_ticker: HICP.M.U2.N.000000.4D0.INX
+  headline_ticker: HICP.M.U2.Y.000000.4F0.INX
   price_url: https://data-api.ecb.europa.eu/service/data/HICP/M.U2.N..4D0.INX
   weight_url: https://data-api.ecb.europa.eu/service/data/HICP/A.U2.N...INW
   incomplete_tickers:

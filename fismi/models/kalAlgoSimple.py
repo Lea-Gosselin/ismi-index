@@ -73,12 +73,12 @@ def get_parameters(X0, cMu=True, cRho=True):
 def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     """
     Kalman filter for the following state-space model:
-    cY_t = xi_t * Y_{t-1} + w_t
+    cY_t = xi_t * pi_{t-1} + w_t
     xi_t = F * xi_{t-1} + v_t
 
     with:       
         Y_t = (pi_t - mu) 
-        cY_t = Y_t - rho_bar * Y_{t-1}
+        cY_t = Y_t - rho_bar * pi_{t-1}
         w_t ~ N(0, H) with H=D**2
         
     and:        
@@ -104,13 +104,12 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     # ---------------------------------------------------------
     mu, rho_bar, F, H, Q = get_parameters(X0, cMu, cRho)
     
-    # Inflation centered around its long-run level (mu)
-    # Xt = pi[:-1] - mu
-    Xt = pi[:-1]
+    # Inflation (centered or not around its long-run level)
+    Xt = pi[:-1] - mu
+    # Xt = pi[:-1]
 
     # Reduced-form dependent variable:
-    # \tilde Y_t = (pi_t - mu) - rho_bar * (pi_{t-1} - mu)
-    # Yt = (pi[1:] - mu) - rho_bar * Xt
+    # cY_t = (pi_t - mu) - rho_bar * pi_{t-1}
     Yt = (pi[1:] - mu) - rho_bar * Xt
     # Yt = (pi[1:] - mu) 
 
@@ -141,7 +140,8 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
 
     # Unconditional variance of stationary AR(1)
     # Var(xi_t) = Q / (1 - F^2)
-    PForecast = Q / (1.0 - F**2)
+    # PForecast = Q / (1.0 - F**2)
+    PForecast = 0
     
     for t in range(T):
         # 2. Forecast the states (St)
@@ -152,26 +152,26 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
         PtS[t] = F**2 * PForecast + Q
         
         # 3. Predict Yt
-        # Y_{t|t-1} = Y_{t-1} xi_{t|t-1} 
+        # cY_{t|t-1} = pi_{t-1} xi_{t|t-1} 
         Ytf[t] = Xt[t] * Stf[t]
         
         # 4. Inflation forecast error and variance
-        # e_t^Y = Y_t - Y_{t|t-1}
+        # e_t^Y = cY_t - cY_{t|t-1}
         # P^Y_{t|t-1} = Y_{t-1}^2 P^xi_{t|t-1} + H
         Err[t] = Yt[t] - Ytf[t]
         PtY[t] = Xt[t]**2 * PtS[t] + H
         
         # 5. Updating the states with the Kalman gain
-        # K_t = P^xi_{t|t-1} Y_{t-1} / P^Y_{t|t-1}
-        # xi_{t|t} = xi_{t|t-1} + K_t e_t^pi
-        # P^xi_{t|t} = P^xi_{t|t-1} - K_t * Y_{t-1} * P^xi_{t|t-1}
+        # K_t = P^xi_{t|t-1} pi_{t-1} / P^Y_{t|t-1}
+        # xi_{t|t} = xi_{t|t-1} + K_t e_t^cY
+        # P^xi_{t|t} = P^xi_{t|t-1} - K_t * pi_{t-1} * P^xi_{t|t-1}
         Kt[t] = (PtS[t] * Xt[t]) / PtY[t]
         St[t] = Stf[t] + Kt[t] * Err[t]
         Pt[t] = PtS[t] - Kt[t] * Xt[t] * PtS[t]
 
         # 6. Updating filtered variables
         # rho_t = rho_bar + P^xi_{t|t}
-        # pi_{t|t} = rho_t * (mu + Y_{t-1})
+        # pi_{t|t} = rho_t * (mu + pi_{t-1})
         Rhot[t] = rho_bar + St[t]
         # Rhot[t] = St[t]
         Pit[t] = (rho_bar + St[t]) * Xt[t] + mu
@@ -193,9 +193,11 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     results = {
         "Y": pi[1:],
         "FittedY": Pit,
+        "ForecastY": ((rho_bar + Stf) * Xt + mu),
         "Err": Err,
         "forecastVarState": PtS,
         "filteredVarState": Pt,
+        "forecastVarY": PtY,
         "forecastState":Stf,
         "filteredState": St,
         "Rho": Rhot,
@@ -291,10 +293,12 @@ def optNegLogLike(
         bounds.append((None, None))             # rho_bar
 
     bounds += [
+        # (0, 0),                           # F
         (-0.999, 0.999),                           # F
-        (1e-3, None),      # D: std of inflation shocks
-        (1e-6, 8e-2),      # B: std of rho_t innovations
-        # (1e-6, None),      # B: std of rho_t innovations
+        # (1e-8, None),      # D: std of inflation shocks
+        # (1e-8, 8e-2),      # B: std of rho_t innovations
+        (1e-8, None),      # D: std of inflation shocks
+        (1e-8, None),      # B: std of rho_t innovations
 
     ]
 

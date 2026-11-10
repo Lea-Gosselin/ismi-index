@@ -25,14 +25,26 @@ def collect_ea(config):
     price_url = params["price_url"]
     weight_url = params["weight_url"]
 
+    # 0. Download CVS monthly headline index
+    cvsUrl = price_url.rsplit("/", 1)[0] + "/" + headline_ticker.split(".",1)[1]
+    _, headline_price = query.getEcbData(
+    cvsUrl
+    , colName="KEY", params=None
+    )
+
     # 1. Download HICP indices and annual weights
     _, raw_prices = query.getEcbData(
         price_url, colName="KEY", params=None
     )
+    
     _, raw_weights = query.getEcbData(
         weight_url, colName="KEY", params=None
     )
 
+    # 1. Bis - Replace monthly Index by CVS monthly one
+    raw_prices = raw_prices[~(raw_prices.KEY == "HICP.M.U2.N.000000.4D0.INX")] 
+    raw_prices = pd.concat([headline_price, raw_prices])
+    
     # 2. Prepare monthly price indices
     p = raw_prices.copy()
 

@@ -1,6 +1,53 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap, to_rgba
+import pandas as pd
+from pathlib import Path
+
+# OLS to Latex
+# AR(1) à coefficient constant
+def olsToLatex(model,caption="Constant-coefficient AR(1) estimation",save=True):
+    # Coefficient table
+    results = pd.DataFrame({
+        "Coefficient": model.params,
+        "Std. Error": model.bse,
+        "$t$-Stat.": model.tvalues,
+        "$P > |t|$": model.pvalues,
+        "$0.025$": model.conf_int()[0,:],
+        "$0.975$": model.conf_int()[1,:]
+    }, index=[r"Constant ($\hat \mu$)", r"Persistence ($\hat \rho$)"])
+
+    # Formatting
+    latex = results.to_latex(
+        escape=False,
+        float_format="%.3f",
+        column_format="lrrrrrr",
+        caption=caption,
+        label="tab:ar1_ols"
+    )
+
+    # Add model statistics before bottomrule
+    stats = (
+        r"\midrule" + "\n"
+        + rf"Observations & \multicolumn{{1}}{{r}}{{{int(model.nobs)}}} \\" + "\n"
+        + rf"$R^2$ & \multicolumn{{1}}{{r}}{{{model.rsquared:.3f}}} \\" + "\n"
+        + rf"Adjusted $R^2$ & \multicolumn{{1}}{{r}}{{{model.rsquared_adj:.3f}}} \\" + "\n"
+        + rf"Log-likelihood & \multicolumn{{1}}{{r}}{{{model.llf:.2f}}} \\" + "\n"
+        + rf"AIC & \multicolumn{{1}}{{r}}{{{model.aic:.2f}}} \\" + "\n"
+        + rf"BIC & \multicolumn{{1}}{{r}}{{{model.bic:.2f}}} \\" + "\n"
+        # + rf"DW & \multicolumn{{1}}{{r}}{{{model.dw:.2f}}} \\" + "\n"
+        # + rf"BIC & \multicolumn{{1}}{{r}}{{{model.bic:.2f}}} \\" + "\n"
+    )
+    latexBis = latex.replace(r"\bottomrule", stats + "\n" + r"\bottomrule")
+
+    if save:        
+        # Save
+        with open("Output/AR1_OLS.tex", "w", encoding="utf-8") as f:
+            f.write(latexBis)
+
+    return latexBis
+
+
 
 # Plot consumption shares
 # plot bars in stack manner
