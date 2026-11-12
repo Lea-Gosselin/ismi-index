@@ -1,7 +1,5 @@
 # Identifying Inflation Regimes: Evidence from Inflation Shock Momentum and Time-Varying Persistence
 
-**Independent research and implementation by Léa Gosselin**
-
 This repository provides a Python workflow to monitor inflation dynamics through two complementary indicators: the **Inflation Shock Momentum Index (ISMI)** and **time-varying inflation persistence**. It currently supports the **United States (US)**, with a structure intended to accommodate additional economies.
 
 The ISMI implementation replicates and extends the approach of **Lansing and Shapiro (2026)** to country-specific inflation components. The persistence estimates are obtained from state-space models with time-varying autoregressive coefficients. Together, the indicators help describe the breadth, direction, and persistence of inflationary pressures; they do **not**, by themselves, establish a causal classification of inflation regimes.

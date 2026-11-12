@@ -9,3 +9,4 @@ pyyaml
 openpyxl
 jupyter
 python-dotenv
+matlabengine

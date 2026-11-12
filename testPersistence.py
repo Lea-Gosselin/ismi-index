@@ -9,6 +9,8 @@ import statsmodels.api as sm
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.stats.diagnostic import acorr_ljungbox
 
+# ["US", "EA", "UK"]
+
 for country in ["US"]:
 
     print(f"\n--- {country} ---")
@@ -123,6 +125,28 @@ axes[1].plot(df.index, df["RhoFiltered"],
 axes[1].axhline(0.48, color="red", linestyle="--", linewidth=1)
 axes[1].set_ylabel(r"Persistence ($\rho_t$)")
 axes[1].legend()
+axes[1].grid(alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+
+# Standardized one-step-ahead Kalman innovations
+z = (
+    np.asarray(filtered["Err"])
+    / np.sqrt(np.asarray(filtered["forecastVarY"]))
+)
+
+# ACF and PACF
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+plot_acf(z, lags=36, ax=axes[0])
+axes[0].set_title("Standardized KF Innovations (ACF)")
+
+plot_pacf(z, lags=36, ax=axes[1], method="ywm")
+axes[1].set_title("Standardized KF Innovations (PACF)")
+
+axes[0].grid(alpha=0.3)
 axes[1].grid(alpha=0.3)
 
 plt.tight_layout()

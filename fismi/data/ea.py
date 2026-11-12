@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import matlab.engine
 
 from fismi.data.process import prepare_data
 from fismi.data import query
@@ -121,32 +122,28 @@ def collect_ea(config):
     weights = annual_weights.reindex(prices.index.year)
     weights.index = prices.index
     
-    ####    CAREFUL     ####
-    ####    Temporary   ####
-    # TO DELETE
-    print("WARNING : S.A. DATA - HARD COPIED - TO REPLACE BY UP-TO-DATE ONES (EA)")
-    priceSa = pd.read_excel("input/EAIPC_SA.xlsx", index_col=0,header=0)
-    priceSa = np.exp(priceSa) # On passe en niveau
+    # # 8. Seasonal adjustment
+    # eng = matlab.engine.start_matlab()
     
-    # Replace prices...
-    colPrices = prices.columns
-    prices = priceSa
-    prices.columns = colPrices
-    
-    # Replace weights...
-    nDate = prices.shape[0]
-    nCol = prices.shape[1]
-    
-    if nCol != prices.shape[1]:
-        print("Different items between SDW indexes and SA ones...")
-        weights = weights[colPrices]
+    # # prices : pandas DataFrame avec TIME_PERIOD et les indices de prix
+    # dates = prices["TIME_PERIOD"].dt.strftime("%Y-%m-%d").tolist()
+    # cols = prices.columns.drop("TIME_PERIOD").tolist()
+    # values = matlab.double(
+    #     prices[cols].to_numpy(dtype=float).tolist()
+    # )
 
-    if nDate != prices.shape[0]:
-        print("Different timeframe between SDW indexes and SA ones...")
-        weights = weights.iloc[:nDate,:]
-    # TO DELETE
+    # # Call MATLAB
+    # result = eng.seasonalAdjustment(dates, values, cols, nargout=1)
 
-    # 8. Standardize and normalize
+    # # Convert back to pandas
+    # prices_sa = pd.DataFrame(
+    #     np.asarray(result),
+    #     columns=cols
+    # )
+    # eng.quit()
+
+    # 9. Standardize and normalize
     prices, weights = prepare_data(prices, weights)
+    
 
     return prices, weights

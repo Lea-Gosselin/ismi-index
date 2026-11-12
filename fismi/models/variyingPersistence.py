@@ -38,14 +38,24 @@ def estimate_persistence(prices, config):
         cMu=params["estimate_mu"],
         cRho=params["estimate_rho_bar"],
     )
+    
+    violations = np.asarray(
+        model.persistence_constraint(estimation.x, inflation.to_numpy(), params["estimate_mu"], params["estimate_rho_bar"])
+    )
 
     if not estimation.success:
         raise RuntimeError(
-            f"Kalman optimization failed: {estimation.message}"
+            f"Kalman optimization failed: {estimation.message}",
+            f"Status: {estimation.status}"
+            f"Objective function: {estimation.fun}"
+            f"Parameters: {estimation.x}"
+            f"Minimum constraint: {max(0, -np.nanmin(violations))}"
+            f"Maximum violation: {np.nanmin(violations)}"
         )
-    
-    print("Maximum constraint violation (< tol):",
-      -np.min(model.persistence_constraint(estimation.x, inflation.to_numpy())))
+        print("Status:", estimation.status)
+        print("Message:", estimation.message)
+        print("Objective:", estimation.fun)
+        print("Parameters:", estimation.x)
 
     # 4. Run Kalman filter with estimated parameters
     filtered = model.kalman_filter_inflation(

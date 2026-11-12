@@ -88,11 +88,11 @@ def collect_uk(config):
     idStart = np.where(dfPrice["CDID"].str.fullmatch(startDate))[0][0]
     dfPrice = dfPrice.iloc[idStart:,:]
 
-    dfPrice = dfPrice.rename(columns={"CDID": "Dates"})
-    dfPrice["Dates"] = pd.to_datetime(dfPrice["Dates"], format="%Y %b")
+    dfPrice = dfPrice.rename(columns={"CDID": "TIME_PERIOD"})
+    dfPrice["TIME_PERIOD"] = pd.to_datetime(dfPrice["TIME_PERIOD"], format="%Y %b")
     
     # Final Prices dataframe... Set columns as the match between IPC and weights tickers
-    dfPrices = dfPrice.set_index("Dates",drop=True)
+    dfPrices = dfPrice.set_index("TIME_PERIOD",drop=True)
     prices = dfPrices.rename(columns=dfEcoicop.set_index("Indices")["Ticker"].to_dict())
 
 
@@ -110,11 +110,11 @@ def collect_uk(config):
     idStart = np.where(dfWeights["CDID"].str.fullmatch(startDate[:4]))[0][0]
     dfWeights = dfWeights.iloc[idStart:,:].ffill().dropna()
 
-    dfWeights = dfWeights.rename(columns={"CDID": "Dates"})
-    dfWeights["Dates"] = pd.to_datetime(dfWeights["Dates"].astype(str), format="%Y")
+    dfWeights = dfWeights.rename(columns={"CDID": "TIME_PERIOD"})
+    dfWeights["TIME_PERIOD"] = pd.to_datetime(dfWeights["TIME_PERIOD"].astype(str), format="%Y")
     
     # Final Prices dataframe... Set columns as the match between IPC and weights tickers
-    dfWeights = dfWeights.set_index("Dates",drop=True)
+    dfWeights = dfWeights.set_index("TIME_PERIOD",drop=True)
     dfWeights = dfWeights.rename(columns=dfEcoicop.set_index("Weights")["Ticker"].to_dict())
     weights = dfWeights.reindex(dfPrices.index).ffill()
 

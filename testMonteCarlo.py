@@ -504,65 +504,60 @@ plt.tight_layout()
 plt.show()
 
 
-# Les 2 modèles sont-ils égaux ? 
-muMean = thetaStats["Mean"]["hatMu"] # Modèle B    
-              
-rhoTlevel = (
-    muT[1:] + rho * inflation[:-1]
-    - muMean
-) / (
-    inflation[:-1] - muMean
-)
+# # Les 2 modèles sont-ils égaux ? 
+# muMean = thetaStats["Mean"]["hatMu"] # Modèle B    
+# dt = df["LevelShift"][1:]
+# rhoTlevel = (muT[1:] - muMean + rho * inflation[:-1]) / (inflation[:-1] - muMean)
 
-# --- Plot ---
-fig, ax = plt.subplots(figsize=(16, 6))
+# # --- Plot ---
+# fig, ax = plt.subplots(figsize=(16, 6))
 
-# Background: level-shift periods
-for t in strDate:
-    ax.axvspan(
-        t,
-        t + pd.DateOffset(months=1),
-        color="lightcoral",
-        alpha=0.15,
-        linewidth=0
-    )
+# # Background: level-shift periods
+# for t in strDate:
+#     ax.axvspan(
+#         t,
+#         t + pd.DateOffset(months=1),
+#         color="lightcoral",
+#         alpha=0.15,
+#         linewidth=0
+#     )
 
-# Mean estimated persistence
-ax.plot(
-    dates,
-    rhoMean,
-    color="darkblue",
-    linewidth=1.8,
-    label=r"Mean estimated $\hat{\rho}_t$"
-)
+# # Mean estimated persistence
+# ax.plot(
+#     dates[1:],
+#     rhoMean,
+#     color="darkblue",
+#     linewidth=1.8,
+#     label=r"Mean estimated $\hat{\rho}_t$"
+# )
 
-# Median estimated persistence
-ax.plot(
-    dates,
-    rhoTlevel,
-    color="darkred",
-    linewidth=1.8,
-    label=r"$\bar \hat{\rho}_t \approx \rho + (\mu_t - \hat \mu) / \pi_{t-1}$"
-)
+# # Median estimated persistence
+# ax.plot(
+#     dates[1:],
+#     rhoTlevel,
+#     color="darkred",
+#     linewidth=1.8,
+#     label=r"$\bar \hat{\rho}_t \approx \rho + (\mu_t - \hat \mu) / \pi_{t-1}$"
+# )
 
-# True DGP persistence
-ax.axhline(
-    rho,
-    color="black",
-    linestyle="--",
-    linewidth=1.5,
-    label=rf"True DGP $\rho_0$ = {rho:.3f}"
-)
+# # True DGP persistence
+# ax.axhline(
+#     rho,
+#     color="black",
+#     linestyle="--",
+#     linewidth=1.5,
+#     label=rf"True DGP $\rho_0$ = {rho:.3f}"
+# )
 
-# Settings
-ax.set_title("Monte Carlo Estimates of Inflation Persistence")
-ax.set_ylabel(r"Persistence ($\rho$)")
-ax.set_xlabel("")
-ax.legend(frameon=False, loc="best")
-ax.grid(alpha=0.15)
+# # Settings
+# ax.set_title("Monte Carlo Estimates of Inflation Persistence")
+# ax.set_ylabel(r"Persistence ($\rho$)")
+# ax.set_xlabel("")
+# ax.legend(frameon=False, loc="best")
+# ax.grid(alpha=0.15)
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
 
 
 # Sur données simulées, on regarde le niveau moyen, la persistance moyenne, glissante

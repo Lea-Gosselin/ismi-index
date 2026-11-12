@@ -82,32 +82,33 @@ plt.show()
 
 ### AR(1) sufficient ? 
 
-for p in range(1,12):
-    print(f"Retard : {p}")
-    # AR(1) à coefficient constant
-    Y = mom.values[p:]
-    X = sm.add_constant(mom.values[:-p])
-    model = sm.OLS(Y, X).fit()
-    print(model.summary())
-    resid = model.resid
+# for p in range(1,12):
+p=1
+print(f"Retard : {p}")
+# AR(1) à coefficient constant
+Y = mom.values[p:]
+X = sm.add_constant(mom.values[:-p])
+model = sm.OLS(Y, X).fit()
+print(model.summary())
+resid = model.resid
 
-    # ACF and PACF
-    fig, axes = plt.subplots(2, 2, figsize=(14, 8))
+# ACF and PACF
+fig, axes = plt.subplots(2, 2, figsize=(14, 8))
 
-    plot_acf(Y, lags=36, ax=axes[0, 0])
-    axes[0, 0].set_title("ACF")
+plot_acf(Y, lags=36, ax=axes[0, 0])
+axes[0, 0].set_title("ACF")
 
-    plot_pacf(Y, lags=36, ax=axes[0, 1], method="ywm")
-    axes[0, 1].set_title("PACF") 
+plot_pacf(Y, lags=36, ax=axes[0, 1], method="ywm")
+axes[0, 1].set_title("PACF") 
 
-    plot_acf(resid, lags=36, ax=axes[1, 0])
-    axes[1, 0].set_title("Residuals (ACF)")
+plot_acf(resid, lags=36, ax=axes[1, 0])
+axes[1, 0].set_title("Residuals (ACF)")
 
-    plot_pacf(resid, lags=36, ax=axes[1, 1], method="ywm")
-    axes[1, 1].set_title("Residuals (PACF)")
+plot_pacf(resid, lags=36, ax=axes[1, 1], method="ywm")
+axes[1, 1].set_title("Residuals (PACF)")
 
-    for ax in axes.flat:
-        ax.grid(True, linestyle="--", alpha=0.4)
+for ax in axes.flat:
+    ax.grid(True, linestyle="--", alpha=0.4)
 
-    plt.tight_layout()
-    plt.show()
+plt.tight_layout()
+plt.show()
