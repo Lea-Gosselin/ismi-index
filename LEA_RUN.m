@@ -2,6 +2,7 @@ clc;clear all; close all;
 
 cd("GitRepo")
 addpath("ismi-index/input/")
+addpath("x13Toolbox/seas/")
 
 [data,txt,cell]=xlsread("EAIPC.xlsx");
 
