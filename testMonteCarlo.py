@@ -505,8 +505,14 @@ plt.show()
 
 
 # Les 2 modèles sont-ils égaux ? 
-muMean = thetaStats["Mean"]["hatMu"] # Modèle B                  
-rhoTlevel = rho + (muT[1:] - muMean)/X[:,1] # Rho_t = Rho + (mu_t - mu) / pi_{t-1}
+muMean = thetaStats["Mean"]["hatMu"] # Modèle B    
+              
+rhoTlevel = (
+    muT[1:] + rho * inflation[:-1]
+    - muMean
+) / (
+    inflation[:-1] - muMean
+)
 
 # --- Plot ---
 fig, ax = plt.subplots(figsize=(16, 6))
