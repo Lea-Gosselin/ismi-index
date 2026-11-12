@@ -1,10 +1,11 @@
 clc;clear all; close all;
 
-cd("GitRepo")
-addpath("ismi-index/input/")
+cd("ismi-index/")
+
+addpath("input/")
 addpath("x13Toolbox/seas/")
 
-[data,txt,cell]=xlsread("EAIPC.xlsx");
+[data,txt,cell]=xlsread("/input/EAIPC.xlsx");
 
 date = cell2mat(cell(2:end,1)) + 693960;
 date_matlab = datetime(date, 'ConvertFrom', 'datenum');
@@ -12,7 +13,7 @@ date_matlab = datetime(date, 'ConvertFrom', 'datenum');
 tstat = nan(1,size(data,2));
 for c=1:size(data,2)
     if sum(~isnan(data(:,c)))>50
-        output =x11([date_matlab,log(data(:,c))],12,'add');
+        output =x11([date,log(data(:,c))],12,'add');
         data_sa_l(:,c)=output.d11;
         data_sa = diff(data_sa_l(:,c));
         valeurs_pacf(:, c) = parcorr(data_sa);

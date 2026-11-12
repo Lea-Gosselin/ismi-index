@@ -104,8 +104,8 @@ def collect_ea(config):
     )
 
     headline = headline.set_index("TIME_PERIOD")["INX"]
-    prices["HEADLINE"] = headline
-
+    prices.insert(0,"HEADLINE",headline)
+    
     # 7. Pivot annual weights
     w = w.loc[
         w["ICP_ITEM"].isin(prices.columns.drop("HEADLINE"))
@@ -120,6 +120,31 @@ def collect_ea(config):
     # Map annual weights to the months of the same year
     weights = annual_weights.reindex(prices.index.year)
     weights.index = prices.index
+    
+    ####    CAREFUL     ####
+    ####    Temporary   ####
+    # TO DELETE
+    print("WARNING : S.A. DATA - HARD COPIED - TO REPLACE BY UP-TO-DATE ONES (EA)")
+    priceSa = pd.read_excel("input/EAIPC_SA.xlsx", index_col=0,header=0)
+    priceSa = np.exp(priceSa) # On passe en niveau
+    
+    # Replace prices...
+    colPrices = prices.columns
+    prices = priceSa
+    prices.columns = colPrices
+    
+    # Replace weights...
+    nDate = prices.shape[0]
+    nCol = prices.shape[1]
+    
+    if nCol != prices.shape[1]:
+        print("Different items between SDW indexes and SA ones...")
+        weights = weights[colPrices]
+
+    if nDate != prices.shape[0]:
+        print("Different timeframe between SDW indexes and SA ones...")
+        weights = weights.iloc[:nDate,:]
+    # TO DELETE
 
     # 8. Standardize and normalize
     prices, weights = prepare_data(prices, weights)

@@ -93,7 +93,7 @@ def collect_uk(config):
     
     # Final Prices dataframe... Set columns as the match between IPC and weights tickers
     dfPrices = dfPrice.set_index("Dates",drop=True)
-    dfPrices = dfPrices.rename(columns=dfEcoicop.set_index("Indices")["Ticker"].to_dict())
+    prices = dfPrices.rename(columns=dfEcoicop.set_index("Indices")["Ticker"].to_dict())
 
 
     # 3. Collect UK CPI weights (annual)...    
@@ -116,9 +116,36 @@ def collect_uk(config):
     # Final Prices dataframe... Set columns as the match between IPC and weights tickers
     dfWeights = dfWeights.set_index("Dates",drop=True)
     dfWeights = dfWeights.rename(columns=dfEcoicop.set_index("Weights")["Ticker"].to_dict())
-    dfWFinal = dfWeights.reindex(dfPrices.index).ffill()
+    weights = dfWeights.reindex(dfPrices.index).ffill()
 
+
+    ####    CAREFUL     ####
+    ####    Temporary   ####
+    # TO DELETE
+    print("WARNING : S.A. DATA - HARD COPIED - TO REPLACE BY UP-TO-DATE ONES (UK)")
+    priceSa = pd.read_excel("input/UKIPC_SA.xlsx", index_col=0,header=0)
+    priceSa = np.exp(priceSa) # On passe en niveau
+    
+    # Replace prices...
+    colPrices = prices.columns
+    prices = priceSa
+    prices.columns = colPrices
+    
+    # Replace weights...
+    nDate = prices.shape[0]
+    nCol = prices.shape[1]
+    
+    if nCol != prices.shape[1]:
+        print("Different items between SDW indexes and SA ones...")
+        weights = weights[colPrices]
+
+    if nDate != prices.shape[0]:
+        print("Different timeframe between SDW indexes and SA ones...")
+        weights = weights.iloc[:nDate,:]
+    # TO DELETE
+    
+    
     # 4. Standardize and normalize
-    prices, weights = prepare_data(dfPrices, dfWFinal)
+    prices, weights = prepare_data(prices, weights)
     
     return prices, weights
