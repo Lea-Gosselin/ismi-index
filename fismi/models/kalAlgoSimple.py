@@ -140,16 +140,19 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
 
     # Unconditional variance of stationary AR(1)
     # Var(xi_t) = Q / (1 - F^2)
-    # PForecast = Q / (1.0 - F**2)
-    PForecast = 0
+    PForecast = Q / (1.0 - F**2)
+    # PForecast = 0
     
     for t in range(T):
-        # 2. Forecast the states (St)
-        # xi_{t|t-1}    = F xi_{t-1|t-1}
-        # P^xi_{t|t-1}  = F^2 P^xi_{t-1|t-1} + Q
-        Stf[t] = F * SForecast
-        # Stf[t] = rho_bar + F * St[t-1]
-        PtS[t] = F**2 * PForecast + Q
+        if t == 0:
+            Stf[t] = SForecast
+            PtS[t] = PForecast
+        else:
+            # 2. Forecast the states (St)
+            # xi_{t|t-1}    = F xi_{t-1|t-1}
+            # P^xi_{t|t-1}  = F^2 P^xi_{t-1|t-1} + Q
+            Stf[t] = F * St[t-1]
+            PtS[t] = F**2 * Pt[t-1] + Q
         
         # 3. Predict Yt
         # cY_{t|t-1} = pi_{t-1} xi_{t|t-1} 
@@ -185,8 +188,6 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
             + Err[t]**2 / PtY[t]
         )
 
-        SForecast = St[t]
-        PForecast = Pt[t]
     # =========================================================
     # Results...
     # =========================================================
@@ -289,15 +290,17 @@ def optNegLogLike(
     bounds = []
     if cMu:
         # bounds.append((0.01999, 0.02001))     # mu, set to be around target
-        bounds.append((None, None))             # mu
+        bounds.append((-2, 2))                # mu
         
     if cRho:
         bounds.append((-rho_max, rho_max))      
 
     bounds += [
-        (-0.999, 0.999),                    # F
-        (1e-3, None),      # D: std of inflation shocks
-        (1e-6, 8e-2),      # B: std of rho_t innovations
+        (-rho_max, rho_max),                    # F
+        # (1e-3, None),      # D: std of inflation shocks
+        # (1e-6, 10e-2),      # B: std of rho_t innovations (8e-2)
+        (1e-6, 1),      # D: std of inflation shocks
+        (1e-6, 1),      # B: std of rho_t innovations (8e-2)
     ]
 
     constraints = [

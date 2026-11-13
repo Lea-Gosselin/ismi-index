@@ -38,7 +38,7 @@ def estimate_persistence(prices, config):
         cMu=params["estimate_mu"],
         cRho=params["estimate_rho_bar"],
     )
-    
+    # RhoMax - Abs(RhoT)
     violations = np.asarray(
         model.persistence_constraint(estimation.x, inflation.to_numpy(), params["estimate_mu"], params["estimate_rho_bar"])
     )
