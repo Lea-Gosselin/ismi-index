@@ -18,13 +18,14 @@ def collect_ea(config):
     prices : pd.DataFrame, monthly price indices including aggregate price index (HEADLINE)
     weights : pd.DataFrame, monthly normalized component weights
     """
-
+    ROOT = Path(__file__).resolve().parents[2]
     params = config["data"] # fismi.io, load_config
     level = params["level"]
     incomplete_tickers = params["incomplete_tickers"]
     headline_ticker = params["headline_ticker"]
     price_url = params["price_url"]
     weight_url = params["weight_url"]
+    
 
     # 0. Download CVS monthly headline index
     cvsUrl = price_url.rsplit("/", 1)[0] + "/" + headline_ticker.split(".",1)[1]
@@ -122,28 +123,34 @@ def collect_ea(config):
     weights = annual_weights.reindex(prices.index.year)
     weights.index = prices.index
     
-    # # 8. Seasonal adjustment
-    # eng = matlab.engine.start_matlab()
+    # 8. Seasonal adjustment
+    eng = matlab.engine.start_matlab()
+
     
-    # # prices : pandas DataFrame avec TIME_PERIOD et les indices de prix
-    # dates = prices["TIME_PERIOD"].dt.strftime("%Y-%m-%d").tolist()
-    # cols = prices.columns.drop("TIME_PERIOD").tolist()
-    # values = matlab.double(
-    #     prices[cols].to_numpy(dtype=float).tolist()
-    # )
+    # prices : pandas DataFrame avec TIME_PERIOD et les indices de prix
+    dates = prices.index.strftime("%Y-%m-%d").tolist()
+    cols = prices.columns.tolist()
+    values = matlab.double(
+        prices[cols].to_numpy(dtype=float).tolist()
+    )
 
-    # # Call MATLAB
-    # result = eng.seasonalAdjustment(dates, values, cols, nargout=1)
+    # Call MATLAB
+    eng.addpath(str(ROOT / "fismi" / "data"), nargout=0)
+    eng.addpath(str(ROOT / "x13Toolbox" / "seas"), nargout=0)
+    result = eng.seasonalAdjustment(dates, values, nargout=1)
 
-    # # Convert back to pandas
-    # prices_sa = pd.DataFrame(
-    #     np.asarray(result),
-    #     columns=cols
-    # )
-    # eng.quit()
+    # Convert back to pandas
+    prices_sa = pd.DataFrame(
+        np.asarray(result),
+        columns=cols
+    )
+    eng.quit()
+    
+    # Get seasonally-adjusted HICP from SDW directly 
+    prices_sa.index = prices.index
 
     # 9. Standardize and normalize
-    prices, weights = prepare_data(prices, weights)
+    prices, weights = prepare_data(prices_sa, weights)
     
 
     return prices, weights

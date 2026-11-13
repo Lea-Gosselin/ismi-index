@@ -1,14 +1,11 @@
-function prices = seasonalAdjustment(dates, values)
+function valuesSA = seasonalAdjustment(dates, values)
 % Seasonal adjustment of price indices using X-11
 % Input: MATLAB table with TIME_PERIOD and price indices
 % Output: MATLAB table with seasonally adjusted price indices
-    cd ../../
-    addpath("input/")
-    addpath("x13Toolbox/seas/")
     
     % Convert dates    
-    dates = datetime(string(dates), 'InputFormat', 'yyyy-MM-dd');
-    dateNum = datenum(dates);
+    dates = datetime(string(dates(:)), 'InputFormat', 'yyyy-MM-dd');
+    dateNum = datenum(dates(:));
 
     % Initialize output
     valuesSA = values;

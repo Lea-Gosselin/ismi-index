@@ -6,6 +6,7 @@ from pathlib import Path
 import os
 from fismi.data.process import prepare_data
 from datetime import date
+import matlab.engine
 
 
 # Path
@@ -20,6 +21,7 @@ def collect_uk(config):
     prices : pd.DataFrame, monthly price indices including aggregate price index (HEADLINE)
     weights : pd.DataFrame, monthly normalized component weights
     """
+    ROOT = Path(__file__).resolve().parents[2]
     params = config["data"] # fismi.io, load_config
     urlEcoicop = params["ecoicop"]["url"]
     sheetEcoicop = params["ecoicop"]["sheet"]
@@ -89,7 +91,20 @@ def collect_uk(config):
     dfPrice = dfPrice.iloc[idStart:,:]
 
     dfPrice = dfPrice.rename(columns={"CDID": "TIME_PERIOD"})
-    dfPrice["TIME_PERIOD"] = pd.to_datetime(dfPrice["TIME_PERIOD"], format="%Y %b")
+
+    # Manage date...
+    months = {
+        "JAN": "01", "FEB": "02", "MAR": "03",
+        "APR": "04", "MAY": "05", "JUN": "06",
+        "JUL": "07", "AUG": "08", "SEP": "09",
+        "OCT": "10", "NOV": "11", "DEC": "12"
+    }
+
+    dates = dfPrice["TIME_PERIOD"].astype(str).str.strip().str.upper()
+    dfPrice["TIME_PERIOD"] = pd.to_datetime(
+        dates.str[:4] + "-" + dates.str[-3:].map(months),
+        format="%Y-%m"
+    )
     
     # Final Prices dataframe... Set columns as the match between IPC and weights tickers
     dfPrices = dfPrice.set_index("TIME_PERIOD",drop=True)
@@ -111,41 +126,42 @@ def collect_uk(config):
     dfWeights = dfWeights.iloc[idStart:,:].ffill().dropna()
 
     dfWeights = dfWeights.rename(columns={"CDID": "TIME_PERIOD"})
-    dfWeights["TIME_PERIOD"] = pd.to_datetime(dfWeights["TIME_PERIOD"].astype(str), format="%Y")
+    
+    # Manage dates...
+    dfWeights["TIME_PERIOD"] = pd.to_datetime(dfWeights["TIME_PERIOD"])
     
     # Final Prices dataframe... Set columns as the match between IPC and weights tickers
     dfWeights = dfWeights.set_index("TIME_PERIOD",drop=True)
     dfWeights = dfWeights.rename(columns=dfEcoicop.set_index("Weights")["Ticker"].to_dict())
-    weights = dfWeights.reindex(dfPrices.index).ffill()
+    weights = dfWeights.reindex(prices.index).ffill()
 
 
-    ####    CAREFUL     ####
-    ####    Temporary   ####
-    # TO DELETE
-    print("WARNING : S.A. DATA - HARD COPIED - TO REPLACE BY UP-TO-DATE ONES (UK)")
-    priceSa = pd.read_excel("input/UKIPC_SA.xlsx", index_col=0,header=0)
-    priceSa = np.exp(priceSa) # On passe en niveau
-    
-    # Replace prices...
-    colPrices = prices.columns
-    prices = priceSa
-    prices.columns = colPrices
-    
-    # Replace weights...
-    nDate = prices.shape[0]
-    nCol = prices.shape[1]
-    
-    if nCol != prices.shape[1]:
-        print("Different items between SDW indexes and SA ones...")
-        weights = weights[colPrices]
+    # 4. Seasonal adjustment
+    eng = matlab.engine.start_matlab()
 
-    if nDate != prices.shape[0]:
-        print("Different timeframe between SDW indexes and SA ones...")
-        weights = weights.iloc[:nDate,:]
-    # TO DELETE
+    # prices : pandas DataFrame avec TIME_PERIOD et les indices de prix
+    dates = prices.index.strftime("%Y-%m-%d").tolist()
+    cols = prices.columns.tolist()
+    values = matlab.double(
+        prices.to_numpy(dtype=float).tolist()
+    )
+
+    # Call MATLAB
+    eng.addpath(str(ROOT / "fismi" / "data"), nargout=0)
+    eng.addpath(str(ROOT / "x13Toolbox" / "seas"), nargout=0)
+    result = eng.seasonalAdjustment(dates, values, nargout=1)
+
+    # Convert back to pandas
+    prices_sa = pd.DataFrame(
+        np.asarray(result),
+        columns=cols
+    )
+    eng.quit()
     
-    
-    # 4. Standardize and normalize
-    prices, weights = prepare_data(prices, weights)
+    # Get seasonally-adjusted HICP from SDW directly 
+    prices_sa.index = prices.index
+
+    # 5. Standardize and normalize
+    prices, weights = prepare_data(prices_sa, weights)
     
     return prices, weights

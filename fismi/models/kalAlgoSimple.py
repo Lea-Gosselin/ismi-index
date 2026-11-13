@@ -296,8 +296,8 @@ def optNegLogLike(
 
     bounds += [
         (-0.999, 0.999),                    # F
-        (1e-8, None),      # D: std of inflation shocks
-        (1e-8, None),      # B: std of rho_t innovations
+        (1e-3, None),      # D: std of inflation shocks
+        (1e-6, 8e-2),      # B: std of rho_t innovations
     ]
 
     constraints = [
@@ -312,8 +312,8 @@ def optNegLogLike(
         objective,
         X0,
         args=(pi, cRho, cMu),
-        # method="SLSQP",
-        method="L-BFGS-B",
+        method="SLSQP",
+        # method="L-BFGS-B",
         bounds=bounds,
         constraints=constraints,
         options={

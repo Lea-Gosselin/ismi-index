@@ -81,11 +81,8 @@ plt.tight_layout()
 plt.show()
 
 ### AR(1) sufficient ? 
-
-# for p in range(1,12):
 p=1
-print(f"Retard : {p}")
-# AR(1) à coefficient constant
+# AR(p) à coefficient constant
 Y = mom.values[p:]
 X = sm.add_constant(mom.values[:-p])
 model = sm.OLS(Y, X).fit()
