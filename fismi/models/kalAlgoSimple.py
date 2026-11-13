@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
+from scipy.stats import norm
 
 def get_parameters(X0, cMu=True, cRho=True):
     """
@@ -177,7 +178,7 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
         # pi_{t|t} = rho_t * (mu + pi_{t-1})
         Rhot[t] = rho_bar + St[t]
         # Rhot[t] = St[t]
-        Pit[t] = (rho_bar + St[t]) * Xt[t] + mu
+        Pit[t] = Rhot[t] * Xt[t] + mu
         # Pit[t] = St[t] * Xt[t] + mu
 
         # 7. Log-likelihood
@@ -262,6 +263,7 @@ def persistence_constraint(
     X0, pi, cRho=True, cMu=True, rho_max=0.99
 ):
     mu, rho_bar, F, H, Q = get_parameters(X0, cMu, cRho)
+    B = np.sqrt(Q)
 
     results = kalman_filter_inflation(
         X0, pi,
@@ -278,6 +280,18 @@ def persistence_constraint(
     # Constraint >= 0
     return rho_max - np.abs(rho_all)
 
+    # # Stationarity constraint... (Inconditional distribution of Rho)
+    # if abs(F) >= 1 or B <= 0:
+    #     return -1.0
+
+    # sigmaRho = B / np.sqrt(1 - F**2)
+    # probability = (
+    #     norm.cdf((1 - rho_bar) / sigmaRho)
+    #     - norm.cdf((-1 - rho_bar) / sigmaRho)
+    # )
+
+    # return probability - 0.99
+
 # Optimise -LogLikelihood
 def optNegLogLike(
     X0,
@@ -290,17 +304,17 @@ def optNegLogLike(
     bounds = []
     if cMu:
         # bounds.append((0.01999, 0.02001))     # mu, set to be around target
-        bounds.append((-2, 2))                # mu
+        bounds.append((-0.01, 0.01))                # mu
         
     if cRho:
-        bounds.append((-rho_max, rho_max))      
+        bounds.append((-rho_max, rho_max))     
 
     bounds += [
-        (-rho_max, rho_max),                    # F
+        (0.85, 1),                    # F
         # (1e-3, None),      # D: std of inflation shocks
         # (1e-6, 10e-2),      # B: std of rho_t innovations (8e-2)
-        (1e-6, 1),      # D: std of inflation shocks
-        (1e-6, 1),      # B: std of rho_t innovations (8e-2)
+        (1e-6, 0.05),      # D: std of inflation shocks
+        (1e-6, 0.5),      # B: std of rho_t innovations (8e-2)
     ]
 
     constraints = [
@@ -315,10 +329,10 @@ def optNegLogLike(
         objective,
         X0,
         args=(pi, cRho, cMu),
-        method="SLSQP",
-        # method="L-BFGS-B",
+        # method="SLSQP",
+        method="L-BFGS-B",
         bounds=bounds,
-        constraints=constraints,
+        # constraints=constraints,
         options={
             "ftol": 1e-9,
             # "gtol": 1e-6,
