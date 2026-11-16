@@ -304,17 +304,17 @@ def optNegLogLike(
     bounds = []
     if cMu:
         # bounds.append((0.01999, 0.02001))     # mu, set to be around target
-        bounds.append((-0.01, 0.01))                # mu
+        bounds.append((None,None))                # mu
         
     if cRho:
         bounds.append((-rho_max, rho_max))     
 
     bounds += [
-        (0.85, 1),                    # F
+        (-rho_max, rho_max),                    # F
         # (1e-3, None),      # D: std of inflation shocks
         # (1e-6, 10e-2),      # B: std of rho_t innovations (8e-2)
-        (1e-6, 0.05),      # D: std of inflation shocks
-        (1e-6, 0.5),      # B: std of rho_t innovations (8e-2)
+        (1e-8, None),      # D: std of inflation shocks
+        (1e-8, None),      # B: std of rho_t innovations (8e-2)
     ]
 
     constraints = [
@@ -332,7 +332,7 @@ def optNegLogLike(
         # method="SLSQP",
         method="L-BFGS-B",
         bounds=bounds,
-        # constraints=constraints,
+        constraints=constraints,
         options={
             "ftol": 1e-9,
             # "gtol": 1e-6,

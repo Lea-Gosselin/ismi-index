@@ -94,6 +94,7 @@ muT = np.full(T, np.nan)
 muT[0] = mu
 piT[0] = mu
 
+# Choc de niveau
 for k in range(K):
     for t in range(1, T):
 
@@ -504,160 +505,10 @@ plt.tight_layout()
 plt.show()
 
 
-# # Les 2 modèles sont-ils égaux ? 
-# muMean = thetaStats["Mean"]["hatMu"] # Modèle B    
-# dt = df["LevelShift"][1:]
-# rhoTlevel = (muT[1:] - muMean + rho * inflation[:-1]) / (inflation[:-1] - muMean)
-
-# # --- Plot ---
-# fig, ax = plt.subplots(figsize=(16, 6))
-
-# # Background: level-shift periods
-# for t in strDate:
-#     ax.axvspan(
-#         t,
-#         t + pd.DateOffset(months=1),
-#         color="lightcoral",
-#         alpha=0.15,
-#         linewidth=0
-#     )
-
-# # Mean estimated persistence
-# ax.plot(
-#     dates[1:],
-#     rhoMean,
-#     color="darkblue",
-#     linewidth=1.8,
-#     label=r"Mean estimated $\hat{\rho}_t$"
-# )
-
-# # Median estimated persistence
-# ax.plot(
-#     dates[1:],
-#     rhoTlevel,
-#     color="darkred",
-#     linewidth=1.8,
-#     label=r"$\bar \hat{\rho}_t \approx \rho + (\mu_t - \hat \mu) / \pi_{t-1}$"
-# )
-
-# # True DGP persistence
-# ax.axhline(
-#     rho,
-#     color="black",
-#     linestyle="--",
-#     linewidth=1.5,
-#     label=rf"True DGP $\rho_0$ = {rho:.3f}"
-# )
-
-# # Settings
-# ax.set_title("Monte Carlo Estimates of Inflation Persistence")
-# ax.set_ylabel(r"Persistence ($\rho$)")
-# ax.set_xlabel("")
-# ax.legend(frameon=False, loc="best")
-# ax.grid(alpha=0.15)
-
-# plt.tight_layout()
-# plt.show()
-
-
-# Sur données simulées, on regarde le niveau moyen, la persistance moyenne, glissante
-# --- Rolling OLS settings ---
-window = 60
-
-muRolling = np.full((T, K), np.nan)
-rhoRolling = np.full((T, K), np.nan)
-
-# --- Estimate rolling AR(1) for each simulation ---
-for k in range(K):
-
-    inflation = D[:, k]
-
-    for t in range(window, T):
-
-        Y = inflation[t-window+1:t+1]
-        X = sm.add_constant(inflation[t-window:t])
-
-        model = sm.OLS(Y, X).fit()
-
-        muRolling[t, k] = model.params[0]
-        rhoRolling[t, k] = model.params[1]
-
-# --- Monte Carlo statistics ---
-muMean = np.nanmean(muRolling, axis=1)
-rhoMean = np.nanmean(rhoRolling, axis=1)
-
-muQ05 = np.nanquantile(muRolling[window:], 0.05, axis=1)
-muQ95 = np.nanquantile(muRolling[window:], 0.95, axis=1)
-
-rhoQ05 = np.nanquantile(rhoRolling[window:], 0.05, axis=1)
-rhoQ95 = np.nanquantile(rhoRolling[window:], 0.95, axis=1)
-
-# --- Dates ---
-dates = pd.to_datetime(df["TIME_PERIOD"])
-plotDates = dates.iloc[window:]
-
-# --- Plot ---
-fig, axes = plt.subplots(
-    2, 1, figsize=(16, 9), sharex=True
-)
-
-# Intercept
-axes[0].plot(
-    plotDates, muMean[window:],
-    color="darkblue",
-    label=r"Rolling $\hat{\mu}_t$"
-)
-
-axes[0].fill_between(
-    plotDates, muQ05, muQ95,
-    color="steelblue", alpha=0.2,
-    label="MC 5–95% quantiles"
-)
-
-axes[0].plot(
-    dates,
-    mu + df["LevelShift"].fillna(0).to_numpy(),
-    color="black",
-    linestyle="--",
-    label=r"True $\mu_t$"
-)
-
-axes[0].set_ylabel(r"Intercept $\hat{\mu}_t$")
-axes[0].legend(frameon=False)
-
-# Persistence
-axes[1].plot(
-    plotDates, rhoMean[window:],
-    color="darkblue",
-    label=r"Rolling $\hat{\rho}_t$"
-)
-
-axes[1].fill_between(
-    plotDates, rhoQ05, rhoQ95,
-    color="steelblue", alpha=0.2,
-    label="MC 5–95% quantiles"
-)
-
-axes[1].axhline(
-    rho,
-    color="black",
-    linestyle="--",
-    label=rf"True $\rho={rho:.3f}$"
-)
-
-axes[1].set_ylabel(r"Persistence $\hat{\rho}_t$")
-axes[1].legend(frameon=False)
-
-# Level shift periods
-for ax in axes:
-    for t in strDate:
-        ax.axvspan(
-            t,
-            t + pd.DateOffset(months=1),
-            color="lightcoral",
-            alpha=0.15,
-            linewidth=0
-        )
-
-plt.tight_layout()
-plt.show()
+# Biais... 1/K Sum_k (hatRho - Rho0)^2
+biaisRho = ((thetaDfEst["hatRhoMean"] - rho)**2).mean()
+biaisRho = ((thetaDfEst["hatRhoBar"] - rho)**2).mean()
+biaisSigEps = ((thetaDfEst["hatSigEps"] - sigE)**2).mean()
+biaisSigU = ((thetaDfEst["hatSigU"] - 0)**2).mean()
+biaisMu = ((thetaDfEst["hatConst"] - mu)**2).mean()
+biaisF = ((thetaDfEst["hatF"] - 0)**2).mean()

@@ -4,6 +4,7 @@ from matplotlib.colors import LinearSegmentedColormap, to_rgba
 import pandas as pd
 from pathlib import Path
 
+
 # OLS to Latex
 # AR(1) à coefficient constant
 def olsToLatex(model,caption="Constant-coefficient AR(1) estimation",save=True):

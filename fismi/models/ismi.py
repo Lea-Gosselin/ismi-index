@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
-def twoStepsAr(dfInflation, rolling_window=110):
+def twoStepsAr(dfInflation, rolling_window=120):
     """2-steps AR(1) regressions (Lansing & Shapiro, 2026).
 
     dfInflation : DataFrame (Dates x Catégories) - Monthly 12-month inflation rate from unchained items

@@ -5,13 +5,18 @@ from fismi.models import kalAlgoSimple
 import matplotlib.pyplot as plt
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from scipy.stats import norm
-from fismi.maths import rmse
+from fismi.maths import rmse, rolling_largest_ar_root, localProjections
 from scipy.optimize import minimize
 import statsmodels.api as sm 
 import statistics as stat
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.stats.diagnostic import acorr_ljungbox
-
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+from itertools import product
+import warnings
 
 # Select country
 country = "US"
@@ -32,14 +37,13 @@ inflation = np.log(
     config["persistence"]["inflation_lag"]
 ).dropna()
 
+# Resize...
+inflation = inflation[
+    inflation.index >= startDate
+]
+
 # Dates
 dates = inflation.index
-
-
-# Preliminary test...
-priorCovid = inflation[inflation.index < "2020-01-01 00:00:00"]
-afterCovid = inflation[inflation.index >= "2020-01-01 00:00:00"]
-
 
 # Persistance et constante glissantes...
 
@@ -69,6 +73,7 @@ ax2 = ax1.twinx()
 
 # Persistence — left axis
 ax1.plot(
+    dates,
     rhoRolling,
     color="darkblue",
     linewidth=1.5,
@@ -87,7 +92,8 @@ ax1.tick_params(axis="y", labelcolor="darkblue")
 
 # Intercept — right axis
 ax2.plot(
-    muRolling * 100,
+    dates,
+    muRolling,
     color="steelblue",
     alpha=0.7,
     label=r"Rolling intercept $\hat{c}_t$"
@@ -108,7 +114,6 @@ plt.show()
 
 
 # Les changements de persistance s'observent-ils sur plusieurs horizons ? 
-
 fig, ax = plt.subplots(figsize=(16, 5))
 
 for window in [36, 60, 120]:
@@ -123,6 +128,7 @@ for window in [36, 60, 120]:
         rho[t] = model.params[1]
 
     ax.plot(
+        dates,
         rho,
         label=f"{window//12}-year rolling AR(1)",
         linewidth=1.5
@@ -139,22 +145,248 @@ plt.tight_layout()
 plt.show()
 
 
+# Best ARMA(p,q) process
+# Maximum orders
+p_max = 12
+q_max = 6
+
+results = []
+
+for p, q in product(range(p_max + 1), range(q_max + 1)):
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+
+            model = ARIMA(
+                inflation,
+                order=(p, 0, q),
+                trend="c",
+                enforce_stationarity=True,
+                enforce_invertibility=True
+            ).fit()
+
+        if not model.mle_retvals.get("converged", False):
+            continue
+
+        results.append({
+            "p": p,
+            "q": q,
+            "AIC": model.aic,
+            "BIC": model.bic,
+            "LogLik": model.llf
+        })
+
+    except (ValueError, np.linalg.LinAlgError):
+        continue
+
+dfResults = pd.DataFrame(results)
+
+if dfResults.empty:
+    raise RuntimeError("No ARMA model converged.")
+
+# Best specifications
+bestAIC = dfResults.loc[dfResults["AIC"].idxmin()]
+bestBIC = dfResults.loc[dfResults["BIC"].idxmin()]
+
+print("Best ARMA according to AIC:")
+print(bestAIC)
+
+print("\nBest ARMA according to BIC:")
+print(bestBIC)
+
+# Top 10 specifications
+display(dfResults.nsmallest(10, "BIC"))
+
+
+# Visualiser les critères...
+fig, axes = plt.subplots(1, 2, figsize=(15, 5))
+
+for ax, criterion in zip(axes, ["AIC", "BIC"]):
+
+    pivot = dfResults.pivot(
+        index="p",
+        columns="q",
+        values=criterion
+    )
+
+    im = ax.imshow(
+        pivot,
+        origin="lower",
+        aspect="auto",
+        cmap="viridis"
+    )
+
+    ax.set_xticks(range(q_max + 1))
+    ax.set_yticks(range(p_max + 1))
+    ax.set_xlabel("MA order (q)")
+    ax.set_ylabel("AR order (p)")
+    ax.set_title(criterion)
+
+    fig.colorbar(im, ax=ax)
+
+plt.tight_layout()
+plt.show()
+
+
+# Estimer le meilleur model (parcimonieux) et tester les résidus
+p_opt = int(bestBIC["p"])
+q_opt = int(bestBIC["q"])
+
+bestModel = ARIMA(
+    inflation,
+    order=(p_opt, 0, q_opt),
+    trend="c",
+    enforce_stationarity=True,
+    enforce_invertibility=True
+).fit()
+
+print(bestModel.summary())
+
+# Residual diagnostics
+bestModel.plot_diagnostics(figsize=(13, 8))
+plt.tight_layout()
+plt.show()
+
+
+
+# Companion eigenvalues are inverse AR polynomial roots
+ar_roots = bestModel.arroots
+
+if len(ar_roots) > 0:
+    rho_max = 1 / np.min(np.abs(ar_roots))
+else:
+    rho_max = 0.0
+
+print(f"Selected ARMA({p_opt},{q_opt})")
+print(f"Largest AR eigenvalue modulus: {rho_max:.4f}")
+
+
+
+# Rolling AR(p) over 10 years
+results = rolling_largest_ar_root(
+    inflation*100,
+    window=120,
+    p=p_opt
+)
+
+fig, ax = plt.subplots(figsize=(14, 5))
+
+ax.plot(
+    results.index,
+    results["LargestRoot"],
+    color="darkblue",
+    linewidth=1.8,
+    label="Largest AR root modulus"
+)
+
+ax.axhline(
+    1,
+    color="darkred",
+    linestyle="--",
+    label="Unit root"
+)
+
+ax.set(
+    title=f"US Inflation Persistence — Rolling {window/12:.0f}-year AR({p_opt})",
+    ylabel="Largest autoregressive root",
+    xlabel=""
+)
+
+ax.legend(frameon=False)
+ax.grid(alpha=0.2)
+
+plt.tight_layout()
+plt.show()
+
+
+
+# Y a t'il preuve de changement de moyenne post-Covid ? 
+# Covid dummy
+covidDummy = pd.Series(
+    (inflation.index >= pd.Timestamp("2020-03-01")).astype(int),
+    index=inflation.index,
+    name="PostCovid"
+)
+
+# Model with Covid dummy
+model1 = ARIMA(
+    inflation,
+    exog=covidDummy,
+    order=(p_opt, 0, q_opt),
+    trend="c",
+    enforce_stationarity=True,
+    enforce_invertibility=True
+).fit()
+
+print(model1.summary())
+
+
+# Le changement de niveau s'est-il résorbé ?
+# Hypothesized break dates
+T1 = "2021-04-01"
+T2 = "2024-01-01"
+
+exog = pd.DataFrame(index=inflation.index)
+
+exog["D1"] = (
+    inflation.index >= pd.Timestamp(T1)
+).astype(int)
+
+exog["D2"] = (
+    inflation.index >= pd.Timestamp(T2)
+).astype(int)
+
+model = ARIMA(
+    inflation,
+    exog=exog,
+    order=(p_opt, 0, q_opt),
+    trend="c",
+    enforce_stationarity=True,
+    enforce_invertibility=True
+).fit()
+
+print(model.summary())
+
+# Mean shift after the second break
+delta_post = model.params["D1"] + model.params["D2"]
+
+# Variance of the linear combination
+cov = model.cov_params()
+
+var_post = (
+    cov.loc["D1", "D1"]
+    + cov.loc["D2", "D2"]
+    + 2 * cov.loc["D1", "D2"]
+)
+
+se_post = np.sqrt(var_post)
+
+# Wald test: H0 = delta1 + delta2 = 0
+z_stat = delta_post / se_post
+p_value = 2 * norm.sf(abs(z_stat))
+
+ci_low = delta_post - 1.96 * se_post
+ci_high = delta_post + 1.96 * se_post
+
+print(f"Post-period mean shift: {delta_post:.3f} pp")
+print(f"95% CI: [{ci_low:.3f}, {ci_high:.3f}]")
+print(f"Wald test p-value: {p_value:.4f}")
+
 
 
 # Multi start
-inflation = inflation[
-    inflation.index >= startDate
-].to_numpy()
+inflation = inflation.to_numpy()
 
 runs = []
 
 for i in range(100):
     x0 = np.array([
-        rng.uniform(-0.01, 0.01),                              # mu
-        rng.uniform(-0.99, 0.99),                            # rho_bar
-        rng.uniform(0.85, 1),                             # F
-        rng.uniform(1e-6, 0.05),                           # D
-        rng.uniform(1e-6, 0.5)                            # B
+        rng.uniform(-0.01, 0.01),       # mu
+        rng.uniform(-0.99, 0.99),       # rho_bar
+        rng.uniform(0.85, 1),           # F
+        rng.uniform(1e-6, 0.5),        # D
+        rng.uniform(1e-6, 0.5)         # B
     ])
 
     try:
@@ -481,14 +713,23 @@ print(
 
 # Test profilé
 names = ["mu", "rho_bar", "F", "D", "B"]
+N = len(names) # Number of parameters
+K = 40
+# # Exploratory bounds
+# bounds = [
+#     (0, 0.01),
+#     (0.3, 0.5),
+#     (0.85, 0.99),
+#     (1e-4, 2e-3),
+#     (1e-2, 0.5) 
+# ]
 
-# Exploratory bounds
 bounds = [
     (-0.01, 0.01),
     (-0.99, 0.99),
-    (0.85, 1),
-    (1e-4, 0.05),
-    (1e-3, 1) #     (1e-6, 0.5)
+    (-0.99, 0.99),
+    (0.0001, 0.05),
+    (1e-4, 1) #     (1e-6, 0.5)
 ]
 
 # Without any constraint... Run KL and MLE 
@@ -536,27 +777,35 @@ theta_hat = valid.iloc[0][names].to_numpy(dtype=float)
 
 fig, axes = plt.subplots(2, 3, figsize=(16, 9))
 
+profile = {}
+xFinal = []
 for j, name in enumerate(names):
     # For each parameter (Mu, RhoBar...) we define 
     grid = np.linspace(
         bounds[j][0],
         bounds[j][1],
-        40
+        K
     )
 
-    profile = profile_parameter(j, grid, theta_hat)
+    profile[name] = profile_parameter(j, grid, theta_hat)
 
     ax = axes.flat[j]
 
-    ax.plot(profile["value"], profile["nll"])
+    ax.plot(profile[name]["value"], profile[name]["nll"])
     ax.axvline(theta_hat[j], color="red", linestyle="--")
 
     ax.set_title(name)
     ax.set_xlabel("Fixed parameter value")
     ax.set_ylabel("Profile negative log-likelihood")
     ax.grid(alpha=0.3)
+    
+    # Store values corresponding to lowest likelihood
+    minVal = profile[name].sort_values(by="nll",ascending=True).iloc[0,0]
+    xFinal.append(minVal)
 
 axes.flat[-1].axis("off")
 
 plt.tight_layout()
 plt.show()
+
+

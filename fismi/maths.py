@@ -2,6 +2,76 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
+
+# Largest autoregressive root of inflation
+def rolling_largest_ar_root(inflation, window=120, p=4):
+    """
+    Rolling AR(p) estimation of monthly inflation persistence.
+
+    Parameters
+    ----------
+    inflation : Monthly inflation (e.g. 100 * log(P_t/P_{t-1}))
+    window : Number of monthly observations per window
+    p : Autoregressive order
+
+    Returns
+    -------
+    Largest companion eigenvalue modulus,
+    AR coefficients, and stationarity indicator.
+    """
+
+    y = inflation.dropna().astype(float).sort_index()
+
+    if window <= p + 1:
+        raise ValueError("window must exceed p + 1")
+
+    rows = []
+
+    for end in range(window, len(y) + 1):
+
+        sample = y.iloc[end-window:end]
+
+        # Construct lagged regressors within the window
+        X = pd.concat(
+            [sample.shift(j).rename(f"AR{j}")
+             for j in range(1, p + 1)],
+            axis=1
+        )
+
+        data = pd.concat(
+            [sample.rename("y"), X], axis=1
+        ).dropna()
+
+        model = sm.OLS(
+            data["y"],
+            sm.add_constant(data[X.columns])
+        ).fit()
+
+        phi = model.params[X.columns].to_numpy()
+
+        # Companion matrix
+        companion = np.zeros((p, p))
+        companion[0, :] = phi
+
+        if p > 1:
+            companion[1:, :-1] = np.eye(p - 1)
+
+        eigenvalues = np.linalg.eigvals(companion)
+
+        # Largest eigenvalue in modulus
+        rho_max = np.max(np.abs(eigenvalues))
+
+        rows.append({
+            "Date": sample.index[-1],
+            "LargestRoot": rho_max,
+            "SumAR": phi.sum(),
+            "Stationary": rho_max < 1,
+            **{f"AR{j+1}": phi[j] for j in range(p)}
+        })
+
+    return pd.DataFrame(rows).set_index("Date")
+
+
 # RMSE between actual and fitted
 def rmse(act,fit):
     meanSquaredError = np.nanmean((fit - act) ** 2)
