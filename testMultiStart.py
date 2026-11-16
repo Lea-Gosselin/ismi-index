@@ -18,18 +18,17 @@ from statsmodels.tsa.arima.model import ARIMA
 from itertools import product
 import warnings
 
+########################################################
+# Settings
 # Select country
 country = "US"
 cMu = True
 cRho = True
 
-# Start estimates
 print(f"\n--- {country} ---")
 config = load_config(country)
 startDate = config["persistence"]["startDate"]
 prices, weights = load_input(country)
-    
-rng = np.random.default_rng(42)
 
 inflation = np.log(
     prices["HEADLINE"].dropna()
@@ -45,6 +44,8 @@ inflation = inflation[
 # Dates
 dates = inflation.index
 
+
+########################################################
 # Persistance et constante glissantes...
 
 # Sur données simulées, on regarde le niveau moyen, la persistance moyenne, glissante
@@ -65,9 +66,7 @@ for t in range(window, T):
     muRolling[t] = model.params[0]
     rhoRolling[t] = model.params[1]
 
-
 # Plot...
-
 fig, ax1 = plt.subplots(figsize=(16, 5))
 ax2 = ax1.twinx()
 
@@ -113,7 +112,8 @@ plt.tight_layout()
 plt.show()
 
 
-# Les changements de persistance s'observent-ils sur plusieurs horizons ? 
+########################################################
+# Les changements de persistance sont-ils robustes à un changement de fenêtre ? 
 fig, ax = plt.subplots(figsize=(16, 5))
 
 for window in [36, 60, 120]:
@@ -145,11 +145,13 @@ plt.tight_layout()
 plt.show()
 
 
+########################################################
+# Quel processus ARMA suit l'inflation mensuelle ?
+
 # Best ARMA(p,q) process
 # Maximum orders
 p_max = 12
 q_max = 6
-
 results = []
 
 for p, q in product(range(p_max + 1), range(q_max + 1)):
@@ -198,7 +200,6 @@ print(bestBIC)
 # Top 10 specifications
 display(dfResults.nsmallest(10, "BIC"))
 
-
 # Visualiser les critères...
 fig, axes = plt.subplots(1, 2, figsize=(15, 5))
 
@@ -229,6 +230,7 @@ plt.tight_layout()
 plt.show()
 
 
+########################################################
 # Estimer le meilleur model (parcimonieux) et tester les résidus
 p_opt = int(bestBIC["p"])
 q_opt = int(bestBIC["q"])
@@ -248,8 +250,6 @@ bestModel.plot_diagnostics(figsize=(13, 8))
 plt.tight_layout()
 plt.show()
 
-
-
 # Companion eigenvalues are inverse AR polynomial roots
 ar_roots = bestModel.arroots
 
@@ -261,9 +261,7 @@ else:
 print(f"Selected ARMA({p_opt},{q_opt})")
 print(f"Largest AR eigenvalue modulus: {rho_max:.4f}")
 
-
-
-# Rolling AR(p) over 10 years
+# A partir de l'ARMA identifié, LAR comme estimation de la persistance du processus, sur une fenêtre de 10 ans
 results = rolling_largest_ar_root(
     inflation*100,
     window=120,
@@ -300,7 +298,7 @@ plt.tight_layout()
 plt.show()
 
 
-
+########################################################
 # Y a t'il preuve de changement de moyenne post-Covid ? 
 # Covid dummy
 covidDummy = pd.Series(
@@ -322,6 +320,7 @@ model1 = ARIMA(
 print(model1.summary())
 
 
+########################################################
 # Le changement de niveau s'est-il résorbé ?
 # Hypothesized break dates
 T1 = "2021-04-01"
@@ -374,8 +373,9 @@ print(f"95% CI: [{ci_low:.3f}, {ci_high:.3f}]")
 print(f"Wald test p-value: {p_value:.4f}")
 
 
-
+########################################################
 # Multi start
+rng = np.random.default_rng(42)
 inflation = inflation.to_numpy()
 
 runs = []
@@ -429,7 +429,7 @@ dfMultiStart = dfMultiStart.sort_values(
 ).reset_index(drop=True)
 
 
-
+########################################################
 # Do several different initial parameters lead to the same NLL ?
 successful = dfMultiStart.loc[(dfMultiStart["success"]==True)]
 

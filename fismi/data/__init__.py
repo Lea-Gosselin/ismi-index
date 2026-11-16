@@ -2,6 +2,7 @@ from .process import prepare_data
 from .ea import collect_ea
 from .us import collect_us
 from .uk import collect_uk
+from .jp import collect_jp
 from fismi.io import load_config
 
 
@@ -16,7 +17,7 @@ def collect_data(country):
         "EA": collect_ea,
         "US": collect_us,
         "UK": collect_uk,
-        # "JP": collect_jp,
+        "JP": collect_jp
     }
 
     country = country.upper()

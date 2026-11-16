@@ -1,0 +1,23 @@
+
+country: JP
+
+data:
+  source: ESTAT
+  index: CPI
+  price_url: https://www.e-stat.go.jp/en/stat-search/file-download?fileKind=1&statInfId=000040482945
+  historical_weights: 2000-2030 All Base Items CPI Japan.xlsx
+  headline_series: "0001"
+  estat_api_key: estat_api_key
+
+ismi:
+  rolling_window: 120
+  momentum_lags: 3
+  inflation_lag: 1
+
+persistence:
+  model: simple
+  inflation_lag: 1
+  estimate_mu: true
+  estimate_rho_bar: true
+  initial_params: [0.008, 0.56, 0.98, 0.0017, 0.2] # mu, rho_bar, F, (phi if augmented), D and B ([0.000994, 0.435294, 0.950284, 0.001747, 0.043540])
+  startDate: "1994-12-01"

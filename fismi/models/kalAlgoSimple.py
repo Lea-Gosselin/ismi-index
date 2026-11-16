@@ -104,7 +104,7 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     # Consistency checks and data management
     # ---------------------------------------------------------
     mu, rho_bar, F, H, Q = get_parameters(X0, cMu, cRho)
-    
+        
     # Inflation (centered or not around its long-run level)
     Xt = pi[:-1] - mu
     # Xt = pi[:-1]

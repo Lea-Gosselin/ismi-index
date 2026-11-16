@@ -84,5 +84,5 @@ def export_dashboard(country):
 
 
 if __name__ == '__main__':
-    for c in ('EA', 'US', 'UK'):
+    for c in ('EA', 'US', 'UK', 'JP'):
         export_dashboard(c)

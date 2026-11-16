@@ -1,0 +1,335 @@
+import numpy as np
+import pandas as pd
+from scipy.optimize import minimize
+from scipy.stats import norm
+
+def get_parameters(X0, cMu=True, cRho=True):
+    """
+    Parameters of the state-space model
+
+    Measurement equation...
+    --------------------
+    cY_t = xi_t * Y_{t-1} + w_t
+    
+    Y_t = (pi_t - mu) 
+    cY_t = Y_t - rho_bar * Y_{t-1}
+        
+    w_t ~ N(0, H) with H=D**2
+
+    State equation...
+    --------------
+    xi_t = F * xi_{t-1} + v_t
+    
+    xi_t = (rho_t - rho_bar)
+
+    v_t ~ N(0, Q) with Q = BB'
+
+    Parameters
+    ----------
+    X0 : [mu, rho_bar, F, D, B]
+    cMu : False means mu = 0
+    cRho : False means rho_bar = 0
+
+    Returns
+    -------
+    mu      : float
+    rho_bar : float
+    F       : float
+    H       : float
+    Q       : float
+    """
+    
+    i=0
+    
+    # Long-run inflation
+    if cMu:
+        mu = X0[0]
+        i += 1
+    else: 
+        mu = 0
+
+    # Long-run persistence
+    if cRho:
+        rho_bar = X0[i]
+        i += 1
+    else:
+        rho_bar = 0
+
+    # Measurement innovation variance
+    D = X0[i]
+    H = D**2
+    i += 1
+
+    # State innovation variance
+    B = X0[i]
+    Q = B**2
+
+    return mu, rho_bar, H, Q
+
+# Filter...
+def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
+    """
+    Kalman filter for the following state-space model:
+    cY_t = xi_t * pi_{t-1} + w_t
+    xi_t = xi_{t-1} + v_t
+
+    with:       
+        Y_t = (pi_t - mu) 
+        cY_t = Y_t - rho_bar * pi_{t-1}
+        w_t ~ N(0, H) with H=D**2
+        
+    and:        
+        xi_t = (rho_t - rho_bar)
+        v_t ~ N(0, Q) with Q = BB'
+    
+    Parameters
+    ----------
+    X0 :        Starting parameters
+    pi :        Inflation rate
+    cMu :       False means mu = 0
+    cRho :      False means rho_bar = 0
+    return_loglik : If True, returns the Gaussian log-likelihood
+
+    Returns
+    -------
+    results :   Filtered and predicted states, persistence, inflation forecasts and innovations
+    loglik :    Gaussian log-likelihood
+    """
+
+    # ---------------------------------------------------------
+    # Consistency checks and data management
+    # ---------------------------------------------------------
+    mu, rho_bar, H, Q = get_parameters(X0, cMu, cRho)
+        
+    # Inflation (centered or not around its long-run level)
+    Xt = pi[:-1] - mu
+
+    # Reduced-form dependent variable:
+    # cY_t = (pi_t - mu) - rho_bar * pi_{t-1}
+    Yt = (pi[1:] - mu) - rho_bar * Xt
+
+    T = Yt.shape[0]
+
+    # ---------------------------------------------------------
+    # Storage variables
+    # ---------------------------------------------------------
+    Stf = np.full(T, np.nan)
+    Ytf = np.full(T, np.nan)
+    PtS = np.full(T, np.nan)
+    PtY = np.full(T, np.nan)
+    Pt = np.full(T, np.nan)
+    St = np.full(T, np.nan)
+    Rhot = np.full(T, np.nan)
+    Pit = np.full(T, np.nan)
+    Err = np.full(T, np.nan)
+    Kt = np.full(T, np.nan)
+    Lt = np.full(T, np.nan)
+
+    # =========================================================
+    # Kalman filter
+    # =========================================================
+    # 1. Initialisation
+    # E[xi_0] = 0
+    SForecast = 0.0
+
+    # Unconditional variance of stationary AR(1)
+    # Var(xi_t) = 0 (RW)
+    PForecast = 0
+    
+    for t in range(T):
+        if t == 0:
+            Stf[t] = SForecast
+            PtS[t] = PForecast
+        else:
+            # 2. Forecast the states (St)
+            # xi_{t|t-1}    = xi_{t-1|t-1}
+            # P^xi_{t|t-1}  = P^xi_{t-1|t-1} + Q
+            Stf[t] = St[t-1]
+            PtS[t] = Pt[t-1] + Q
+        
+        # 3. Predict Yt
+        # cY_{t|t-1} = pi_{t-1} xi_{t|t-1} 
+        Ytf[t] = Xt[t] * Stf[t]
+        
+        # 4. Inflation forecast error and variance
+        # e_t^Y = cY_t - cY_{t|t-1}
+        # P^Y_{t|t-1} = Y_{t-1}^2 P^xi_{t|t-1} + H
+        Err[t] = Yt[t] - Ytf[t]
+        PtY[t] = Xt[t]**2 * PtS[t] + H
+        
+        # 5. Updating the states with the Kalman gain
+        # K_t = P^xi_{t|t-1} pi_{t-1} / P^Y_{t|t-1}
+        # xi_{t|t} = xi_{t|t-1} + K_t e_t^cY
+        # P^xi_{t|t} = P^xi_{t|t-1} - K_t * pi_{t-1} * P^xi_{t|t-1}
+        Kt[t] = (PtS[t] * Xt[t]) / PtY[t]
+        St[t] = Stf[t] + Kt[t] * Err[t]
+        Pt[t] = PtS[t] - Kt[t] * Xt[t] * PtS[t]
+
+        # 6. Updating filtered variables
+        # rho_t = rho_bar + P^xi_{t|t}
+        # pi_{t|t} = rho_t * (mu + pi_{t-1})
+        Rhot[t] = rho_bar + St[t]
+        # Rhot[t] = St[t]
+        Pit[t] = Rhot[t] * Xt[t] + mu
+        # Pit[t] = St[t] * Xt[t] + mu
+
+        # 7. Log-likelihood
+        # =====================================================
+        Lt[t] = -0.5 * (
+            np.log(2 * np.pi)
+            + np.log(PtY[t])
+            + Err[t]**2 / PtY[t]
+        )
+
+    # =========================================================
+    # Results...
+    # =========================================================
+    results = {
+        "Y": pi[1:],
+        "FittedY": Pit,
+        "ForecastY": ((rho_bar + Stf) * Xt + mu),
+        "Err": Err,
+        "forecastVarState": PtS,
+        "filteredVarState": Pt,
+        "forecastVarY": PtY,
+        "forecastState":Stf,
+        "filteredState": St,
+        "Rho": Rhot,
+        "KalmanGain": Kt,
+        "LogLikelihood": Lt
+        }
+    
+    neg_loglik = -np.nansum(Lt)
+
+    if return_loglik:
+        return neg_loglik
+
+    return results
+
+def kalman_smoother(results, parameters, cMu=True, cRho=True):
+    # Get parameters
+    mu, rho_bar, F, H, Q = get_parameters(
+        parameters,
+        cMu=cMu,
+        cRho=cRho
+    )
+    
+    # Forecast and filtered estimates
+    Stf = results["forecastState"]
+    St = results["filteredState"]
+    PtS = results["forecastVarState"]
+    Pt = results["filteredVarState"]
+    
+    T = Stf.shape[0]
+    
+    # Store smoothed estimates
+    StSmoothed = np.full(T, np.nan)
+    PtSmoothed = np.full(T, np.nan)
+    
+    # Initialise at T
+    StSmoothed[-1] = St[-1]
+    PtSmoothed[-1] = Pt[-1]
+    
+    # Backward recursion
+    for t in range(T-2, -1, -1):
+        J = Pt[t] * F / PtS[t+1]
+        StSmoothed[t] = St[t] + J * (StSmoothed[t+1] - Stf[t+1])
+        PtSmoothed[t] = Pt[t] + J**2 * (PtSmoothed[t+1] - PtS[t+1])
+    return {
+        "smoothedState": StSmoothed,
+        "smoothedVarState": PtSmoothed,
+        "smoothedRho": StSmoothed + rho_bar,
+    }
+
+def objective(X0, pi, cRho=True, cMu=True):
+
+    # Original negative log-likelihood
+    nll = kalman_filter_inflation(
+        X0, pi, cRho, cMu, return_loglik=True
+    )
+
+    return nll if np.isfinite(nll) else 1e12
+
+# Ensures the second order stationarity of measurement equation
+def persistence_constraint(
+    X0, pi, cRho=True, cMu=True, rho_max=0.99
+):
+    mu, rho_bar, F, H, Q = get_parameters(X0, cMu, cRho)
+    B = np.sqrt(Q)
+
+    results = kalman_filter_inflation(
+        X0, pi,
+        cRho=cRho,
+        cMu=cMu,
+        return_loglik=False
+    )
+
+    rho_filtered = np.asarray(results["Rho"])
+    rho_forecast = rho_bar + np.asarray(results["forecastState"])
+
+    rho_all = np.concatenate([rho_filtered, rho_forecast])
+
+    # Constraint >= 0
+    return rho_max - np.abs(rho_all)
+
+    # # Stationarity constraint... (Inconditional distribution of Rho)
+    # if abs(F) >= 1 or B <= 0:
+    #     return -1.0
+
+    # sigmaRho = B / np.sqrt(1 - F**2)
+    # probability = (
+    #     norm.cdf((1 - rho_bar) / sigmaRho)
+    #     - norm.cdf((-1 - rho_bar) / sigmaRho)
+    # )
+
+    # return probability - 0.99
+
+# Optimise -LogLikelihood
+def optNegLogLike(
+    X0,
+    pi,
+    cMu=True,
+    cRho=True,
+    rho_max=0.99
+):
+
+    bounds = []
+    if cMu:
+        # bounds.append((0.01999, 0.02001))     # mu, set to be around target
+        bounds.append((None,None))                # mu
+        
+    if cRho:
+        bounds.append((-rho_max, rho_max))     
+
+    bounds += [
+        (-rho_max, rho_max),                    # F
+        # (1e-3, None),      # D: std of inflation shocks
+        # (1e-6, 10e-2),      # B: std of rho_t innovations (8e-2)
+        (1e-8, None),      # D: std of inflation shocks
+        (1e-8, None),      # B: std of rho_t innovations (8e-2)
+    ]
+
+    constraints = [
+        {
+            "type": "ineq",
+            "fun": persistence_constraint,
+            "args": (pi, cRho, cMu, rho_max)
+        }
+    ]
+    
+    res = minimize(
+        objective,
+        X0,
+        args=(pi, cRho, cMu),
+        # method="SLSQP",
+        method="L-BFGS-B",
+        bounds=bounds,
+        constraints=constraints,
+        options={
+            "ftol": 1e-9,
+            # "gtol": 1e-6,
+            "maxiter": 10000
+        }
+    )
+
+    return res
