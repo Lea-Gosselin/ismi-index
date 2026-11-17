@@ -1,7 +1,7 @@
 from fismi.io import load_input, load_config
 import numpy as np
 import pandas as pd
-from fismi.models import kalAlgoSimple
+from fismi.models import kalAlgoRw
 import matplotlib.pyplot as plt
 import numpy as np
 import statsmodels.api as sm 
@@ -11,6 +11,7 @@ from statsmodels.stats.diagnostic import acorr_ljungbox
 
 # Select country
 country = "US"
+Names = ["hatMu", "hatRhoBar","hatSigEps","hatSigU"]
 
 # Select seed
 seed = 42
@@ -43,17 +44,6 @@ df = pd.DataFrame({
 T = df.shape[0]
 df = df.reset_index()
 
-# # Flag level shifts (determinist)
-# mask = (
-#     df["TIME_PERIOD"].between("1968-08-01", "1991-08-01") |
-#     df["TIME_PERIOD"].between("2007-10-01", "2008-09-01") |
-#     df["TIME_PERIOD"].between("2021-04-01", "2023-10-01") |
-#     df["TIME_PERIOD"].between("2026-03-01", "2026-09-01")
-# )
-
-# df["LevelShift"] = 0
-# df.loc[mask, "LevelShift"] = 0.03 / 12
-# dateShift = df.index[mask]
 
 # Flag level shifts (random, Bernoulli)
 rng = np.random.default_rng(42)
@@ -79,8 +69,7 @@ mu = 9.36e-3
 rho = 0.481
 sigE = 1.73e-3
 sigU = 0.043540 
-F = 0.950284
-x0 = [mu, rho, F, sigE, sigU] # True parameters values
+x0 = [mu, rho, sigE, sigU] # True parameters values
 N = len(x0)
 
 # State innovations
@@ -112,9 +101,7 @@ for k in range(K):
 # Model B: time-varying slope (pi_t = mu + rho_t * pi_{t-1} + e_t)
 # Initial parameters taken from OLS AR(1) : pi_t = mu + rho * pi_{t-1} + e_t
 
-F = 0 # O is RW, [-0.99 ; 0.99] is autocorrelated
 sigU = 1
-
 x0bis = np.full((N,K), np.nan)
 
 for k in range(K):
@@ -126,17 +113,15 @@ for k in range(K):
     x0bis[:,k] = [
         model.params[0],
         model.params[1], 
-        F,
         resid.std(),
         sigU
     ]
     
 
 # Dataframe des paramètres DGP A estimés sur A simulé par OLS (K estimations)
-x0bisDf = pd.DataFrame(x0bis, ["hatMu", "hatRhoBar","hatF","hatSigEps","hatSigU"]).transpose()
+x0bisDf = pd.DataFrame(x0bis, Names).transpose()
 
 # Summary statistics
-
 olsStatA = pd.DataFrame({
     "Mean": x0bisDf.mean(),
     "Median": x0bisDf.median(),
@@ -166,7 +151,7 @@ filtVarState = np.full((T-1,K), np.nan)
 for k in range(K):
     # Optimisation (MLE)
     inflation = D[:,k]
-    estimation = kalAlgoSimple.optNegLogLike(
+    estimation = kalAlgoRw.optNegLogLike(
             x0Init,
             inflation,
             cMu=True,
@@ -178,7 +163,7 @@ for k in range(K):
     logLikEst[k] = -estimation.fun
     
     # Filtrage
-    filtered = kalAlgoSimple.kalman_filter_inflation(
+    filtered = kalAlgoRw.kalman_filter_inflation(
         estimation.x,
         inflation,
         cMu=True,
@@ -189,11 +174,11 @@ for k in range(K):
     filtVarState[:,k] = filtered["filteredVarState"]
     
     # Smoothing
-    smoothed = kalAlgoSimple.kalman_smoother(filtered, estimation.x)
+    smoothed = kalAlgoRw.kalman_smoother(filtered, estimation.x)
     
 
 # Estimations results (N*K) for each simulation
-thetaDfEst = pd.DataFrame(thetaEst.transpose(), columns=["hatMu", "hatRhoBar","hatF","hatSigEps","hatSigU"])
+thetaDfEst = pd.DataFrame(thetaEst.transpose(), columns=Names)
 thetaDfEst["hatRhoMean"] = np.mean(rhoEst, axis=0) # Average estimated persistance over T for each K 
 thetaDfEst["hatConst"] = np.mean((1-rhoEst)*thetaDfEst["hatMu"].to_numpy(), axis=0) # Average estimated persistance over T for each K 
 
@@ -292,67 +277,6 @@ rhoMC = thetaDfEst["hatRhoMean"].mean()
 # Dates
 dates = pd.to_datetime(df["TIME_PERIOD"][1:]).to_numpy()
 strDate = pd.to_datetime(df.loc[mask, "TIME_PERIOD"])
-
-# --- Plot ---
-fig, ax = plt.subplots(figsize=(16, 6))
-
-# Background: level-shift periods
-for t in strDate:
-    ax.axvspan(
-        t,
-        t + pd.DateOffset(months=1),
-        color="lightcoral",
-        alpha=0.15,
-        linewidth=0
-    )
-
-# Empirical 90% interval
-ax.fill_between(
-    dates,
-    rhoQ05,
-    rhoQ95,
-    color="steelblue",
-    alpha=0.2,
-    label="MC quantiles [5%, 95%]"
-)
-
-# Mean estimated persistence
-ax.plot(
-    dates,
-    rhoMean,
-    color="darkblue",
-    linewidth=1.8,
-    label=r"Mean estimated $\hat{\rho}_t$"
-)
-
-# Median estimated persistence
-ax.plot(
-    dates,
-    rhoMed,
-    color="darkred",
-    linewidth=1.8,
-    label=r"Median estimated $\hat{\rho}_t$"
-)
-
-# True DGP persistence
-ax.axhline(
-    rho,
-    color="black",
-    linestyle="--",
-    linewidth=1.5,
-    label=rf"True DGP $\rho_0$ = {rho:.3f}"
-)
-
-# Settings
-ax.set_title("Monte Carlo Estimates of Inflation Persistence")
-ax.set_ylabel(r"Persistence ($\rho$)")
-ax.set_xlabel("")
-ax.legend(frameon=False, loc="best")
-ax.grid(alpha=0.15)
-
-plt.tight_layout()
-plt.show()
-
 
 # Plot piT simulé, rhoT estimé
 piTmean = D[1:,:].mean(axis=1)
@@ -506,9 +430,8 @@ plt.show()
 
 
 # Biais... 1/K Sum_k (hatRho - Rho0)^2
-biaisRho = ((thetaDfEst["hatRhoMean"] - rho)**2).mean()
-biaisRho = ((thetaDfEst["hatRhoBar"] - rho)**2).mean()
-biaisSigEps = ((thetaDfEst["hatSigEps"] - sigE)**2).mean()
-biaisSigU = ((thetaDfEst["hatSigU"] - 0)**2).mean()
-biaisMu = ((thetaDfEst["hatConst"] - mu)**2).mean()
-biaisF = ((thetaDfEst["hatF"] - 0)**2).mean()
+print(f"Biais Mu : {((thetaDfEst['hatRhoMean'] - rho)**2).mean()}")
+print(f"Biais rhoBar : {((thetaDfEst['hatRhoBar'] - rho)**2).mean()}")
+print(f"Biais sigEps : {((thetaDfEst['hatSigEps'] - sigE)**2).mean()}")
+print(f"Biais sigU : {((thetaDfEst['hatSigU'] - 0)**2).mean()}")
+print(f"Biais constante : {((thetaDfEst['hatConst'] - mu)**2).mean()}")

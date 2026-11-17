@@ -6,7 +6,7 @@ from fismi.data import collect_data
 
 
 # 1. Load country configuration
-countries = ["JP"] 
+countries = ["US"] 
 for country in countries:
     config = load_config(country)
 

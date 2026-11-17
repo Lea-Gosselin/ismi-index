@@ -68,123 +68,240 @@ for country in ["US"]:
     initParams = config['persistence']['initial_params']
     print(f"Mu bar = {initParams[0]}")
     print(f"Rho bar = {initParams[1]}")
-    print(f"Alpha = {initParams[2]}")
-    print(f"Std. inflation innovations = {initParams[3]}")
-    print(f"Std. state innovations = {initParams[4]}")
+    print(f"Std. inflation innovations = {initParams[2]}")
+    print(f"Std. state innovations = {initParams[3]}")
     
     print("----- Estimated parameters -----")
     estParams = persistence["parameters"]
     print(f"Mu bar = {estParams[0]}")
     print(f"Rho bar = {estParams[1]}")
-    print(f"Alpha = {estParams[2]}")
-    print(f"Std. inflation innovations = {estParams[3]}")
-    print(f"Std. state innovations = {estParams[4]}")
+    print(f"Std. inflation innovations = {estParams[2]}")
+    print(f"Std. state innovations = {estParams[3]}")
 
     print("Saved:", path)
 
-# US estimation
+
+# ============================================================
+# 0. PREPARE DATA
+# ============================================================
+
+df = persistence["results"].copy()
 filtered = persistence["filtered"]
 smoothed = persistence["smoothed"]
 
-# Dates aligned with Kalman outputs
-dates = pi.index[
-config["persistence"]["inflation_lag"] + 1:
-]
+# The estimation must use monthly inflation
+if config["persistence"]["inflation_lag"] != 1:
+    raise ValueError(
+        "Set inflation_lag=1 and re-estimate the model "
+        "to display fitted MoM inflation."
+    )
 
-# Results
-df = persistence["results"]
+# Actual inflation (log differences, in %)
+headline = prices["HEADLINE"].sort_index()
+mom = 100 * np.log(headline).diff(1)
+yoy = 100 * np.log(headline).diff(12)
 
+# Align with Kalman estimation dates
+dates = df.index
+mom = mom.reindex(dates)
+yoy = yoy.reindex(dates)
 
-# 1. Observed vs fitted inflation
-fig, ax = plt.subplots(figsize=(16, 5))
+# Kalman estimates
+momFitted = 100 * df["FittedInflation"]
+rhoFiltered = df["RhoFiltered"]
+rhoSmoothed = df["RhoSmoothed"]
 
-ax.plot(df.index, df["Inflation"] * 100,
-        color="darkgrey", label="Observed inflation")
-ax.plot(df.index, df["FittedInflation"] * 100,
-        color="darkblue", label="Fitted inflation")
+# 90% interval for smoothed persistence
+z90 = norm.ppf(0.95) # Oui, vraie valeur 1.64
+stdRho = np.sqrt(
+    np.maximum(df["VarStateSmoothed"], 0)
+)
 
-ax.set_ylabel("Inflation (%)")
-ax.legend()
-ax.grid(alpha=0.3)
+rhoLower = rhoSmoothed - z90 * stdRho
+rhoUpper = rhoSmoothed + z90 * stdRho
 
-plt.tight_layout()
-plt.show()
+# Diagnostics
+Kt = df["KalmanGain"]
+Err = df["Residuals"]
+forecastStd = np.sqrt(df["forecastVarY"])
 
+# Standardized one-step-ahead innovations
+innovationErr = Err / forecastStd
 
-# 2. Time-varying persistence and confidence interval
-fig, ax = plt.subplots(figsize=(16, 5))
+# Colors
+BLUE = "#173F81"
+ORANGE = "#EC9227"
+GREY = "#777777"
+LIGHT_GREY = "#B5B5B5"
 
-z = norm.ppf(0.95)  # 90% bilateral confidence interval
+# ============================================================
+# 1. INFLATION AND TIME-VARYING PERSISTENCE
+# ============================================================
 
-RhoSmoothed = df["RhoSmoothed"]
-RhoFiltered = df["RhoFiltered"]
-std = np.sqrt(smoothed["smoothedVarState"])
+fig, axes = plt.subplots(
+    2, 1, figsize=(16, 9),
+    sharex=True,
+    gridspec_kw={"height_ratios": [1, 1]},
+    constrained_layout=True
+)
 
-df["RhoLower90"] = RhoSmoothed - z * std
-df["RhoUpper90"] = RhoSmoothed + z * std
+# Panel 1: Inflation
+ax = axes[0]
+ax2 = ax.twinx()
+
+l1, = ax.plot(
+    dates, mom,
+    color=LIGHT_GREY, lw=1.2, alpha=0.8,
+    label="Observed"
+)
+
+l2, = ax.plot(
+    dates, momFitted,
+    color=BLUE, lw=1.5,
+    label=r"Forecast $\pi_{t|t-1}$ (Kalman)"
+)
+
+l3, = ax2.plot(
+    dates, yoy,
+    color="black", lw=1.2, ls="--", alpha=0.65,
+    label="Observed g.a"
+)
+
+ax.set_ylabel("Monthly inflation (%)")
+ax2.set_ylabel("Annual inflation (%)")
+ax.set_title("Inflation: observed and fitted")
+ax.legend(
+    handles=[l1, l2, l3],
+    loc="upper left", ncol=3
+)
+ax.grid(alpha=0.25)
+
+# Panel 2: Persistence
+ax = axes[1]
 
 ax.fill_between(
-    df.index,
-    df["RhoLower90"],
-    df["RhoUpper90"],
-    color="grey",
-    alpha=0.20,
+    dates, rhoLower, rhoUpper,
+    color=BLUE, alpha=0.15,
     linewidth=0,
-    label="90% confidence interval"
+    label="90% smoothed interval"
 )
 
-ax.plot(df.index, RhoSmoothed,
-        color="darkblue", linewidth=1.5,
-        label=r"Smoothed $\rho_t$")
+ax.plot(
+    dates, rhoFiltered,
+    color=ORANGE, lw=1.2, alpha=0.85,
+    label=r"Filtered $\rho_{t|t}$"
+)
 
-ax.plot(df.index, RhoFiltered,
-        color="orange",
-        label=r"Filtered $\rho_t$")
+ax.plot(
+    dates, rhoSmoothed,
+    color=BLUE, lw=1.8,
+    label=r"Smoothed $\rho_{t|T}$"
+)
 
-ax.axhline(0.48, color="red", linestyle="--", linewidth=1)
+ax.axhline(
+    0, color="black", lw=0.8, alpha=0.5
+)
 
 ax.set_ylabel(r"Persistence ($\rho_t$)")
-ax.legend()
-ax.grid(alpha=0.3)
+ax.set_title("Time-varying inflation persistence")
+ax.legend(loc="upper left", ncol=3)
+ax.grid(alpha=0.25)
 
-plt.tight_layout()
 plt.show()
 
 
-# Constante... Time-varying...
-cFiltered = estParams[0]*(1-RhoFiltered)
-cSmoothed = estParams[0]*(1-RhoSmoothed)
+# ============================================================
+# 2. KALMAN GAIN AND FORECAST ERRORS
+# ============================================================
 
-fig, ax = plt.subplots(
-    figsize=(16, 8)
-)
-ax.plot(df.index, df["Inflation"] * 100,
-            color="darkgrey", label="Monthly inflation")
-ax.plot(df.index, cFiltered * 100,
-            color="orange", label=r"Filtered time-varying constant $c_{t|t-1} = \mu (1-\rho_{t|t-1})$")
-ax.plot(df.index, cSmoothed * 100,
-            color="darkblue", label=r"Smoothed time-varying constant $c_{t|t} = \mu (1-\rho_{t|t})$")
-
-ax.legend()
-ax.grid(alpha=0.3)
-
-# Standardized one-step-ahead Kalman innovations
-z = (
-    np.asarray(filtered["Err"])
-    / np.sqrt(np.asarray(filtered["forecastVarY"]))
+fig, axes = plt.subplots(
+    2, 1, figsize=(16, 8),
+    sharex=True,
+    constrained_layout=True
 )
 
-# ACF and PACF
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+# Panel 1: Kalman gain
+axes[0].plot(
+    dates, Kt,
+    color=BLUE, lw=1.3,
+    label=r"Kalman gain $K_t$"
+)
 
-plot_acf(z, lags=36, ax=axes[0])
-axes[0].set_title("Standardized KF Innovations (ACF)")
+axes[0].axhline(
+    0, color="black", lw=0.8, alpha=0.5
+)
 
-plot_pacf(z, lags=36, ax=axes[1], method="ywm")
-axes[1].set_title("Standardized KF Innovations (PACF)")
+axes[0].set_title("Kalman gain")
+axes[0].set_ylabel(r"$K_t$")
+axes[0].legend(loc="upper left")
+axes[0].grid(alpha=0.25)
 
-axes[0].grid(alpha=0.3)
-axes[1].grid(alpha=0.3)
+# Panel 2: Forecast errors
+axes[1].plot(
+    dates, Err * 100,
+    color=ORANGE, lw=1.1,
+    label=r"Forecast error $e_t$"
+)
 
-plt.tight_layout()
+axes[1].axhline(
+    0, color="black", lw=0.8, alpha=0.5
+)
+
+axes[1].set_title("One-step-ahead forecast errors")
+axes[1].set_ylabel("Error (percentage points)")
+axes[1].legend(loc="upper left")
+axes[1].grid(alpha=0.25)
+
+plt.show()
+
+
+# ============================================================
+# 3. RAW AND STANDARDIZED KALMAN INNOVATIONS
+# ============================================================
+
+fig, axes = plt.subplots(
+    2, 1, figsize=(16, 8),
+    sharex=True,
+    constrained_layout=True
+)
+
+# Panel 1: Raw innovations
+axes[0].plot(
+    dates, Err * 100,
+    color=GREY, lw=1.1,
+    label=r"Raw innovation $e_t$"
+)
+
+axes[0].axhline(
+    0, color="black", lw=0.8, alpha=0.5
+)
+
+axes[0].set_title("Raw Kalman innovations")
+axes[0].set_ylabel("Innovation (percentage points)")
+axes[0].legend(loc="upper left")
+axes[0].grid(alpha=0.25)
+
+# Panel 2: Standardized innovations
+axes[1].plot(
+    dates, innovationErr,
+    color=BLUE, lw=1.1,
+    label=r"Standardized innovation $z_t$"
+)
+
+axes[1].axhline(
+    0, color="black", lw=0.8, alpha=0.5
+)
+
+for bound in [-1.96, 1.96]:
+    axes[1].axhline(
+        bound,
+        color="red", ls="--", lw=1,
+        alpha=0.7
+    )
+
+axes[1].set_title("Standardized Kalman innovations")
+axes[1].set_ylabel(r"$e^y_t / \sqrt{P^y_{t|t-1}}$")
+axes[1].legend(loc="upper left")
+axes[1].grid(alpha=0.25)
+
 plt.show()

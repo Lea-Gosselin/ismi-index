@@ -4,6 +4,7 @@ import pandas as pd
 
 from fismi.models import kalAlgoSimple
 from fismi.models import kalAlgoAugmented
+from fismi.models import kalAlgoRw
 
 def estimate_persistence(prices, config):
     """
@@ -24,6 +25,7 @@ def estimate_persistence(prices, config):
     models = {
         "simple": kalAlgoSimple,
         "augmented": kalAlgoAugmented,
+        "rw": kalAlgoRw
     }
     if model_name not in models:
         raise ValueError(f"Unknown model: {model_name}")
@@ -38,24 +40,6 @@ def estimate_persistence(prices, config):
         cMu=params["estimate_mu"],
         cRho=params["estimate_rho_bar"],
     )
-    # RhoMax - Abs(RhoT)
-    violations = np.asarray(
-        model.persistence_constraint(estimation.x, inflation.to_numpy(), params["estimate_mu"], params["estimate_rho_bar"])
-    )
-
-    if not estimation.success:
-        raise RuntimeError(
-            f"Kalman optimization failed: {estimation.message}",
-            f"Status: {estimation.status}"
-            f"Objective function: {estimation.fun}"
-            f"Parameters: {estimation.x}"
-            f"Minimum constraint: {max(0, -np.nanmin(violations))}"
-            f"Maximum violation: {np.nanmin(violations)}"
-        )
-        print("Status:", estimation.status)
-        print("Message:", estimation.message)
-        print("Objective:", estimation.fun)
-        print("Parameters:", estimation.x)
 
     # 4. Run Kalman filter with estimated parameters
     filtered = model.kalman_filter_inflation(

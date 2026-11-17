@@ -9,19 +9,16 @@ def get_parameters(X0, cMu=True, cRho=True):
 
     Measurement equation...
     --------------------
-    cY_t = xi_t * Y_{t-1} + w_t
+    Y_t = xi_t * Y_{t-1} + w_t
     
     Y_t = (pi_t - mu) 
-    cY_t = Y_t - rho_bar * Y_{t-1}
         
     w_t ~ N(0, H) with H=D**2
 
     State equation...
     --------------
-    xi_t = F * xi_{t-1} + v_t
-    
-    xi_t = (rho_t - rho_bar)
-
+    xi_t = xi_{t-1} + v_t
+    xi_0 = rho_bar
     v_t ~ N(0, Q) with Q = BB'
 
     Parameters
@@ -34,7 +31,6 @@ def get_parameters(X0, cMu=True, cRho=True):
     -------
     mu      : float
     rho_bar : float
-    F       : float
     H       : float
     Q       : float
     """
@@ -70,16 +66,15 @@ def get_parameters(X0, cMu=True, cRho=True):
 def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     """
     Kalman filter for the following state-space model:
-    cY_t = xi_t * pi_{t-1} + w_t
+    Y_t = xi_t * Y_{t-1} + w_t
     xi_t = xi_{t-1} + v_t
 
     with:       
         Y_t = (pi_t - mu) 
-        cY_t = Y_t - rho_bar * pi_{t-1}
         w_t ~ N(0, H) with H=D**2
         
     and:        
-        xi_t = (rho_t - rho_bar)
+        xi_0 = rho_bar
         v_t ~ N(0, Q) with Q = BB'
     
     Parameters
@@ -105,8 +100,7 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     Xt = pi[:-1] - mu
 
     # Reduced-form dependent variable:
-    # cY_t = (pi_t - mu) - rho_bar * pi_{t-1}
-    Yt = (pi[1:] - mu) - rho_bar * Xt
+    Yt = pi[1:] - mu
 
     T = Yt.shape[0]
 
@@ -124,17 +118,23 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     Err = np.full(T, np.nan)
     Kt = np.full(T, np.nan)
     Lt = np.full(T, np.nan)
+    
+    # RW or not ?
+    F = 1
 
     # =========================================================
     # Kalman filter
     # =========================================================
     # 1. Initialisation
     # E[xi_0] = 0
-    SForecast = 0.0
+    SForecast = rho_bar
 
     # Unconditional variance of stationary AR(1)
     # Var(xi_t) = 0 (RW)
-    PForecast = 0
+    if F == 1:
+        PForecast = 0
+    else:
+        PForecast = Q/(1-F**2)
     
     for t in range(T):
         if t == 0:
@@ -144,8 +144,8 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
             # 2. Forecast the states (St)
             # xi_{t|t-1}    = xi_{t-1|t-1}
             # P^xi_{t|t-1}  = P^xi_{t-1|t-1} + Q
-            Stf[t] = St[t-1]
-            PtS[t] = Pt[t-1] + Q
+            Stf[t] = F * St[t-1]
+            PtS[t] = F**2 * Pt[t-1] + Q
         
         # 3. Predict Yt
         # cY_{t|t-1} = pi_{t-1} xi_{t|t-1} 
@@ -166,12 +166,7 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
         Pt[t] = PtS[t] - Kt[t] * Xt[t] * PtS[t]
 
         # 6. Updating filtered variables
-        # rho_t = rho_bar + P^xi_{t|t}
-        # pi_{t|t} = rho_t * (mu + pi_{t-1})
-        Rhot[t] = rho_bar + St[t]
-        # Rhot[t] = St[t]
-        Pit[t] = Rhot[t] * Xt[t] + mu
-        # Pit[t] = St[t] * Xt[t] + mu
+        Pit[t] = St[t] * Xt[t] + mu
 
         # 7. Log-likelihood
         # =====================================================
@@ -187,14 +182,14 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     results = {
         "Y": pi[1:],
         "FittedY": Pit,
-        "ForecastY": ((rho_bar + Stf) * Xt + mu),
+        "ForecastY": (Stf * Xt + mu),
         "Err": Err,
         "forecastVarState": PtS,
         "filteredVarState": Pt,
         "forecastVarY": PtY,
         "forecastState":Stf,
         "filteredState": St,
-        "Rho": Rhot,
+        "Rho": St,
         "KalmanGain": Kt,
         "LogLikelihood": Lt
         }
@@ -208,11 +203,14 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
 
 def kalman_smoother(results, parameters, cMu=True, cRho=True):
     # Get parameters
-    mu, rho_bar, F, H, Q = get_parameters(
+    mu, rho_bar, H, Q = get_parameters(
         parameters,
         cMu=cMu,
         cRho=cRho
     )
+    
+    # RW or not ? 
+    F = 1
     
     # Forecast and filtered estimates
     Stf = results["forecastState"]
@@ -232,13 +230,13 @@ def kalman_smoother(results, parameters, cMu=True, cRho=True):
     
     # Backward recursion
     for t in range(T-2, -1, -1):
-        J = Pt[t] * F / PtS[t+1]
+        J = Pt[t] * F/ PtS[t+1]
         StSmoothed[t] = St[t] + J * (StSmoothed[t+1] - Stf[t+1])
         PtSmoothed[t] = Pt[t] + J**2 * (PtSmoothed[t+1] - PtS[t+1])
     return {
         "smoothedState": StSmoothed,
         "smoothedVarState": PtSmoothed,
-        "smoothedRho": StSmoothed + rho_bar,
+        "smoothedRho": StSmoothed
     }
 
 def objective(X0, pi, cRho=True, cMu=True):
@@ -250,71 +248,27 @@ def objective(X0, pi, cRho=True, cMu=True):
 
     return nll if np.isfinite(nll) else 1e12
 
-# Ensures the second order stationarity of measurement equation
-def persistence_constraint(
-    X0, pi, cRho=True, cMu=True, rho_max=0.99
-):
-    mu, rho_bar, F, H, Q = get_parameters(X0, cMu, cRho)
-    B = np.sqrt(Q)
-
-    results = kalman_filter_inflation(
-        X0, pi,
-        cRho=cRho,
-        cMu=cMu,
-        return_loglik=False
-    )
-
-    rho_filtered = np.asarray(results["Rho"])
-    rho_forecast = rho_bar + np.asarray(results["forecastState"])
-
-    rho_all = np.concatenate([rho_filtered, rho_forecast])
-
-    # Constraint >= 0
-    return rho_max - np.abs(rho_all)
-
-    # # Stationarity constraint... (Inconditional distribution of Rho)
-    # if abs(F) >= 1 or B <= 0:
-    #     return -1.0
-
-    # sigmaRho = B / np.sqrt(1 - F**2)
-    # probability = (
-    #     norm.cdf((1 - rho_bar) / sigmaRho)
-    #     - norm.cdf((-1 - rho_bar) / sigmaRho)
-    # )
-
-    # return probability - 0.99
 
 # Optimise -LogLikelihood
 def optNegLogLike(
     X0,
     pi,
     cMu=True,
-    cRho=True,
-    rho_max=0.99
+    cRho=True
 ):
 
     bounds = []
     if cMu:
-        # bounds.append((0.01999, 0.02001))     # mu, set to be around target
         bounds.append((None,None))                # mu
         
     if cRho:
-        bounds.append((-rho_max, rho_max))     
+        bounds.append((None,None))     
 
     bounds += [
-        (-rho_max, rho_max),                    # F
         # (1e-3, None),      # D: std of inflation shocks
         # (1e-6, 10e-2),      # B: std of rho_t innovations (8e-2)
-        (1e-8, None),      # D: std of inflation shocks
-        (1e-8, None),      # B: std of rho_t innovations (8e-2)
-    ]
-
-    constraints = [
-        {
-            "type": "ineq",
-            "fun": persistence_constraint,
-            "args": (pi, cRho, cMu, rho_max)
-        }
+        (1e-6, None),      # D: std of inflation shocks
+        (1e-6, None),      # B: std of rho_t innovations (8e-2)
     ]
     
     res = minimize(
@@ -324,7 +278,6 @@ def optNegLogLike(
         # method="SLSQP",
         method="L-BFGS-B",
         bounds=bounds,
-        constraints=constraints,
         options={
             "ftol": 1e-9,
             # "gtol": 1e-6,

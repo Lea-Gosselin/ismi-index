@@ -1,7 +1,7 @@
 from fismi.io import load_input, load_config
 import numpy as np
 import pandas as pd
-from fismi.models import kalAlgoSimple
+from fismi.models import kalAlgoRw
 import matplotlib.pyplot as plt
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from scipy.stats import norm
@@ -384,20 +384,19 @@ for i in range(100):
     x0 = np.array([
         rng.uniform(-0.01, 0.01),       # mu
         rng.uniform(-0.99, 0.99),       # rho_bar
-        rng.uniform(0.85, 1),           # F
         rng.uniform(1e-6, 0.5),        # D
         rng.uniform(1e-6, 0.5)         # B
     ])
 
     try:
-        res = kalAlgoSimple.optNegLogLike(
+        res = kalAlgoRw.optNegLogLike(
             x0,
             inflation,
             cMu=cMu,
             cRho=cRho
         )
 
-        nll = kalAlgoSimple.kalman_filter_inflation(
+        nll = kalAlgoRw.kalman_filter_inflation(
             res.x,
             inflation,
             cMu=cMu,
@@ -413,10 +412,9 @@ for i in range(100):
             "loglik": -nll,
             "mu": res.x[0],
             "rho_bar": res.x[1],
-            "F": res.x[2],
-            "D": res.x[3],
-            "B": res.x[4],
-            "lambda": (res.x[3] / res.x[4]) ** 2
+            "D": res.x[2],
+            "B": res.x[3],
+            "lambda": (res.x[2] / res.x[3]) ** 2
         })
 
     except (ValueError, FloatingPointError, OverflowError):
@@ -434,7 +432,7 @@ dfMultiStart = dfMultiStart.sort_values(
 successful = dfMultiStart.loc[(dfMultiStart["success"]==True)]
 
 # Plot the distribution of each parameter
-params = ["mu", "rho_bar", "F", "D", "B", "lambda"]
+params = ["mu", "rho_bar", "D", "B", "lambda"]
 
 # Best solution according to the objective function
 best = successful.loc[successful["objective"].idxmin()]
@@ -474,11 +472,10 @@ plt.show()
 
 
 # Plot some of the successful results...
-params = ["mu", "rho_bar", "F", "D", "B"]
+params = ["mu", "rho_bar", "D", "B"]
 x0 = successful[params].iloc[0].values
-# x0 = successful[["mu","F","D","B"]].iloc[51].values
 
-result = kalAlgoSimple.kalman_filter_inflation(
+result = kalAlgoRw.kalman_filter_inflation(
     x0,
     inflation,
     cMu=cMu,
@@ -543,7 +540,7 @@ plt.show()
 
 # Probability that persistence exceeds its long-run mean
 rhoBar = x0[1]
-z = (df["Rho"] - rhoBar) / np.sqrt(df["filteredVarState"])
+z = (df["Rho"] - 1) / np.sqrt(df["filteredVarState"])
 probHighPersistence = norm.cdf(z)
 df["probHighPersistence"] = probHighPersistence
 
@@ -570,7 +567,7 @@ axes[0].grid(alpha=0.2)
 axes[1].plot(
     df.index, df["probHighPersistence"],
     color="darkorange",
-    label=r"$P(\hat \rho_{t|t} > \bar \rho)$"
+    label=r"$P(\hat \rho_{t|t} > 1)$"
 )
 
 axes[1].axhline(0.90, color="red", linestyle="--")
@@ -712,21 +709,12 @@ print(
 
 
 # Test profilé
-names = ["mu", "rho_bar", "F", "D", "B"]
+names = ["mu", "rho_bar", "D", "B"]
 N = len(names) # Number of parameters
 K = 40
-# # Exploratory bounds
-# bounds = [
-#     (0, 0.01),
-#     (0.3, 0.5),
-#     (0.85, 0.99),
-#     (1e-4, 2e-3),
-#     (1e-2, 0.5) 
-# ]
 
 bounds = [
     (-0.01, 0.01),
-    (-0.99, 0.99),
     (-0.99, 0.99),
     (0.0001, 0.05),
     (1e-4, 1) #     (1e-6, 0.5)
@@ -734,7 +722,7 @@ bounds = [
 
 # Without any constraint... Run KL and MLE 
 def nll(theta):
-    return kalAlgoSimple.kalman_filter_inflation(
+    return kalAlgoRw.kalman_filter_inflation(
         theta, inflation,
         cMu=True, cRho=True,
         return_loglik=True
@@ -743,7 +731,7 @@ def nll(theta):
 # For each parameter j
 def profile_parameter(j, grid, theta_start):
 
-    other = [k for k in range(5) if k != j] # Index of all other parameters (that are kept fixed)
+    other = [k for k in range(N) if k != j] # Index of all other parameters (that are kept fixed)
     bounds_other = [bounds[k] for k in other]
 
     rows = []
@@ -775,7 +763,7 @@ def profile_parameter(j, grid, theta_start):
 # Best admissible solution, in parameter order
 theta_hat = valid.iloc[0][names].to_numpy(dtype=float)
 
-fig, axes = plt.subplots(2, 3, figsize=(16, 9))
+fig, axes = plt.subplots(2, 2, figsize=(16, 9))
 
 profile = {}
 xFinal = []
@@ -803,7 +791,7 @@ for j, name in enumerate(names):
     minVal = profile[name].sort_values(by="nll",ascending=True).iloc[0,0]
     xFinal.append(minVal)
 
-axes.flat[-1].axis("off")
+# axes.flat[-1].axis("off")
 
 plt.tight_layout()
 plt.show()

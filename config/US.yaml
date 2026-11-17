@@ -20,9 +20,9 @@ ismi:
   inflation_lag: 1
 
 persistence:
-  model: simple
+  model: rw
   inflation_lag: 1
   estimate_mu: true
   estimate_rho_bar: true
-  initial_params: [0.008, 0.56, 0.98, 0.0017, 0.2] # mu, rho_bar, F, (phi if augmented), D and B ([0.000994, 0.435294, 0.950284, 0.001747, 0.043540])
+  initial_params: [0.008, 0.56, 0.0017, 0.5] # [0.008, 0.56, 0.98, 0.0017, 0.2] # mu, rho_bar, F, (phi if augmented), D and B ([0.000994, 0.435294, 0.950284, 0.001747, 0.043540])
   startDate: "1994-12-01"
