@@ -29,6 +29,7 @@ def collect_jp(config):
     params = config["data"] # fismi.io, load_config
     csvUrl = params["price_url"]
     fileName = params["historical_weights"]
+    mapping = params["mapping_coicop"]
     headline_series = params["headline_series"]
     
     # 1. Upload historical weights since 2000 (saved earlier)
@@ -68,11 +69,30 @@ def collect_jp(config):
     df = df[df.index >= weights.index[0]]
 
     # 4. Map dataframes on common columns
-    common_cols = df.columns.intersection(weights.columns)
-    prices = df[common_cols]
-    weights = weights[common_cols]
-    weights = weights.reindex(prices.index).ffill()
+    # Collect at the coicop level, correspondance between coicop and item_code
+    # Historical mapping
+    mappingHistorical = pd.read_excel(mapping, dtype={
+        "item_code":str,
+        "coicop_historical":str}).set_index("item_code")["coicop_historical"]
 
+    # Appliquer à toutes les bases historiques COICOP 2025 et 2020 (historique, a fait partie de COICOP)
+    common_cols = df.columns.intersection(mappingHistorical.index)
+
+    # Select relevant items in prices, weights
+    prices = df[common_cols]
+    prices = prices.rename(columns=mappingHistorical) # Rename by ecoicop groups
+    
+    weights = weights[common_cols]
+    weights = weights.rename(columns=mappingHistorical)
+    weights = weights.reindex(prices.index).ffill() # Rename by ecoicop groups (prior to grouping)
+
+    # 5. Weighted average of items by COICOP groups
+    pricesWeighted = prices*weights
+    
+    # 6. Weighted average of items per COICOP 
+    weights = weights.T.groupby(level=0).sum().T
+    prices = (pricesWeighted.T.groupby(level=0).sum().T) / weights # Get index (not weighted) 53 columns
+    
     # 5. Add headline CPI to prices
     headline = df[headline_series]
     prices.insert(0, "HEADLINE",headline)
@@ -248,10 +268,6 @@ def collect_jp(config):
     
 #     # Get only item codes 
 #     tables.append(table.dropna(subset="item_code"))
-#     print(
-#         f"Base {base_year} : "
-#         f"{table['weight'].sum()} produits récupérés"
-#     )
     
 #     # Save Excel
 #     table.to_excel(f"{base_year}-Base Items CPI Japan.xlsx")
@@ -278,3 +294,70 @@ def collect_jp(config):
 
 # # Save into excel file... All items
 # monthlyWeights.to_excel("2000-2030 All Base Items CPI Japan.xlsx") # Store filename in YAML
+
+# # Collect at the coicop level, correspondance between coicop and item_code
+# # Mapping de référence : COICOP 2025 (589)
+# map2025 = (
+#     dfWeights.loc[
+#         dfWeights["Date"].eq(2025),
+#         ["item_code", "coicop"]
+#     ]
+#     .dropna(subset=["item_code", "coicop"])
+#     .drop_duplicates(subset="item_code")
+#     .set_index("item_code")["coicop"]
+# )
+
+# map2020 = (
+#     dfWeights.loc[
+#         dfWeights["Date"].eq(2020),
+#         ["item_code", "coicop"]
+#     ]
+#     .dropna(subset=["item_code", "coicop"])
+#     .drop_duplicates(subset="item_code")
+#     .set_index("item_code")["coicop"]
+# )
+
+# # Appliquer à toutes les bases historiques COICOP 2025 et 2020 (historique, a fait partie de COICOP)
+# dfWeights["coicop_2025"] = dfWeights["item_code"].map(map2025)
+
+# dfWeights["coicop_historical"] = (
+#     dfWeights["coicop_2025"]
+#     .fillna(dfWeights["item_code"].map(map2020))
+# )
+
+# # Sum over products, save mapping for prices...
+# # dfWeights[["item_code","coicop_historical"]].dropna().to_excel("Historical COICOP mapping to items.xlsx")
+# mapping = dfWeights.loc[dfWeights["Date"].ge(2025),["item_code","coicop_historical"]].dropna().set_index("item_code")["coicop_historical"]
+# mapping.to_excel("Historical COICOP mapping to items.xlsx")
+
+# # Base de 54 colonnes COICOP (poids du groupe COICOP = somme des poids des produits composants le groupe)
+# coicopWeights = (
+#     dfWeights
+#     .dropna(subset=["coicop_historical"])
+#     .groupby(["Date", "coicop_historical"])["weight"]
+#     .sum()
+#     .unstack(fill_value=0)
+# )
+
+# # Couverture
+# print("COICOP 2020, 2025 coverage since 2000")
+# print(coicopWeights.sum(axis=1))
+
+# # Pour mapping avec les prix (601 produits, en attente d'être mappé)
+# coicopWeightsItems = (
+#     dfWeights
+#     .dropna(subset=["coicop_historical"])
+#     .groupby(["Date", "item_code"])["weight"]
+#     .sum()
+#     .unstack(fill_value=0)
+# )
+
+# # Dates
+# coicopWeightsItems.index = pd.to_datetime(
+#     coicopWeightsItems.index.astype(str),
+#     format="%Y"
+# )
+
+# # Mensualisation
+# monthlyCoicopWeights = coicopWeightsItems.resample("MS").ffill() # Months, ItemCodes, Weights (%)
+# monthlyCoicopWeights.to_excel("2000-2030 COICOP Items CPI Japan.xlsx") # Store filename in YAML

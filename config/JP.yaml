@@ -5,7 +5,8 @@ data:
   source: ESTAT
   index: CPI
   price_url: https://www.e-stat.go.jp/en/stat-search/file-download?fileKind=1&statInfId=000040482945
-  historical_weights: 2000-2030 All Base Items CPI Japan.xlsx
+  historical_weights: 2000-2030 COICOP Items CPI Japan.xlsx
+  mapping_coicop: Historical COICOP mapping to items.xlsx
   headline_series: "0001"
   estat_api_key: estat_api_key
 
