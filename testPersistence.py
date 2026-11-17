@@ -236,55 +236,10 @@ axes[0].set_ylabel(r"$K_t$")
 axes[0].legend(loc="upper left")
 axes[0].grid(alpha=0.25)
 
-# Panel 2: Forecast errors
-axes[1].plot(
-    dates, Err * 100,
-    color=ORANGE, lw=1.1,
-    label=r"Forecast error $e_t$"
-)
-
-axes[1].axhline(
-    0, color="black", lw=0.8, alpha=0.5
-)
-
-axes[1].set_title("One-step-ahead forecast errors")
-axes[1].set_ylabel("Error (percentage points)")
-axes[1].legend(loc="upper left")
-axes[1].grid(alpha=0.25)
-
-plt.show()
-
-
-# ============================================================
-# 3. RAW AND STANDARDIZED KALMAN INNOVATIONS
-# ============================================================
-
-fig, axes = plt.subplots(
-    2, 1, figsize=(16, 8),
-    sharex=True,
-    constrained_layout=True
-)
-
-# Panel 1: Raw innovations
-axes[0].plot(
-    dates, Err * 100,
-    color=GREY, lw=1.1,
-    label=r"Raw innovation $e_t$"
-)
-
-axes[0].axhline(
-    0, color="black", lw=0.8, alpha=0.5
-)
-
-axes[0].set_title("Raw Kalman innovations")
-axes[0].set_ylabel("Innovation (percentage points)")
-axes[0].legend(loc="upper left")
-axes[0].grid(alpha=0.25)
-
-# Panel 2: Standardized innovations
+# Panel 2: Standardised errors
 axes[1].plot(
     dates, innovationErr,
-    color=BLUE, lw=1.1,
+    color=ORANGE, lw=1.1,
     label=r"Standardized innovation $z_t$"
 )
 
@@ -303,5 +258,10 @@ axes[1].set_title("Standardized Kalman innovations")
 axes[1].set_ylabel(r"$e^y_t / \sqrt{P^y_{t|t-1}}$")
 axes[1].legend(loc="upper left")
 axes[1].grid(alpha=0.25)
+
+# axes[1].set_title("One-step-ahead forecast errors")
+# axes[1].set_ylabel("Error (percentage points)")
+# axes[1].legend(loc="upper left")
+# axes[1].grid(alpha=0.25)
 
 plt.show()

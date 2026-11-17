@@ -409,7 +409,7 @@ for i in range(100):
             "success": res.success,
             "message": res.message,
             "objective": res.fun,
-            "loglik": -nll,
+            "loglik": -res.fun,
             "mu": res.x[0],
             "rho_bar": res.x[1],
             "D": res.x[2],
