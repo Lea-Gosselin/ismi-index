@@ -5,7 +5,7 @@ from fismi.models import kalAlgoRw
 import matplotlib.pyplot as plt
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from scipy.stats import norm
-from fismi.maths import rmse, rolling_largest_ar_root, localProjections
+from fismi.maths import rmse, rolling_largest_ar_root, adfSummary, residualDiagnostics
 from scipy.optimize import minimize
 import statsmodels.api as sm 
 import statistics as stat
@@ -15,6 +15,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.stattools import adfuller
+
 from itertools import product
 import warnings
 
@@ -34,38 +36,28 @@ inflation = np.log(
     prices["HEADLINE"].dropna()
 ).diff(
     config["persistence"]["inflation_lag"]
+).dropna()[11:]
+
+# Glissement annuel
+inflationGa = np.log(
+    prices["HEADLINE"].dropna()
+).diff(
+    12
 ).dropna()
 
-# Resize...
-inflation = inflation[
-    inflation.index >= startDate
-]
+
+# From 1995 to 2026
+# inflation = inflation[
+#     inflation.index >= startDate
+# ]
 
 # Dates
 dates = inflation.index
 
-
 ########################################################
-# Persistance et constante glissantes...
+# Diagnosis
 
-# Sur données simulées, on regarde le niveau moyen, la persistance moyenne, glissante
-# --- Rolling OLS settings ---
-window = 36
-T = inflation.shape[0]
-muRolling = np.full(T, np.nan)
-rhoRolling = np.full(T, np.nan)
-
-# --- Estimate rolling AR(1) for each simulation ---
-for t in range(window, T):
-
-    Y = inflation[t-window+1:t+1].values
-    X = sm.add_constant(inflation[t-window:t].values)
-
-    model = sm.OLS(Y, X).fit()
-
-    muRolling[t] = model.params[0]
-    rhoRolling[t] = model.params[1]
-
+# 1) Plot the series
 # Plot...
 fig, ax1 = plt.subplots(figsize=(16, 5))
 ax2 = ax1.twinx()
@@ -73,10 +65,10 @@ ax2 = ax1.twinx()
 # Persistence — left axis
 ax1.plot(
     dates,
-    rhoRolling,
-    color="darkblue",
+    inflation*100,
+    color="grey",
     linewidth=1.5,
-    label=r"Rolling persistence $\hat{\rho}_t$"
+    label=r"Monthly inflation rate ($\pi_t$)"
 )
 
 ax1.axhline(
@@ -86,20 +78,21 @@ ax1.axhline(
     1, color="grey", linestyle=":", linewidth=1
 )
 
-ax1.set_ylabel(r"Persistence ($\hat{\rho}_t$)", color="darkblue")
-ax1.tick_params(axis="y", labelcolor="darkblue")
+ax1.set_ylabel(r"Monthly inflation rate")
+ax1.tick_params(axis="y")
 
 # Intercept — right axis
 ax2.plot(
     dates,
-    muRolling,
-    color="steelblue",
+    inflationGa*100,
+    color="darkblue",
     alpha=0.7,
-    label=r"Rolling intercept $\hat{c}_t$"
+    linewidth=1.5,
+    label=r"Monthly inflation rate ($\pi^Y_t$)"
 )
 
-ax2.set_ylabel("AR(1) intercept (pp)", color="steelblue")
-ax2.tick_params(axis="y", labelcolor="steelblue")
+ax2.set_ylabel("Inflation (%)", color="darkblue")
+ax2.tick_params(axis="y", labelcolor="darkblue")
 
 # Legend
 lines1, labels1 = ax1.get_legend_handles_labels()
@@ -112,160 +105,232 @@ plt.tight_layout()
 plt.show()
 
 
-########################################################
-# Les changements de persistance sont-ils robustes à un changement de fenêtre ? 
-fig, ax = plt.subplots(figsize=(16, 5))
+# ACF, PACF
+fig, axes = plt.subplots(2, 2, figsize=(14, 8))
 
-for window in [36, 60, 120]:
+# Mom inflation
+plot_acf(inflation, lags=36, ax=axes[0,0])
+axes[0,0].set_title("Monthly inflation (ACF)")
 
-    rho = np.full(len(inflation), np.nan)
+plot_pacf(inflation, lags=36, ax=axes[0,1], method="ywm")
+axes[0,1].set_title("Monthly inflation (PACF)")
 
-    for t in range(window, len(inflation)):
-        Y = inflation[t-window+1:t+1].values
-        X = sm.add_constant(inflation[t-window:t].values)
+axes[0,0].grid(alpha=0.3)
+axes[0,1].grid(alpha=0.3)
 
-        model = sm.OLS(Y, X).fit()
-        rho[t] = model.params[1]
+# YoY inflation
+plot_acf(inflationGa, lags=36, ax=axes[1,0])
+axes[1,0].set_title("Year-on-year inflation (ACF)")
 
-    ax.plot(
-        dates,
-        rho,
-        label=f"{window//12}-year rolling AR(1)",
-        linewidth=1.5
-    )
+plot_pacf(inflationGa, lags=36, ax=axes[1,1], method="ywm")
+axes[1,1].set_title("Year-on-year inflation (PACF)")
 
-ax.axhline(0, color="grey", linestyle=":")
-ax.axhline(1, color="grey", linestyle=":")
+axes[1,0].grid(alpha=0.3)
+axes[1,1].grid(alpha=0.3)
 
-ax.set_ylabel(r"Rolling persistence ($\hat{\rho}_t$)")
-ax.legend()
-ax.grid(alpha=0.25)
-
+for ax in axes.flat:
+    ax.grid(True, linestyle="--", alpha=0.4)
+    
 plt.tight_layout()
 plt.show()
 
 
+# Stratégie séquentielle simplifiée ADF
+Data = {
+    'MoM': inflation,
+    'YoY': inflationGa,
+    'deltaYoY': inflationGa.diff().dropna()
+}
+
+for inf in Data.keys():
+    print(f"Run ADF on {inf} series...")
+    dfADF = adfSummary(Data[inf])
+    print(dfADF.round(4).to_string(index=False))
+
+
+print("Inflation MoM : I(1) + C")
+print("Inflation YoY : I(0) + C, stochastic trend")
+print("Delta Inflation YoY : I(1)")
+
+
 ########################################################
 # Quel processus ARMA suit l'inflation mensuelle ?
+fig, axes = plt.subplots(2, 2, figsize=(14, 8))
+
+# Mom inflation
+plot_acf(Data["MoM"], lags=36, ax=axes[0,0])
+axes[0,0].set_title("Monthly inflation (ACF)")
+
+plot_pacf(Data["MoM"], lags=36, ax=axes[0,1], method="ywm")
+axes[0,1].set_title("Monthly inflation (PACF)")
+
+axes[0,0].grid(alpha=0.3)
+axes[0,1].grid(alpha=0.3)
+
+# YoY inflation
+plot_acf(Data["deltaYoY"], lags=36, ax=axes[1,0])
+axes[1,0].set_title("Delta year-on-year inflation (ACF)")
+
+plot_pacf(Data["deltaYoY"], lags=36, ax=axes[1,1], method="ywm")
+axes[1,1].set_title("Delta year-on-year inflation (PACF)")
+
+axes[1,0].grid(alpha=0.3)
+axes[1,1].grid(alpha=0.3)
+
+
+for ax in axes.flat:
+    ax.grid(True, linestyle="--", alpha=0.4)
+    
+plt.tight_layout()
+plt.show()
+
 
 # Best ARMA(p,q) process
 # Maximum orders
 p_max = 12
 q_max = 6
-results = []
+allSeriesArima = {}
+bestModels = {}
+IC = "BIC"
 
-for p, q in product(range(p_max + 1), range(q_max + 1)):
+for inf in ["MoM", "YoY","deltaYoY"]:
 
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+    results = []
+    series = Data[inf].dropna()
 
-            model = ARIMA(
-                inflation,
-                order=(p, 0, q),
-                trend="c",
-                enforce_stationarity=True,
-                enforce_invertibility=True
-            ).fit()
+    for p, q in product(range(p_max + 1), range(q_max + 1)):
 
-        if not model.mle_retvals.get("converged", False):
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+
+                model = ARIMA(
+                    series,
+                    order=(p, 0, q),
+                    trend="c",
+                    enforce_stationarity=True,
+                    enforce_invertibility=True
+                ).fit()
+
+            if not model.mle_retvals.get("converged", False):
+                continue
+
+            results.append({
+                "p": p,
+                "q": q,
+                "AIC": model.aic,
+                "BIC": model.bic,
+                "NLL": -model.llf
+            })
+
+            bestModels[(inf, p, q)] = model
+
+        except (ValueError, np.linalg.LinAlgError):
             continue
 
-        results.append({
-            "p": p,
-            "q": q,
-            "AIC": model.aic,
-            "BIC": model.bic,
-            "LogLik": model.llf
-        })
+    # Store results for each inflation series
+    allSeriesArima[inf] = (
+        pd.DataFrame(results)
+        .sort_values(IC)
+        .reset_index(drop=True)
+    )
 
-    except (ValueError, np.linalg.LinAlgError):
-        continue
-
-dfResults = pd.DataFrame(results)
-
-if dfResults.empty:
-    raise RuntimeError("No ARMA model converged.")
 
 # Best specifications
-bestAIC = dfResults.loc[dfResults["AIC"].idxmin()]
-bestBIC = dfResults.loc[dfResults["BIC"].idxmin()]
+bestMom = allSeriesArima["MoM"].iloc[0,:]
+bestYoy = allSeriesArima["YoY"].iloc[0,:]
+bestDeltaYoy = allSeriesArima["deltaYoY"].iloc[0,:]
 
-print("Best ARMA according to AIC:")
-print(bestAIC)
+print(f"Best ARMA for monthly inflation according to {IC}:")
+print(bestMom)
 
-print("\nBest ARMA according to BIC:")
-print(bestBIC)
+print(f"\nBest ARMA for year-on-year inflation according to {IC}:")
+print(bestYoy)
 
-# Top 10 specifications
-display(dfResults.nsmallest(10, "BIC"))
+print(f"\nBest ARMA for delta year-on-year inflation according to {IC}:")
+print(bestDeltaYoy)
 
-# Visualiser les critères...
-fig, axes = plt.subplots(1, 2, figsize=(15, 5))
-
-for ax, criterion in zip(axes, ["AIC", "BIC"]):
-
-    pivot = dfResults.pivot(
-        index="p",
-        columns="q",
-        values=criterion
-    )
-
-    im = ax.imshow(
-        pivot,
-        origin="lower",
-        aspect="auto",
-        cmap="viridis"
-    )
-
-    ax.set_xticks(range(q_max + 1))
-    ax.set_yticks(range(p_max + 1))
-    ax.set_xlabel("MA order (q)")
-    ax.set_ylabel("AR order (p)")
-    ax.set_title(criterion)
-
-    fig.colorbar(im, ax=ax)
-
-plt.tight_layout()
-plt.show()
-
-
-########################################################
-# Estimer le meilleur model (parcimonieux) et tester les résidus
-p_opt = int(bestBIC["p"])
-q_opt = int(bestBIC["q"])
-
-bestModel = ARIMA(
-    inflation,
-    order=(p_opt, 0, q_opt),
-    trend="c",
-    enforce_stationarity=True,
-    enforce_invertibility=True
-).fit()
-
-print(bestModel.summary())
 
 # Residual diagnostics
-bestModel.plot_diagnostics(figsize=(13, 8))
-plt.tight_layout()
-plt.show()
+arimaModels = {
+    'MoM':bestModels[('MoM',bestMom['p'],bestMom['q'])],
+    'YoY':bestModels[('YoY',bestYoy['p'],bestYoy['q'])],
+    'deltaYoY':bestModels[('deltaYoY',bestDeltaYoy['p'],bestDeltaYoy['q'])]
+}
 
-# Companion eigenvalues are inverse AR polynomial roots
-ar_roots = bestModel.arroots
+pOpt = {
+    'MoM': bestMom['p'],
+    'YoY': bestYoy['p'],
+    'deltaYoY':bestDeltaYoy['p']
+}
 
-if len(ar_roots) > 0:
-    rho_max = 1 / np.min(np.abs(ar_roots))
-else:
-    rho_max = 0.0
+qOpt = {
+    'MoM': bestMom['q'],
+    'YoY': bestYoy['q'],
+    'deltaYoY':bestDeltaYoy['q']
+}
 
-print(f"Selected ARMA({p_opt},{q_opt})")
-print(f"Largest AR eigenvalue modulus: {rho_max:.4f}")
+window = 120
 
+for inf in arimaModels.keys():
+    
+    # Selection
+    mod = arimaModels[inf]
+    p_opt = pOpt[inf]
+    q_opt = qOpt[inf]
+    
+    # Start analysis... Some charts
+    print("\n")
+    print(f"Residual diagnostics for {inf}...")
+    mod.plot_diagnostics(figsize=(13, 8))
+    plt.tight_layout()
+    plt.show()
+    
+    # Some tests on standardised one-step ahead forecast errors
+    # Standardized one-step-ahead forecast errors
+    resid = mod.filter_results.standardized_forecasts_error[0]
+    resid = np.asarray(resid)
+    resid = resid[np.isfinite(resid)]
+    print(residualDiagnostics(resid))
+
+    # AR roots: stationarity and causality
+    ar_roots = mod.arroots
+    ma_roots = mod.maroots
+
+    if len(ar_roots) > 0:
+        rho_max = 1 / np.min(np.abs(ar_roots))
+
+        if np.all(np.abs(ar_roots) > 1):
+            print(f"ARMA({p_opt},{q_opt}) is stationary and causal")
+        else:
+            print(f"ARMA({p_opt},{q_opt}) is not causal/stationary under the usual ARMA representation")
+    else:
+        rho_max = 0.0
+
+    # MA roots: invertibility
+    if len(ma_roots) > 0:
+        phi_max = 1 / np.min(np.abs(ma_roots))
+
+        if np.all(np.abs(ma_roots) > 1):
+            print(f"ARMA({p_opt},{q_opt}) is invertible")
+        else:
+            print(f"ARMA({p_opt},{q_opt}) is non-invertible")
+    else:
+        phi_max = 0.0
+
+    print(f"Selected ARMA({p_opt},{q_opt})")
+    print(f"Largest AR eigenvalue modulus: {rho_max:.4f}")
+    print(f"Largest MA eigenvalue modulus: {phi_max:.4f}")
+
+
+## Largest Autoregressive Root
 # A partir de l'ARMA identifié, LAR comme estimation de la persistance du processus, sur une fenêtre de 10 ans
 results = rolling_largest_ar_root(
-    inflation*100,
-    window=120,
-    p=p_opt
+    Data['YoY'] * 100,
+    window=window,
+    p=int(1),
+    q=int(12),
+    trend='c'
 )
 
 fig, ax = plt.subplots(figsize=(14, 5))
@@ -275,22 +340,24 @@ ax.plot(
     results["LargestRoot"],
     color="darkblue",
     linewidth=1.8,
-    label="Largest AR root modulus"
+    label="Largest inverse AR root modulus"
 )
 
 ax.axhline(
     1,
     color="darkred",
     linestyle="--",
-    label="Unit root"
+    linewidth=1,
+    label="Unit root boundary"
 )
 
 ax.set(
-    title=f"US Inflation Persistence — Rolling {window/12:.0f}-year AR({p_opt})",
-    ylabel="Largest autoregressive root",
+    title=f"US Inflation Persistence — Rolling {window/12:.0f}-year ARMA(1,12)",
+    ylabel="Largest inverse AR root modulus",
     xlabel=""
 )
 
+ax.set_ylim(0, 1.05)
 ax.legend(frameon=False)
 ax.grid(alpha=0.2)
 

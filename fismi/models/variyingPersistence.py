@@ -5,6 +5,7 @@ import pandas as pd
 from fismi.models import kalAlgoSimple
 from fismi.models import kalAlgoAugmented
 from fismi.models import kalAlgoRw
+from fismi.models import kalAlgoArma
 
 def estimate_persistence(prices, config):
     """
@@ -25,7 +26,8 @@ def estimate_persistence(prices, config):
     models = {
         "simple": kalAlgoSimple,
         "augmented": kalAlgoAugmented,
-        "rw": kalAlgoRw
+        "rw": kalAlgoRw,
+        "arma": kalAlgoArma
     }
     if model_name not in models:
         raise ValueError(f"Unknown model: {model_name}")
@@ -52,23 +54,7 @@ def estimate_persistence(prices, config):
     # 5. Convert filtered series to DataFrame
     dates = inflation.index[1:]
 
-    results = pd.DataFrame(
-        {
-            "Inflation": filtered["Y"],
-            "FittedInflation": filtered["FittedY"],
-            "ForecastInflation": filtered["ForecastY"],
-            "RhoFiltered": filtered["Rho"],
-            "Residuals": filtered["Err"],
-            "forecastVarState": filtered["forecastVarState"],
-            "filteredVarState": filtered["filteredVarState"],
-            "forecastVarY": filtered["forecastVarY"],
-            "forecastState":filtered["forecastState"],
-            "filteredState": filtered["filteredState"],
-            "KalmanGain": filtered["KalmanGain"],
-            "LogLikelihood": filtered["LogLikelihood"]
-        },
-        index=dates,
-    )
+    results = filtered
     
     # 6. Smooth estimates
     smoothed = model.kalman_smoother(
@@ -78,21 +64,12 @@ def estimate_persistence(prices, config):
         cRho=params["estimate_rho_bar"]
         )
     
-    rhoSmoothed = pd.DataFrame(
-        {
-            "RhoSmoothed": smoothed["smoothedRho"],
-            "VarStateSmoothed": smoothed["smoothedVarState"]
-        },
-        index=dates,
-    )
-    
     # 7. Merge with results
-    results = pd.merge(
-        results,
-        rhoSmoothed,
-        right_index = True,
-        left_index = True
-    )
+    for i, key in enumerate(smoothed.keys()):
+        results[key] = smoothed[key]
+
+    # Store dates (index)
+    results["dates"] = dates
     
     return {
         "results": results,
