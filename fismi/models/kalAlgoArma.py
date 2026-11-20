@@ -59,7 +59,7 @@ def get_parameters(X0, cMu=True, cRho=True):
     return mu, rho_bar, F, Q, e, u, q
 
 # Filter...
-def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, kappa=1e2, return_loglik=False):
+def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, kappa=0, return_loglik=False):
     # ---------------------------------------------------------
     # Consistency checks and data management
     # ---------------------------------------------------------

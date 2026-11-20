@@ -458,7 +458,7 @@ fig, axes = plt.subplots(
 
 # Panel 1: Kalman gain for persistence
 axes[0].plot(
-    dates, np.asarray(Kt)[:, 0],
+    dates, Kt,
     color=BLUE, lw=1.3,
     label=r"Kalman gain for persistence $K_t^\rho$"
 )
