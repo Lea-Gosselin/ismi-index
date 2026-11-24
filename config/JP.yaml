@@ -16,9 +16,11 @@ ismi:
   inflation_lag: 1
 
 persistence:
-  model: simple
+  model: arma # simple
   inflation_lag: 1
   estimate_mu: true
   estimate_rho_bar: true
-  initial_params: [0.008, 0.56, 0.98, 0.0017, 0.2] # mu, rho_bar, F, (phi if augmented), D and B ([0.000994, 0.435294, 0.950284, 0.001747, 0.043540])
-  startDate: "1994-12-01"
+  p_lag: 1
+  q_lag: 2
+  initial_params: [0.0005, 0.8989, -0.7186, -0.0472, 0.002238, 1] # mu, rho_bar, F, (phi if augmented), D and B ([0.000994, 0.435294, 0.950284, 0.001747, 0.043540])
+  startDate: "2001-01-01"

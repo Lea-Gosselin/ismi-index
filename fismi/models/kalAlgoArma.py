@@ -66,12 +66,38 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     # ---------------------------------------------------------
     mu, rho_bar, F, Q, e, u, q = get_parameters(X0, cMu, cRho)
     pi = np.asarray(pi, dtype=float).ravel()
+    
+    # # Introduction de chocs de volatilité / moyenne déterministes
+    # dates = pi.index
+
+    # regime = np.select(
+    #     [
+    #         dates < "1984-01-01",
+    #         dates < "2020-01-01"
+    #     ],
+    #     [0, 1],
+    #     default=2
+    # )
+
+    # mu_params = np.array([mu1, mu2, mu3])
+
+    # sigma_e_params = np.array([
+    #     sigma_e1,
+    #     sigma_e2,
+    #     sigma_e3
+    # ])
+
+    # mu_t = mu_params[regime]
+    # sigma_e_t = sigma_e_params[regime]
 
     # Inflation (centered or not around its long-run level)
     Xt = pi[:-1] - mu
+    # Xt = pi[:-1] - mu_t[:-1] # Déterministe
 
     # Reduced-form dependent variable:
     Yt = (pi[1:] - mu) 
+    # Yt = pi[1:] - mu_t[1:] # Déterministe
+
     T = len(Yt)
 
     # ---------------------------------------------------------
@@ -130,6 +156,15 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     I = np.eye(N)
     
     for t in range(T):
+        
+        # # Current observation corresponds to pi[t+1] # Déterministe
+        # Qt = np.diag([
+        #     sigma_u**2,
+        #     sigma_e_t[t+1]**2
+        # ])
+        
+        # RQR = R @ Qt @ R.T
+        
         if t == 0:
             Stf[t] = SForecast
             PtS[t] = PForecast
@@ -309,66 +344,13 @@ def persistence_constraint(
     ])
 
 
-def objective_penalized(
-    X0, pi, cRho=True, cMu=True,
-    rho_max=0.9999, penalty=1e6
-):
-
-    try:
-
-        # 1. Kalman filter
-        results = kalman_filter_inflation(
-            X0, pi, cRho, cMu,
-            return_loglik=False
-        )
-
-        # 2. Negative log-likelihood
-        nll = -np.sum(results["LogLikelihood"])
-
-        # 3. Kalman smoother
-        smoother = kalman_smoother(
-            results, X0,
-            cMu=cMu,
-            cRho=cRho
-        )
-
-        # 4. Extract persistence trajectories
-        rho_all = np.concatenate([
-            results["Rho"],
-            results["forecastState"][:, 0],
-            smoother["smoothedRho"]
-        ])
-
-        if not np.isfinite(nll):
-            return 1e12
-
-        if not np.all(np.isfinite(rho_all)):
-            return 1e12
-
-        # 5. Stationarity violations
-        violations = np.maximum(
-            np.abs(rho_all) - rho_max,
-            0.0
-        )
-
-        # 6. Penalized negative log-likelihood
-        return nll + penalty * np.sum(violations**2)
-
-    except (
-        ValueError,
-        np.linalg.LinAlgError,
-        FloatingPointError
-    ):
-        return 1e12
-    
-    
 # Optimise -LogLikelihood
 def optNegLogLike(
     X0,
     pi,
     cMu=True,
     cRho=True,
-    rho_max=0.9999
+    rho_max=0.99
 ):
 
     q = len(X0) - int(cMu) - int(cRho) - 2
@@ -381,87 +363,33 @@ def optNegLogLike(
     if cRho:
         bounds.append((-rho_max, rho_max))
 
-    # Fix MA coefficients at their initial values
-    i = int(cMu) + int(cRho)
-
-    bounds += [
-        (theta, theta)
-        for theta in X0[i:i+q]
-    ]
+    bounds += [(-0.99, 0.99)] * q
 
     bounds += [
         (1e-8, None),
         (1e-8, None)
     ]
 
-    # Starting parameters
-    x = np.asarray(X0, dtype=float).copy()
-
-    # Progressive penalty
-    penalties = [1e3, 1e4, 1e5, 1e6, 1e7, 1e8]
-
-    for penalty in penalties:
-
-        res = minimize(
-            objective_penalized,
-            x,
-            args=(pi, cRho, cMu, rho_max, penalty),
-            method="L-BFGS-B",
-            bounds=bounds,
-            options={
-                "ftol": 1e-12,
-                "gtol": 1e-6,
-                "maxiter": 10000,
-                "maxls": 50
-            }
-        )
-
-        # Evaluate estimated trajectories
-        results = kalman_filter_inflation(
-            res.x, pi, cRho, cMu
-        )
-
-        smoother = kalman_smoother(
-            results, res.x,
-            cMu=cMu,
-            cRho=cRho
-        )
-
-        rho_all = np.concatenate([
-            results["Rho"],
-            results["forecastState"][:, 0],
-            smoother["smoothedRho"]
-        ])
-
-        max_rho = np.max(np.abs(rho_all))
-
-        nll = -np.sum(results["LogLikelihood"])
-
-        feasible = (
-            np.all(np.isfinite(rho_all))
-            and max_rho < 1.0
-        )
-
-        print(
-            f"Penalty: {penalty:.0e} | "
-            f"NLL: {nll:.6f} | "
-            f"Max |rho|: {max_rho:.8f} | "
-            f"Success: {res.success} | "
-            f"Feasible: {feasible}"
-        )
-
-        # Stop if convergence AND feasibility
-        if res.success and feasible:
-            break
-
-        # Warm start
-        x = res.x.copy()
-
-    res["max_abs_rho"] = max_rho
-    res["stationary_paths"] = feasible
-    res["unpenalized_nll"] = nll
-
-    if not feasible:
-        print("WARNING: Stationarity restriction not satisfied.")
+    constraints = [
+        {
+            "type": "ineq",
+            "fun": persistence_constraint,
+            "args": (pi, cRho, cMu, rho_max)
+        }
+    ]
+    
+    res = minimize(
+        objective,
+        X0,
+        args=(pi, cRho, cMu),
+        # method="SLSQP",
+        method="L-BFGS-B",
+        bounds=bounds,
+        # constraints=constraints,
+        options={
+            "ftol": 1e-9,
+            "maxiter": 10000
+        }
+    )
 
     return res

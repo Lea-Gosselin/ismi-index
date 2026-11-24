@@ -31,7 +31,7 @@ import warnings
 # Select country
 BLEU = "#2B3A67"
 ORANGE = "#F6AE2D"
-country = "US"
+country = "JP"
 cMu = True
 cRho = True
 
@@ -61,7 +61,7 @@ dates = inflationGa.index
 
 ########################################################
 # Table 1 : Statistiques descriptives
-inflation = {
+inflation_dict = {
     "MoM": inflation,
     "YoY": inflationGa
 }
@@ -128,7 +128,7 @@ results = {}
 
 for period, (start, end) in periods.items():
 
-    for frequency, series in inflation.items():
+    for frequency, series in inflation_dict.items():
 
         series = series.copy()
         series.index = pd.to_datetime(series.index)
@@ -466,7 +466,7 @@ window = 120
 
 for inf in arimaModels.keys():
     # Standard deviation
-    std = np.std(Data['inf'])
+    std = np.std(Data[inf])
     
     # Selection
     mod = arimaModels[inf]

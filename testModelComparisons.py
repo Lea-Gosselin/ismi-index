@@ -1,4 +1,5 @@
 from fismi.io import load_input, load_config
+from fismi.maths import residual_diagnostics, plot_residual_diagnostics
 import numpy as np
 import pandas as pd
 from fismi.models import kalAlgoRw
@@ -19,7 +20,6 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import statsmodels.api as sm
 
-from scipy.stats import norm, gaussian_kde
 from statsmodels.graphics.tsaplots import plot_acf
 import statsmodels.api as sm 
 import statistics as stat
@@ -36,9 +36,10 @@ from statsmodels.stats.diagnostic import (
     acorr_ljungbox,
     het_arch
 )
-from statsmodels.stats.stattools import jarque_bera
 from itertools import product
 import warnings
+import numpy as np
+from statsmodels.tsa.arima_process import arma_impulse_response
 
 ########################################################
 # Settings
@@ -58,8 +59,7 @@ folder = "./results/2026-11-23 Comparisons/"
 AR1 = pd.read_parquet(folder + "AR-1.parquet")
 AR1_1960 = pd.read_parquet(folder + "AR-1-1960.parquet")
 
-# ARMA13 = pd.read_parquet(folder + "ARMA-1_3.parquet")
-ARMA13 = pd.read_parquet("/Users/lea_gosselin/GitRepo/ismi-index/results/USPersistence.parquet")
+ARMA13 = pd.read_parquet(folder + "ARMA-1_3.parquet")
 # ARMA16 = pd.read_parquet(folder + "ARMA-1_6.parquet")
 ARMA112 = pd.read_parquet(folder + "ARMA-1_12.parquet")
 # ARMA112_1995 = pd.read_parquet(folder + "ARMA-1_12-1995.parquet")
@@ -68,8 +68,7 @@ ARMA112 = pd.read_parquet(folder + "ARMA-1_12.parquet")
 folder = "./results/2026-11-23 Comparisons/"
 paramAR1 = pd.read_json(folder + "AR-1.json")
 paramAR1_1960 = pd.read_json(folder + "AR-1-1960.json")
-# paramARMA13 = pd.read_json(folder + "ARMA-1_3.json")
-paramARMA13 = pd.read_json("/Users/lea_gosselin/GitRepo/ismi-index/results/USPersistence.json")
+paramARMA13 = pd.read_json(folder + "ARMA-1_3.json")
 paramARMA112 = pd.read_json(folder + "ARMA-1_12.json")
 
 mom = ARMA13['Inflation']
@@ -403,133 +402,164 @@ plt.show()
 
 # ============================================================
 # FIGURES — ACF(1) = PACF(1)
-# ============================================================# ============================================================
-# MODEL-IMPLIED ACF(1)
 # ============================================================
 
-keyArma = 'TVP-ARMA(1,3) on monthly inflation since 1960'
-keyAr = 'TVP-AR(1) on monthly inflation since 1960'
+def finite_horizon_acf(rho, maParams, lag=1, H=12):
+    """
+    Finite-horizon model-implied autocorrelation
+    for an ARMA(1,q) with frozen parameters.
 
-dfArma = specifications[keyArma][0]
-dfAr = specifications[keyAr][0]
+    Parameters
+    ----------
+    rho : float
+        Autoregressive coefficient.
+    maParams : array
+        MA polynomial [1, theta_1, ..., theta_q].
+    lag : int
+        Autocorrelation lag.
+    H : int
+        Finite propagation horizon.
 
-param = specifications[keyArma][-1]['parameters']
-q = specifications[keyArma][2]
+    Returns
+    -------
+    float
+        Corr(x_H, x_{H-lag}).
+    """
 
-# Fixed MA coefficients
-maParams = np.r_[1.0, param.iloc[2:2+q].values]
+    if not 1 <= lag <= H:
+        raise ValueError("lag must be between 1 and H")
 
-
-def compute_acf1(rho, maParams):
-    """Frozen-parameter theoretical ACF(1)."""
-
-    if not np.isfinite(rho) or abs(rho) >= 1:
+    if not np.isfinite(rho):
         return np.nan
 
-    return arma_acf(
+    # Impulse response coefficients: psi_0, ..., psi_H
+    psi = arma_impulse_response(
         ar=np.array([1.0, -rho]),
         ma=maParams,
-        lags=2
-    )[1]
+        leads=H+1
+    )
 
+    # Covariance (up to sigma_e²)
+    covariance = np.dot(
+        psi[:-lag],
+        psi[lag:]
+    )
+
+    # Variances (up to sigma_e²)
+    variance_H = np.sum(psi**2)
+    variance_H_lag = np.sum(psi[:-lag]**2)
+
+    return covariance / np.sqrt(
+        variance_H * variance_H_lag
+    )
+    
+keyAr = 'TVP-AR(1) on monthly inflation since 1960'
+keyArma = 'TVP-ARMA(1,3) on monthly inflation since 1960'
+
+keys = [keyAr, keyArma]
+
+H = 1
+lag = 1
+
+for key in keys:
+
+    df = specifications[key][0]
+    param = specifications[key][-1]["parameters"]
+    q = specifications[key][2]
+
+    # MA polynomial
+    maParams = np.r_[1.0, param.iloc[2:2+q].values]
+
+    for state in ["Filtered", "Smoothed"]:
+
+        df[f"FiniteACF{lag}_{H}m_{state}"] = (
+            df[f"Rho{state}"].apply(
+                lambda rho: finite_horizon_acf(
+                    rho, maParams, lag=lag, H=H
+                )
+            )
+        )
 
 # ============================================================
 # COMPUTE AND PLOT FILTERED / SMOOTHED ACF
 # ============================================================
+colors = ["#344E73", "#C16B5A"]
+labels = ["TVP-AR(1)", "TVP-ARMA(1,3)"]
+
+mom = specifications[keyArma][0]["Inflation"]
+
+# Empirical rolling first-order correlation
+window = 60
+
+empiricalACF = mom.rolling(window).corr(
+    mom.shift(lag)
+)
 
 for state in ["Filtered", "Smoothed"]:
 
-    rhoCol = f"Rho{state}"
-    acfCol = f"ACF(1) {state.lower()}"
-
-    # TVP-ARMA(1,q)
-    dfArma[acfCol] = dfArma[rhoCol].apply(
-        lambda rho: compute_acf1(rho, maParams)
-    )
-
-    # ========================================================
-    # FIGURE
-    # ========================================================
-
     fig, ax = plt.subplots(figsize=(16, 5))
 
-    ax.plot(
-        dates,
-        dfArma[acfCol],
-        color="#C16B5A",
-        lw=1.8,
-        label="TVP-ARMA(1,3)"
-    )
+    for key, color, label in zip(keys, colors, labels):
 
+        df = specifications[key][0]
+
+        ax.plot(
+            df.index,
+            df[f"FiniteACF{lag}_{H}m_{state}"],
+            color=color,
+            lw=1.8,
+            label=label
+        )
+
+    # Empirical benchmark
     ax.plot(
-        dates,
-        dfAr[rhoCol],
-        color="#344E73",
-        lw=1.8,
-        label="TVP-AR(1)"
+        empiricalACF.index,
+        empiricalACF,
+        color="#808A99",
+        linestyle="--",
+        lw=1.3,
+        alpha=0.85,
+        label=f"Empirical ACF({lag}) — {window}m rolling"
     )
 
     ax.axhline(0, color="black", lw=0.8)
 
-    ax.set(
-        ylabel="ACF(1)",
-        xlabel="",
-        xlim=(start_date, end_date)
-    )
-
     ax.set_title(
-        f"US inflation — Model-implied ACF(1) ({state.lower()})",
+        f"US inflation — Finite-horizon ACF({lag}) "
+        f"at {H} months ({state.lower()})",
         loc="left",
         fontsize=16,
         fontweight="bold",
         pad=15
     )
 
-    # ========================================================
-    # AXES AND DATES
-    # ========================================================
-
-    ax.margins(x=0)
+    ax.set(
+        ylabel=f"ACF({lag}, H={H})",
+        xlabel="",
+        xlim=(mom.index.min(), mom.index.max())
+    )
 
     ax.xaxis.set_major_locator(mdates.YearLocator(3))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     ax.xaxis.set_minor_locator(mdates.YearLocator(1))
 
-    ax.tick_params(
-        axis="both", which="major",
-        labelsize=11, length=5
-    )
+    ax.tick_params(axis="both", labelsize=11)
 
-    ax.tick_params(
-        axis="x", which="minor", length=2.5
-    )
-
-    # Grid
-    ax.grid(
-        axis="y", which="major",
-        linestyle="-", linewidth=0.6, alpha=0.25
-    )
-
-    ax.grid(
-        axis="x", which="major",
-        linestyle="--", linewidth=0.6, alpha=0.35
-    )
+    ax.grid(axis="y", lw=0.6, alpha=0.25)
+    ax.grid(axis="x", lw=0.6, alpha=0.35, linestyle="--")
 
     ax.set_axisbelow(True)
+    ax.margins(x=0, y=0.08)
 
-    # Spines
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
 
-    # Legend
     ax.legend(
         loc="upper center",
         bbox_to_anchor=(0.5, -0.12),
-        ncol=2,
+        ncol=3,
         frameon=False,
-        fontsize=10,
-        columnspacing=2.5,
-        handlelength=3
+        fontsize=10
     )
 
     plt.tight_layout()
@@ -971,227 +1001,38 @@ for model_name, (model, p, q, freq, params) in specifications.items():
 # ========================================================
 
 # Store name, residuals from TVP and ARMA specifications
-residuals = {
-    ('TVP-AR(1) on monthly inflation since 1995', 'q'): (specifications['TVP-AR(1) on monthly inflation since 1995'][0]['Residuals'], 0),
-    ('AR(1) on monthly inflation since 1995', 'q'): (arma_fix['TVP-AR(1) on monthly inflation since 1995'].resid, 0),
-    
-    ('TVP-AR(1) on monthly inflation since 1960', 'q') : (specifications['TVP-AR(1) on monthly inflation since 1960'][0]['Residuals'], 0),
-    ('AR(1) on monthly inflation since 1960', 'q') : (arma_fix['TVP-AR(1) on monthly inflation since 1960'].resid, 0),
-    
-    ('TVP-ARMA(1,3) on monthly inflation since 1960', 'q') : (specifications['TVP-ARMA(1,3) on monthly inflation since 1960'][0]['Residuals'], 3),
-    ('ARMA(1,3) on monthly inflation since 1960', 'q') : (arma_fix['TVP-ARMA(1,3) on monthly inflation since 1960'].resid, 3),
-    
-    ('TVP-ARMA(1,12) on year-on-year inflation since 1960', 'q'): (specifications['TVP-ARMA(1,12) on year-on-year inflation since 1960'][0]['Residuals'], 12),
-    ('ARMA(1,12) on year-on-year inflation since 1960', 'q') : (arma_fix['TVP-ARMA(1,12) on year-on-year inflation since 1960'].resid, 12)
-}
+# ========================================================
+# STANDARDIZED INNOVATIONS — ALL SPECIFICATIONS
+# ========================================================
 
-def residual_diagnostics(residuals, p=1, q=0):
+residuals = {}
 
-    z = pd.Series(residuals).replace(
-        [np.inf, -np.inf], np.nan
-    ).dropna()
+for name, (df, p, q, freq, params) in specifications.items():
 
-    # Ljung-Box
-    lb = acorr_ljungbox(
-        z,
-        lags=[p+q+1, 12, 24, 36],
-        model_df=p+q,
-        return_df=True
-    )
+    # ----------------------------------------------------
+    # 1. TVP specifications
+    # ----------------------------------------------------
 
-    # ARCH-LM
-    arch = het_arch(z, nlags=12, ddof=p+q)
+    errors = df["Residuals"].astype(float)
+    variance = df["forecastVarY"].astype(float)
 
-    # Jarque-Bera
-    jb = jarque_bera(z)
+    # Standardized one-step-ahead innovations
+    z_tvp = errors / np.sqrt(variance)
 
-    return {
-        f"LB({p+q+1}) stat": lb.loc[p+q+1, "lb_stat"],
-        f"LB({p+q+1}) p-value": lb.loc[p+q+1, "lb_pvalue"],
-        "LB(12) stat": lb.loc[12, "lb_stat"],
-        "LB(12) p-value": lb.loc[12, "lb_pvalue"],
-        "LB(24) stat": lb.loc[24, "lb_stat"],
-        "LB(24) p-value": lb.loc[24, "lb_pvalue"],
-        "LB(36) stat": lb.loc[24, "lb_stat"],
-        "LB(36) p-value": lb.loc[24, "lb_pvalue"],
-        "ARCH(12) stat": arch[0],
-        "ARCH(12) p-value": arch[1],
-        "JB stat": jb[0],
-        "JB p-value": jb[1],
-        "Skewness": jb[2],
-        "Kurtosis": jb[3]
-    }
+    residuals[(name, "q")] = (z_tvp, q)
 
-def plot_residual_diagnostics(resid, name, lags=36):
+    # ----------------------------------------------------
+    # 2. Constant-parameter specifications
+    # ----------------------------------------------------
 
-    # Clean and standardize residuals
-    z = pd.Series(resid).replace(
-        [np.inf, -np.inf], np.nan
-    ).dropna()
+    model = arma_fix[name]
+    fixed_name = name.removeprefix("TVP-")
 
-    z = (z - z.mean()) / z.std(ddof=1)
+    # Standardized Kalman forecast errors
+    z_fixed = pd.Series(model.filter_results.standardized_forecasts_error[0])
+    residuals[(fixed_name, "q")] = (z_fixed, q)
 
-    BLUE = "#344E73"
-    RED = "#C16B5A"
 
-    fig, axes = plt.subplots(
-        2, 2,
-        figsize=(16, 9),
-        constrained_layout=True
-    )
-
-    fig.suptitle(
-        f"Residual diagnostics — {name}",
-        fontsize=17,
-        fontweight="bold"
-    )
-
-    # ========================================================
-    # PANEL 1 — STANDARDIZED RESIDUALS
-    # ========================================================
-
-    ax = axes[0, 0]
-
-    ax.plot(
-        z.index, z,
-        color=BLUE,
-        lw=0.9
-    )
-
-    ax.axhline(0, color="black", lw=0.8)
-
-    for bound in [-1.96, 1.96]:
-        ax.axhline(
-            bound,
-            color=RED,
-            linestyle="--",
-            lw=1,
-            alpha=0.8
-        )
-
-    ax.set_title("Standardized residuals", loc="left")
-    ax.set_ylabel("Standard deviations")
-
-    if isinstance(z.index, pd.DatetimeIndex):
-        ax.xaxis.set_major_locator(mdates.YearLocator(10))
-        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
-
-    ax.margins(x=0)
-
-    # ========================================================
-    # PANEL 2 — HISTOGRAM AND DENSITY
-    # ========================================================
-
-    ax = axes[0, 1]
-
-    x = np.linspace(
-        min(z.min(), -4),
-        max(z.max(), 4),
-        500
-    )
-
-    ax.hist(
-        z,
-        bins=35,
-        density=True,
-        color=BLUE,
-        alpha=0.30,
-        edgecolor="white",
-        label="Residuals"
-    )
-
-    ax.plot(
-        x,
-        gaussian_kde(z)(x),
-        color=BLUE,
-        lw=1.8,
-        label="Empirical density"
-    )
-
-    ax.plot(
-        x,
-        norm.pdf(x),
-        color=RED,
-        linestyle="--",
-        lw=1.8,
-        label="N(0,1)"
-    )
-
-    ax.set_title("Histogram and estimated density", loc="left")
-    ax.set_ylabel("Density")
-    ax.legend(frameon=False)
-
-    # ========================================================
-    # PANEL 3 — NORMAL Q-Q PLOT
-    # ========================================================
-
-    ax = axes[1, 0]
-
-    sm.qqplot(
-        z,
-        line="45",
-        ax=ax,
-        marker="o",
-        markersize=3,
-        markerfacecolor=BLUE,
-        markeredgecolor=BLUE,
-        alpha=0.65
-    )
-
-    ax.lines[-1].set_color(RED)
-    ax.lines[-1].set_linestyle("--")
-    ax.lines[-1].set_linewidth(1.5)
-
-    ax.set_title("Normal Q-Q plot", loc="left")
-    ax.set_xlabel("Theoretical quantiles")
-    ax.set_ylabel("Empirical quantiles")
-
-    # ========================================================
-    # PANEL 4 — RESIDUAL AUTOCORRELATION
-    # ========================================================
-
-    ax = axes[1, 1]
-
-    plot_acf(
-        z,
-        lags=min(lags, len(z)-1),
-        alpha=0.05,
-        zero=False,
-        bartlett_confint=False,
-        ax=ax,
-        color=BLUE,
-        vlines_kwargs={"colors": BLUE, "linewidth": 1.2}
-    )
-
-    ax.set_title("Residual autocorrelation", loc="left")
-    ax.set_xlabel("Lag (months)")
-    ax.set_ylabel("ACF")
-
-    # ========================================================
-    # COMMON STYLING
-    # ========================================================
-
-    for ax in axes.flat:
-
-        ax.spines["top"].set_visible(False)
-        ax.spines["right"].set_visible(False)
-
-        ax.grid(
-            axis="y",
-            linestyle="-",
-            linewidth=0.6,
-            alpha=0.20
-        )
-
-        ax.set_axisbelow(True)
-        ax.tick_params(axis="both", labelsize=10)
-
-        ax.title.set_fontsize(12)
-        ax.title.set_fontweight("bold")
-
-    plt.show()
-
-    return fig
 
 
 
@@ -1205,7 +1046,7 @@ for (name, _), (resid, q) in residuals.items():
     )
     
     plot_residual_diagnostics(
-        resid=resid,
+        z=resid,
         name=name,
         lags=36
     )
