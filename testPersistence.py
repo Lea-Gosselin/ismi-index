@@ -23,9 +23,9 @@ for country in ["US"]:
     prices, weights = load_input(country)
     startDate = config["persistence"]["startDate"]
     p = config["persistence"]["p_lag"]
-    q = config["persistence"]["p_lag"]
+    q = config["persistence"]["q_lag"]
     inf_lag = config["persistence"]["inflation_lag"]
-    pi = prices.loc[prices.index >= startDate, "HEADLINE"].diff(inf_lag).dropna()
+    pi = np.log(prices.loc[prices.index >= startDate, "HEADLINE"]).diff(inf_lag).dropna()
     
     ## 1) Estimate an ARMA(p,q) on the full sample
     model = ARIMA(
@@ -63,27 +63,31 @@ for country in ["US"]:
         config=config,
     )
 
-    # path = save_persistence(country, persistence)
+    path = save_persistence(country, persistence)
 
-    print("----- Log-likelihood -----")    
-    print(f"AR(1) full data, constant persistence : {model.llf}")
+    print("----- Log-likelihood and IC -----")    
+    print(f"ARMA({p},{q}) full data, constant parameters : NLL = {model.llf}, AIC = {model.aic}, BIC = {model.bic}")
     print(f"KF and MLE, varying persistence : {-persistence['optimization']['fun']}")
     
     print("----- Initial parameters -----")
     initParams = config['persistence']['initial_params']
     print(f"Mu bar = {initParams[0]}")
     print(f"Rho bar = {initParams[1]}")
-    print(f"Std. inflation innovations = {initParams[2]}")
-    print(f"Std. state innovations = {initParams[3]}")
+    for i in range(2,2+q):
+        print(f"MA({i-1}) coefficient = {initParams[i]}")
+    print(f"Std. inflation innovations = {initParams[-2]}")
+    print(f"Std. state innovations = {initParams[-1]}")
     
     print("----- Estimated parameters -----")
     estParams = persistence["parameters"]
     print(f"Mu bar = {estParams[0]}")
     print(f"Rho bar = {estParams[1]}")
-    print(f"Std. inflation innovations = {estParams[2]}")
-    print(f"Std. state innovations = {estParams[3]}")
+    for i in range(2,2+q):
+        print(f"MA({i-1}) coefficient = {estParams[i]}")
+    print(f"Std. inflation innovations = {estParams[-2]}")
+    print(f"Std. state innovations = {estParams[-1]}")
 
-    # print("Saved:", path)
+    print("Saved:", path)
 
 
 # ============================================================
@@ -99,7 +103,7 @@ mom = 100 * np.log(headline).diff(1)
 yoy = 100 * np.log(headline).diff(12)
 
 # Align with Kalman estimation dates
-dates = df["dates"]
+dates = df.index
 mom = mom.reindex(dates)
 yoy = yoy.reindex(dates)
 

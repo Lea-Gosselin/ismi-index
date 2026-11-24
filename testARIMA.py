@@ -7,6 +7,7 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from scipy.stats import norm
 from fismi.maths import rmse, rolling_largest_ar_root, adfSummary, residualDiagnostics
 from scipy.optimize import minimize
+import matplotlib.dates as mdates
 import statsmodels.api as sm 
 import statistics as stat
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
@@ -17,12 +18,19 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.stattools import adfuller
 
+import numpy as np
+import pandas as pd
+from scipy.stats import skew, kurtosis, jarque_bera
+from statsmodels.tsa.stattools import acf, pacf
+
 from itertools import product
 import warnings
 
 ########################################################
 # Settings
 # Select country
+BLEU = "#2B3A67"
+ORANGE = "#F6AE2D"
 country = "US"
 cMu = True
 cRho = True
@@ -32,10 +40,13 @@ config = load_config(country)
 startDate = config["persistence"]["startDate"]
 prices, weights = load_input(country)
 
+# Resize on startDate
+# prices = prices[prices.index >= "1994-12-12"]
+
 inflationGa = np.log(
     prices["HEADLINE"].dropna()
 ).diff(
-    config["persistence"]["inflation_lag"]
+    12
 ).dropna()
 
 # Glissement annuel
@@ -47,6 +58,181 @@ inflation = np.log(
 
 # Dates
 dates = inflationGa.index
+
+########################################################
+# Table 1 : Statistiques descriptives
+inflation = {
+    "MoM": inflation,
+    "YoY": inflationGa
+}
+
+periods = {
+    "1960–2026": ("1960-01-01", "2026-12-31"),
+    "1995–2026": ("1995-01-01", "2026-12-31")
+}
+
+lags = [1, 3, 6, 12, 24, 36]
+
+# Set to 100 if inflation is stored in decimal units
+# Set to 1 if already expressed in percentage points
+scale = 100
+
+# ============================================================
+# 2. DESCRIPTIVE STATISTICS
+# ============================================================
+
+def descriptive_stats(series, lags=lags):
+
+    x = series.dropna().astype(float).sort_index() * scale
+    n = len(x)
+    
+    acf_values = acf(
+        x, nlags=max(lags),
+        adjusted=False, fft=True
+    )
+
+    pacf_values = pacf(
+        x, nlags=max(lags),
+        method="ywm"
+    )
+
+    jb = jarque_bera(x)
+
+    result = {
+        "Observations": n,
+        "Mean (%)": x.mean(),
+        "Median (%)": x.median(),
+        "Minimum (%)": x.min(),
+        "Maximum (%)": x.max(),
+        "Variance (pp²)": x.var(ddof=1),
+        "Std. deviation (pp)": x.std(ddof=1),
+        "Skewness": skew(x, bias=False),
+        "Excess kurtosis": kurtosis(x, fisher=True, bias=False)
+    }
+
+    for lag in lags:
+        result[f"ACF({lag})"] = acf_values[lag]
+
+    for lag in lags:
+        result[f"PACF({lag})"] = pacf_values[lag]
+
+    # result["Jarque-Bera p-value"] = jb.pvalue
+
+    return pd.Series(result)
+
+
+# ============================================================
+# 3. BUILD COMPARISON TABLE
+# ============================================================
+results = {}
+
+for period, (start, end) in periods.items():
+
+    for frequency, series in inflation.items():
+
+        series = series.copy()
+        series.index = pd.to_datetime(series.index)
+        series.index = series.index.to_period("M").to_timestamp()
+        series = series.sort_index()
+
+        sample = series.loc[start:end]
+
+        results[(period, frequency)] = descriptive_stats(
+            sample, lags=lags
+        )
+
+stats_table = pd.DataFrame(results)
+
+stats_table.columns = pd.MultiIndex.from_tuples(
+    stats_table.columns,
+    names=["Sample", "Frequency"]
+)
+
+print(stats_table.round(4).to_string())
+
+# Export to LaTeX
+latex_table = stats_table.to_latex(
+    float_format="%.4f",
+    multicolumn=True,
+    multicolumn_format="c",
+    escape=True,
+    caption="Descriptive statistics of US PCE inflation",
+    label="tab:inflation_descriptive",
+    column_format="lcccc"
+)
+
+with open("inflation_descriptive.tex", "w", encoding="utf-8") as f:
+    f.write(latex_table)
+
+
+########################################################
+# Chart 1
+fig, (ax1, ax2) = plt.subplots(
+    2, 1,
+    figsize=(16, 8),
+    sharex=True,
+    constrained_layout=True
+)
+
+# Panel 1 : Inflation YoY
+ax1.plot(
+    dates,
+    inflationGa*100,
+    color=BLEU,
+    linewidth=1.8
+)
+
+ax1.axhline(0, color="black", lw=0.8, alpha=0.6)
+ax1.set_title("Year-on-year PCE inflation", loc="left",
+              fontsize=14, fontweight="bold", pad=12)
+# ax1.legend(loc="upper left", frameon=False, fontsize=14)
+
+# Panel 2 : Inflation MoM
+ax2.plot(
+    dates,
+    inflation*100,
+    color=ORANGE,
+    linewidth=1.5
+)
+
+ax2.axhline(0, color="black", lw=0.8, alpha=0.6)
+ax2.set_title("Month-on-month PCE inflation", loc="left",
+              fontsize=14, fontweight="bold", pad=12)
+ax2.set_xlabel("")
+
+# ax2.legend(loc="upper left", frameon=False,  fontsize=14)
+
+# Shared formatting
+for ax in (ax1, ax2):
+    ax.grid(True, linestyle="--")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # Tick labels
+    ax.tick_params(axis="both", labelsize=12)
+
+    # Date formatting
+    ax.xaxis.set_major_locator(mdates.YearLocator(2))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    
+    # Exact date boundaries
+    ax.set_xlim(dates[0], dates[-1])
+    ax.margins(x=0)
+
+# Show dates on both panels
+ax1.tick_params(axis="x", labelbottom=True)
+
+# Rotate dates for readability
+for ax in (ax1, ax2):
+    ax.tick_params(axis="x", labelrotation=45)
+
+fig.suptitle(
+    "United States",
+    fontsize=17,
+    fontweight="bold"
+)
+
+plt.show()
 
 ########################################################
 # Diagnosis
@@ -142,11 +328,6 @@ for inf in Data.keys():
     print(dfADF.round(4).to_string(index=False))
 
 
-print("Inflation MoM : I(1) + C")
-print("Inflation YoY : I(0) + C, stochastic trend")
-print("Delta Inflation YoY : I(1)")
-
-
 ########################################################
 # Quel processus ARMA suit l'inflation mensuelle ?
 fig, axes = plt.subplots(2, 2, figsize=(14, 8))
@@ -182,7 +363,7 @@ plt.show()
 # Best ARMA(p,q) process
 # Maximum orders
 p_max = 12
-q_max = 6
+q_max = 12
 allSeriesArima = {}
 bestModels = {}
 IC = "BIC"
@@ -209,6 +390,7 @@ for inf in ["MoM", "YoY","deltaYoY"]:
             if not model.mle_retvals.get("converged", False):
                 continue
 
+            bestModels[(inf, p, q)] = model
             results.append({
                 "p": p,
                 "q": q,
@@ -216,8 +398,6 @@ for inf in ["MoM", "YoY","deltaYoY"]:
                 "BIC": model.bic,
                 "NLL": -model.llf
             })
-
-            bestModels[(inf, p, q)] = model
 
         except (ValueError, np.linalg.LinAlgError):
             continue
@@ -244,29 +424,49 @@ print(bestYoy)
 print(f"\nBest ARMA for delta year-on-year inflation according to {IC}:")
 print(bestDeltaYoy)
 
+# ARMA(1,12) specification (pas de racine unitaire ici, cf. ADF)
+model = ARIMA(
+    Data['YoY'],
+    order=(1, 0, 12),
+    trend="c",
+    enforce_stationarity=True,
+    enforce_invertibility=True
+).fit()
 
-# Residual diagnostics
+allSeriesArima["YoY"].loc[len(allSeriesArima["YoY"])] = {
+    "p": p,
+    "q": q,
+    "AIC": model.aic,
+    "BIC": model.bic,
+    "NLL": -model.llf
+}
+
+bestModels['YoY',1,12] = model
+
+# Residual diagnostics: meilleur modèle MoM et YoY (1,12)
 arimaModels = {
     'MoM':bestModels[('MoM',bestMom['p'],bestMom['q'])],
-    'YoY':bestModels[('YoY',bestYoy['p'],bestYoy['q'])],
-    'deltaYoY':bestModels[('deltaYoY',bestDeltaYoy['p'],bestDeltaYoy['q'])]
+    'YoY':bestModels[('YoY', 1, 12)],
+    # 'deltaYoY':bestModels[('deltaYoY',bestDeltaYoy['p'],bestDeltaYoy['q'])]
 }
 
 pOpt = {
     'MoM': bestMom['p'],
-    'YoY': bestYoy['p'],
-    'deltaYoY':bestDeltaYoy['p']
+    'YoY': 1,
+    # 'deltaYoY':bestDeltaYoy['p']
 }
 
 qOpt = {
     'MoM': bestMom['q'],
-    'YoY': bestYoy['q'],
-    'deltaYoY':bestDeltaYoy['q']
+    'YoY': 12,
+    # 'deltaYoY':bestDeltaYoy['q']
 }
 
 window = 120
 
 for inf in arimaModels.keys():
+    # Standard deviation
+    std = np.std(Data['inf'])
     
     # Selection
     mod = arimaModels[inf]
@@ -286,6 +486,15 @@ for inf in arimaModels.keys():
     resid = np.asarray(resid)
     resid = resid[np.isfinite(resid)]
     print(residualDiagnostics(resid))
+    
+    # RMSE et NRMSE
+    errors = np.asarray(mod.resid)
+    rmse = np.sqrt(np.mean(errors**2))
+    nrmse = rmse / std
+
+    print(f"RMSE:  {rmse:.6f}")
+    print(f"NRMSE: {nrmse:.4f}")
+
 
     # AR roots: stationarity and causality
     ar_roots = mod.arroots
@@ -320,10 +529,10 @@ for inf in arimaModels.keys():
 ## Largest Autoregressive Root
 # A partir de l'ARMA identifié, LAR comme estimation de la persistance du processus, sur une fenêtre de 10 ans
 results = rolling_largest_ar_root(
-    Data['YoY'] * 100,
+    Data['MoM'] * 100,
     window=window,
-    p=int(1),
-    q=int(12),
+    p=pOpt['MoM'],
+    q=qOpt['MoM'],
     trend='c'
 )
 
@@ -346,12 +555,11 @@ ax.axhline(
 )
 
 ax.set(
-    title=f"US Inflation Persistence — Rolling {window/12:.0f}-year ARMA(1,12)",
+    title=f"US Inflation Persistence — Rolling {window/12:.0f}-year ARMA({pOpt['YoY']},{qOpt['YoY']})",
     ylabel="Largest inverse AR root modulus",
     xlabel=""
 )
 
-ax.set_ylim(0, 1.05)
 ax.legend(frameon=False)
 ax.grid(alpha=0.2)
 
@@ -432,3 +640,6 @@ ci_high = delta_post + 1.96 * se_post
 print(f"Post-period mean shift: {delta_post:.3f} pp")
 print(f"95% CI: [{ci_low:.3f}, {ci_high:.3f}]")
 print(f"Wald test p-value: {p_value:.4f}")
+
+
+

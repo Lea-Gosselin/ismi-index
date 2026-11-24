@@ -3,6 +3,7 @@ import pandas as pd
 from scipy.optimize import minimize
 from scipy.stats import norm
 from scipy.linalg import solve
+from statsmodels.tsa.arima_process import arma_acf, arma_pacf
 
 def get_parameters(X0, cMu=True, cRho=True):
     """
@@ -59,7 +60,7 @@ def get_parameters(X0, cMu=True, cRho=True):
     return mu, rho_bar, F, Q, e, u, q
 
 # Filter...
-def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, kappa=0, return_loglik=False):
+def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, return_loglik=False):
     # ---------------------------------------------------------
     # Consistency checks and data management
     # ---------------------------------------------------------
@@ -123,7 +124,7 @@ def kalman_filter_inflation(X0, pi, cRho=True, cMu=True, kappa=0, return_loglik=
     
     # Variance of state
     PForecast = np.diag(
-        [kappa] + [e] * (N - 1)
+        [u] + [e] * (N - 1)
     )
 
     I = np.eye(N)
@@ -285,13 +286,89 @@ def objective(X0, pi, cRho=True, cMu=True):
 
     return nll if np.isfinite(nll) else 1e12
 
+def persistence_constraint(
+    X0, pi, cRho=True, cMu=True, rho_max=0.999
+):
+    results = kalman_filter_inflation(
+        X0, pi, cRho, cMu,
+        return_loglik=False
+    )
+
+    rho_filtered = np.asarray(results["Rho"])
+    rho_forecast = np.asarray(results["forecastState"][:, 0])
+
+    rho_all = np.concatenate([
+        rho_filtered,
+        rho_forecast
+    ])
+
+    # Constraints >= 0
+    return np.concatenate([
+        rho_max - rho_all,
+        rho_max + rho_all
+    ])
+
+
+def objective_penalized(
+    X0, pi, cRho=True, cMu=True,
+    rho_max=0.9999, penalty=1e6
+):
+
+    try:
+
+        # 1. Kalman filter
+        results = kalman_filter_inflation(
+            X0, pi, cRho, cMu,
+            return_loglik=False
+        )
+
+        # 2. Negative log-likelihood
+        nll = -np.sum(results["LogLikelihood"])
+
+        # 3. Kalman smoother
+        smoother = kalman_smoother(
+            results, X0,
+            cMu=cMu,
+            cRho=cRho
+        )
+
+        # 4. Extract persistence trajectories
+        rho_all = np.concatenate([
+            results["Rho"],
+            results["forecastState"][:, 0],
+            smoother["smoothedRho"]
+        ])
+
+        if not np.isfinite(nll):
+            return 1e12
+
+        if not np.all(np.isfinite(rho_all)):
+            return 1e12
+
+        # 5. Stationarity violations
+        violations = np.maximum(
+            np.abs(rho_all) - rho_max,
+            0.0
+        )
+
+        # 6. Penalized negative log-likelihood
+        return nll + penalty * np.sum(violations**2)
+
+    except (
+        ValueError,
+        np.linalg.LinAlgError,
+        FloatingPointError
+    ):
+        return 1e12
+    
+    
 # Optimise -LogLikelihood
 def optNegLogLike(
     X0,
     pi,
     cMu=True,
     cRho=True,
-    rho_max=0.99
+    rho_max=0.9999
 ):
 
     q = len(X0) - int(cMu) - int(cRho) - 2
@@ -304,23 +381,87 @@ def optNegLogLike(
     if cRho:
         bounds.append((-rho_max, rho_max))
 
-    bounds += [(-0.99, 0.99)] * q
+    # Fix MA coefficients at their initial values
+    i = int(cMu) + int(cRho)
+
+    bounds += [
+        (theta, theta)
+        for theta in X0[i:i+q]
+    ]
 
     bounds += [
         (1e-8, None),
         (1e-8, None)
     ]
-    
-    res = minimize(
-        objective,
-        X0,
-        args=(pi, cRho, cMu),
-        method="L-BFGS-B",
-        bounds=bounds,
-        options={
-            "ftol": 1e-9,
-            "maxiter": 10000
-        }
-    )
+
+    # Starting parameters
+    x = np.asarray(X0, dtype=float).copy()
+
+    # Progressive penalty
+    penalties = [1e3, 1e4, 1e5, 1e6, 1e7, 1e8]
+
+    for penalty in penalties:
+
+        res = minimize(
+            objective_penalized,
+            x,
+            args=(pi, cRho, cMu, rho_max, penalty),
+            method="L-BFGS-B",
+            bounds=bounds,
+            options={
+                "ftol": 1e-12,
+                "gtol": 1e-6,
+                "maxiter": 10000,
+                "maxls": 50
+            }
+        )
+
+        # Evaluate estimated trajectories
+        results = kalman_filter_inflation(
+            res.x, pi, cRho, cMu
+        )
+
+        smoother = kalman_smoother(
+            results, res.x,
+            cMu=cMu,
+            cRho=cRho
+        )
+
+        rho_all = np.concatenate([
+            results["Rho"],
+            results["forecastState"][:, 0],
+            smoother["smoothedRho"]
+        ])
+
+        max_rho = np.max(np.abs(rho_all))
+
+        nll = -np.sum(results["LogLikelihood"])
+
+        feasible = (
+            np.all(np.isfinite(rho_all))
+            and max_rho < 1.0
+        )
+
+        print(
+            f"Penalty: {penalty:.0e} | "
+            f"NLL: {nll:.6f} | "
+            f"Max |rho|: {max_rho:.8f} | "
+            f"Success: {res.success} | "
+            f"Feasible: {feasible}"
+        )
+
+        # Stop if convergence AND feasibility
+        if res.success and feasible:
+            break
+
+        # Warm start
+        x = res.x.copy()
+
+    res["max_abs_rho"] = max_rho
+    res["stationary_paths"] = feasible
+    res["unpenalized_nll"] = nll
+
+    if not feasible:
+        print("WARNING: Stationarity restriction not satisfied.")
 
     return res

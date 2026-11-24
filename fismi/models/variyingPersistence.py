@@ -71,8 +71,51 @@ def estimate_persistence(prices, config):
     # Store dates (index)
     results["dates"] = dates
     
+    # Store as DataFrame 
+    if model_name == "arma":    
+        df_results = pd.DataFrame(
+            {
+                "Inflation": results["Y"],
+                "FittedInflation": results["FittedY"],
+                "ForecastInflation": results["ForecastY"],
+                "RhoFiltered": results["Rho"],
+                "Residuals": results["Err"],
+                "forecastVarState": results["forecastVarState"][:,0,0],
+                "filteredVarState": results["filteredVarState"][:,0,0],
+                "forecastVarY": results["forecastVarY"],
+                "forecastState":results["forecastState"][:,0], 
+                "filteredState": results["filteredState"][:,0], # Rho filtered
+                "KalmanGain": results["KalmanGain"][:,0],
+                "LogLikelihood": results["LogLikelihood"],
+                "RhoSmoothed": results["smoothedRho"],
+                "VarStateSmoothed": results["smoothedVarState"][:,0,0]
+            },
+            index=results['dates'],
+        )
+    else:
+        df_results = pd.DataFrame(
+            {
+                "Inflation": results["Y"],
+                "FittedInflation": results["FittedY"],
+                "ForecastInflation": results["ForecastY"],
+                "RhoFiltered": results["Rho"],
+                "Residuals": results["Err"],
+                "forecastVarState": results["forecastVarState"],
+                "filteredVarState": results["filteredVarState"],
+                "forecastVarY": results["forecastVarY"],
+                "forecastState":results["forecastState"],
+                "filteredState": results["filteredState"],
+                "KalmanGain": results["KalmanGain"],
+                "LogLikelihood": results["LogLikelihood"],
+                "RhoSmoothed": smoothed["smoothedRho"],
+                "VarStateSmoothed": smoothed["smoothedVarState"]
+            },
+            index=results['dates']
+        )
+        
+    
     return {
-        "results": results,
+        "results": df_results,
         "parameters": estimation.x,
         "loglikelihood": -estimation.fun,
         "optimization": estimation,
