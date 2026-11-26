@@ -5,6 +5,8 @@ const state = {
   rows: []
 };
 
+const SHOW_PERSISTENCE = false; 
+
 const el = id => document.getElementById(id);
 
 const num = v =>
@@ -505,11 +507,6 @@ function render() {
   // Plotly configuration
   // --------------------------------------------------
 
-
-  // --------------------------------------------------
-  // Plotly configuration
-  // --------------------------------------------------
-
   const cfg = {
     responsive: true,
     displaylogo: false,
@@ -522,14 +519,14 @@ function render() {
   // Standalone ISMI bar chart
   renderISMI(rows, x, cfg);
 
-  // Chart 1: ISMI and persistence
-  Plotly.react('chart-rho', first, a, cfg);
-
-  // Chart 2: Inflation shock momentum
+  // Inflation shock momentum and headline
   Plotly.react('chart-headline', second, b, cfg);
 
-  // Chart 3: RTS-smoothed persistence and confidence intervals
-  renderPersistenceCI(rows, x, longrun, cfg);
+  // Persistence charts
+  if (SHOW_PERSISTENCE) {
+    Plotly.react('chart-rho', first, a, cfg);
+    renderPersistenceCI(rows, x, longrun, cfg);
+  }
 
   // Metadata
   el('sample').textContent =
