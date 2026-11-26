@@ -5,7 +5,7 @@ const state = {
   rows: []
 };
 
-const SHOW_PERSISTENCE = false; 
+const SHOW_PERSISTENCE = true; 
 
 const el = id => document.getElementById(id);
 
