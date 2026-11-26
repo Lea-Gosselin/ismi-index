@@ -137,6 +137,59 @@ function layoutBase() {
   };
 }
 
+function renderISMI(rows, x, cfg) {
+
+  const ismi = series(rows, 'ISMI');
+
+  const bars = {
+    x,
+    y: ismi,
+    type: 'bar',
+    name: 'ISMI',
+
+    marker: {
+      color: ismi.map(v =>
+        v === null ? 'transparent' :
+        v >= 0 ? '#efc46c' : '#a9c6f5'
+      ),
+
+      line: {
+        width: 0
+      }
+    },
+
+    hovertemplate:
+      '%{x|%b %Y}<br>ISMI: %{y:.1%}<extra></extra>'
+  };
+
+  const layout = layoutBase();
+
+  layout.yaxis = {
+    ...layout.yaxis,
+    title: 'Inflation Shock Momentum Index',
+    tickformat: '.0%',
+    zeroline: true,
+    zerolinecolor: '#999',
+    zerolinewidth: 1,
+    rangemode: 'tozero'
+  };
+
+  layout.margin = {
+    ...layout.margin,
+    t: 25,
+    r: 30
+  };
+
+  layout.bargap = 0.10;
+  layout.showlegend = false;
+
+  Plotly.react(
+    'chart-ismi',
+    [bars],
+    layout,
+    cfg
+  );
+}
 
 function renderPersistenceCI(rows, x, longrun, cfg) {
   const rho = series(rows, 'Rho');
@@ -297,7 +350,8 @@ function render() {
   a.yaxis = {
     ...a.yaxis,
     title: 'ISMI',
-    rangemode: 'tozero'
+    range: [-1, 1],
+    dtick: 0.25
   };
 
   a.yaxis2 = {
@@ -433,14 +487,14 @@ function render() {
       x,
       ismi,
       'Inflation Shock Momentum Index',
-      '#aaa'
+      '#111',      
     ),
 
     trace(
       x,
       headline,
       'Headline inflation',
-      '#111',
+      '#aaa',
       {
         yaxis: 'y2'
       }
@@ -464,6 +518,9 @@ function render() {
       'select2d'
     ]
   };
+
+  // Standalone ISMI bar chart
+  renderISMI(rows, x, cfg);
 
   // Chart 1: ISMI and persistence
   Plotly.react('chart-rho', first, a, cfg);
@@ -543,6 +600,7 @@ async function load() {
 
   } catch (err) {
     state.rows = [];
+    Plotly.purge('chart-ismi');
 
     el('status').textContent =
       `Unable to display ${state.country}: ${err.message}. ` +

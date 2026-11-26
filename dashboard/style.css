@@ -110,3 +110,8 @@
         margin-top: 14px !important;
     }
 }
+
+/* Temporarily hide persistence charts */
+.persistence-panel {
+    display: none !important;
+}

@@ -14,6 +14,8 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.stats.diagnostic import acorr_ljungbox
 from statsmodels.tsa.arima.model import ARIMA
 
+# ["US", "EA", "UK", "JP"]
+
 for country in ["US", "EA", "UK", "JP"]:
 
     print(f"\n--- {country} ---")
@@ -25,7 +27,8 @@ for country in ["US", "EA", "UK", "JP"]:
     q = config["persistence"]["q_lag"]
     inf_lag = config["persistence"]["inflation_lag"]
     pi = np.log(prices.loc[prices.index >= startDate, "HEADLINE"]).diff(inf_lag).dropna()
-    
+    model_name = config['persistence']['model']
+        
     ## 1) Estimate an ARMA(p,q) on the full sample
     model = ARIMA(
         pi,
@@ -96,8 +99,6 @@ for country in ["US", "EA", "UK", "JP"]:
     # 0. PREPARE DATA
     # ============================================================
     df = persistence["results"].copy()
-    filtered = persistence["filtered"]
-    smoothed = persistence["smoothed"]
 
     # Actual inflation (log differences, in %)
     headline = prices["HEADLINE"].sort_index()
@@ -110,7 +111,8 @@ for country in ["US", "EA", "UK", "JP"]:
     yoy = yoy.reindex(dates)
     
     # RMSE MoM
-    rmseMoM = rmse(mom.values/100, df['Inflation'])
+    forecastInflation = df['FittedInflation'].values*100
+    rmseMoM = rmse(mom.values/100, forecastInflation/100)
 
 
     # ============================================================
@@ -123,7 +125,7 @@ for country in ["US", "EA", "UK", "JP"]:
     z90 = norm.ppf(0.95) # Oui, vraie valeur 1.64
 
     varRho = np.asarray(
-        smoothed["smoothedVarRho"]
+        df['VarStateSmoothed']
     )
 
     z90 = norm.ppf(0.95)
@@ -180,7 +182,7 @@ for country in ["US", "EA", "UK", "JP"]:
     )
 
     # Forecast errors (percentage points)
-    errorMoM = np.asarray(mom.reindex(dates)) - np.asarray(df['Inflation'].values)
+    errorMoM = np.asarray(mom.reindex(dates)) - np.asarray(forecastInflation)
 
     # Panel 1: MoM inflation
     axes[0].plot(
@@ -190,7 +192,7 @@ for country in ["US", "EA", "UK", "JP"]:
     )
 
     axes[0].plot(
-        dates, df['Inflation'].values,
+        dates, forecastInflation,
         color=BLUE, lw=1.5,
         linestyle="--",
         label=f"Reconstructed forecast (RMSE = {rmseMoM:.3f} pp)"
@@ -439,4 +441,10 @@ for country in ["US", "EA", "UK", "JP"]:
         name=f"{country} : ARMA({p},{q})",
         lags=36
     )
-    results
+    
+    dfDiagnostics = pd.DataFrame.from_dict(
+        results,
+        orient="index",
+        columns=["TVP-AR(1)"]
+    )
+    print(dfDiagnostics.round(4))

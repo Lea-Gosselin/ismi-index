@@ -19,6 +19,18 @@ ismi:
   momentum_lags: 3
   inflation_lag: 1
 
+
+# persistence:
+#   model: rw # arma # simple
+#   inflation_lag: 1
+#   estimate_mu: true
+#   estimate_rho_bar: true
+#   p_lag: 1
+#   q_lag: 0
+#   initial_params: [0.002, 0.9981, 0.001747, 0.043540] # mu, rho_bar, F, (phi if augmented), D and B
+#   startDate: "1997-01-01"
+
+
 persistence:
   model: arma # simple
   inflation_lag: 1

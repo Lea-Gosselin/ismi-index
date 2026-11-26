@@ -31,7 +31,7 @@ import warnings
 # Select country
 BLEU = "#2B3A67"
 ORANGE = "#F6AE2D"
-country = "JP"
+country = "US"
 cMu = True
 cRho = True
 

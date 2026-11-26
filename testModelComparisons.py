@@ -31,6 +31,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.arima_process import ArmaProcess
 from statsmodels.tsa.arima_process import arma_acf, arma_pacf
 from statsmodels.stats.diagnostic import (
     acorr_ljungbox,
@@ -40,6 +41,23 @@ from itertools import product
 import warnings
 import numpy as np
 from statsmodels.tsa.arima_process import arma_impulse_response
+
+
+def theoretical_acf(rho, theta=None, lag=1):
+
+    if theta is None:
+        theta = []
+
+    if abs(rho) >= 1:
+        return np.nan
+
+    arma = ArmaProcess(
+        ar=np.r_[1, -rho],
+        ma=np.r_[1, theta]
+    )
+
+    return arma.acf(lags=lag+1)[lag]
+
 
 ########################################################
 # Settings
@@ -119,18 +137,646 @@ for name, (df, p, q, freq, params) in specifications.items():
         enforce_invertibility=True
     ).fit()
 
+
+# ============================================================
+# EMPIRICAL ROLLING AUTOCORRELATION
+# ============================================================
+window=60
+def rolling_acf(series, window=60, lag=1):
+    return series.rolling(window).corr(
+        series.shift(lag))
+
+acf_mom = rolling_acf(mom, window=window)
+acf_yoy = rolling_acf(yoy, window=window)
+
+
+# ============================================================
+# SETTINGS
+# ============================================================
+
+window = 60  # Rolling window in months
+rho_col = "RhoFiltered"  # Or "RhoSmoothed"
+
+BLUE = "#2B3A67"
+ORANGE = "#F6AE2D"
+RED = "#BB4350"
+GREEN = "#268477"
+INK = "#202A38"
+MUTED = "#808A99"
+
+# ============================================================
+# CONSTANT-COEFFICIENT BENCHMARKS
+# ============================================================
+
+rho_ar1_1995 = arma_fix[
+    "TVP-AR(1) on monthly inflation since 1995"
+].arparams[0]
+
+rho_ar1_1960 = arma_fix[
+    "TVP-AR(1) on monthly inflation since 1960"
+].arparams[0]
+
+rho_arma13 = arma_fix[
+    "TVP-ARMA(1,3) on monthly inflation since 1960"
+].arparams[0]
+
+rho_arma112 = arma_fix[
+    "TVP-ARMA(1,12) on year-on-year inflation since 1960"
+].arparams[0]
+
+
+# ============================================================
+# FIGURES — 3 INDEPENDENT CHARTS
+# ============================================================
+
+fig1, ax1 = plt.subplots(
+    figsize=(9.5, 5.5),
+    constrained_layout=True
+)
+
+fig2, ax2 = plt.subplots(
+    figsize=(9.5, 5.5),
+    constrained_layout=True
+)
+
+fig3, ax3 = plt.subplots(
+    figsize=(9.5, 5.5),
+    constrained_layout=True
+)
+
+# Secondary axes for ARMA specifications
+ax2_right = ax2.twinx()
+ax3_right = ax3.twinx()
+
+# ============================================================
+# PANEL 1 — TVP-AR(1), MONTHLY INFLATION
+# ============================================================
+
+ax1.plot(
+    AR1.index,
+    AR1[rho_col],
+    color=BLUE,
+    linewidth=1.5,
+    label="TVP-AR(1) since 1995",
+    zorder=4
+)
+
+ax1.plot(
+    AR1_1960.index,
+    AR1_1960[rho_col],
+    color=BLUE,
+    linestyle="--",
+    linewidth=1,
+    label="TVP-AR(1) since 1960",
+    zorder=3
+)
+
+ax1.axhline(
+    rho_ar1_1995,
+    color=BLUE,
+    linestyle="--",
+    linewidth=1,
+    label=f"1995 Fixed AR(1): {rho_ar1_1995:.3f}"
+)
+
+ax1.axhline(
+    rho_ar1_1960,
+    color=BLUE,
+    linewidth=1,
+    label=f"1960 Fixed AR(1): {rho_ar1_1960:.3f}"
+)
+
+ax1.plot(
+    acf_mom.index,
+    acf_mom,
+    color="black",
+    linestyle=":",
+    linewidth=1,
+    label=r"MoM $Corr(X_t,X_{t-1})$ — 60m rolling",
+    zorder=2
+)
+
+ax1.set_title(
+    "A. TVP-AR(1) — Monthly inflation",
+    loc="left"
+)
+
+# ============================================================
+# PANEL 2 — TVP-ARMA(1,12), YEAR-ON-YEAR INFLATION
+# ============================================================
+
+# Left axis — AR coefficient
+ax2.plot(
+    ARMA112.index,
+    ARMA112[rho_col],
+    color=GREEN,
+    linewidth=1.5,
+    label="TVP-ARMA(1,12) since 1960",
+    zorder=3
+)
+
+ax2.axhline(
+    rho_arma112,
+    color=GREEN,
+    linestyle="--",
+    linewidth=1,
+    label=f"Fixed ARMA(1,12): {rho_arma112:.3f}"
+)
+
+# Right axis — Empirical monthly autocorrelation
+ax2_right.plot(
+    acf_mom.index,
+    acf_mom,
+    color="black",
+    linestyle=":",
+    linewidth=1,
+    label=r"MoM $Corr(X_t,X_{t-1})$ — 60m rolling",
+    zorder=2
+)
+
+ax2.set_title(
+    "B. TVP-ARMA(1,12) — Year-on-year inflation since 1960",
+    loc="left"
+)
+
+# ============================================================
+# PANEL 3 — TVP-ARMA(1,3), MONTHLY INFLATION
+# ============================================================
+
+# Left axis — AR coefficient
+ax3.plot(
+    ARMA13.index,
+    ARMA13[rho_col],
+    color=RED,
+    linewidth=1.5,
+    label="TVP-ARMA(1,3) since 1960",
+    zorder=3
+)
+
+ax3.axhline(
+    rho_arma13,
+    color=RED,
+    linestyle="--",
+    linewidth=1,
+    label=f"Fixed ARMA(1,3): {rho_arma13:.3f}"
+)
+
+# Right axis — Empirical monthly autocorrelation
+ax3_right.plot(
+    acf_mom.index,
+    acf_mom,
+    color="black",
+    linestyle=":",
+    linewidth=1,
+    label=r"MoM $Corr(X_t,X_{t-1})$ — 60m rolling",
+    zorder=2
+)
+
+ax3.set_title(
+    "C. TVP-ARMA(1,3) — Monthly inflation since 1960",
+    loc="left"
+)
+
+# ============================================================
+# COMMON STYLING — PRIMARY AXES
+# ============================================================
+
+for ax, color in zip(
+    [ax1, ax2, ax3],
+    [BLUE, GREEN, RED]
+):
+
+    # --------------------------------------------------------
+    # EXACT DATE BOUNDARIES
+    # --------------------------------------------------------
+
+    ax.margins(x=0)
+
+    ax.set_xlim(
+        pd.Timestamp(start_date),
+        pd.Timestamp(end_date)
+    )
+
+    # Major ticks every 3 years
+    ax.xaxis.set_major_locator(mdates.YearLocator(3))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+
+    # Minor ticks every year
+    ax.xaxis.set_minor_locator(mdates.YearLocator(1))
+
+    # Minor horizontal ticks
+    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+
+    # --------------------------------------------------------
+    # GRID
+    # --------------------------------------------------------
+
+    ax.grid(
+        axis="y",
+        which="major",
+        color="#B0B7C3",
+        linestyle="-",
+        linewidth=0.8,
+        alpha=0.65
+    )
+
+    ax.grid(
+        axis="x",
+        which="major",
+        color="#B0B7C3",
+        linestyle="--",
+        linewidth=0.8,
+        alpha=0.65
+    )
+
+    ax.grid(
+        which="minor",
+        color="#D8DCE3",
+        linestyle=":",
+        linewidth=0.5,
+        alpha=0.55
+    )
+
+    ax.set_axisbelow(True)
+
+    # --------------------------------------------------------
+    # TICKS AND LABELS
+    # --------------------------------------------------------
+
+    ax.tick_params(
+        axis="x",
+        which="major",
+        labelsize=11,
+        rotation=45,
+        length=5,
+        pad=6
+    )
+
+    ax.tick_params(
+        axis="y",
+        which="major",
+        labelsize=12,
+        length=5,
+        colors=color
+    )
+
+    ax.tick_params(
+        axis="both",
+        which="minor",
+        length=2.5
+    )
+
+    ax.set_xlabel("")
+
+    ax.set_ylabel(
+        r"Persistence coefficient ($\hat{\rho}_{t|t}$)",
+        fontsize=12,
+        color=color,
+        labelpad=10
+    )
+
+    # --------------------------------------------------------
+    # TITLE AND SPINES
+    # --------------------------------------------------------
+
+    ax.set_title(
+        ax.get_title(loc="left"),
+        loc="left",
+        fontsize=13,
+        fontweight="bold",
+        color=INK,
+        pad=12
+    )
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    ax.spines["left"].set_color(color)
+    ax.spines["bottom"].set_color("#808A99")
+
+# ============================================================
+# SECONDARY AXES — EMPIRICAL AUTOCORRELATION
+# ============================================================
+
+for ax_right in [ax2_right, ax3_right]:
+
+    ax_right.set_ylabel(
+        r"Empirical $Corr(X_t,X_{t-1})$",
+        fontsize=12,
+        color=INK,
+        labelpad=10
+    )
+
+    ax_right.tick_params(
+        axis="y",
+        which="major",
+        labelsize=12,
+        colors=INK,
+        length=5
+    )
+
+    ax_right.yaxis.set_minor_locator(
+        AutoMinorLocator(2)
+    )
+
+    ax_right.tick_params(
+        axis="y",
+        which="minor",
+        length=2.5
+    )
+
+    # Avoid overlapping grids
+    ax_right.grid(False)
+
+    # Spines
+    ax_right.spines["top"].set_visible(False)
+    ax_right.spines["left"].set_visible(False)
+    ax_right.spines["bottom"].set_visible(False)
+    ax_right.spines["right"].set_color("#808A99")
+
+    # Transparent secondary axis
+    ax_right.patch.set_visible(False)
+
+# ============================================================
+# Y-AXIS LIMITS
+# ============================================================
+
+# Common scale for empirical autocorrelation
+# and the AR(1) specification
+corr_min = min(
+    -0.15,
+    acf_mom.min(),
+    AR1[rho_col].min(),
+    AR1_1960[rho_col].min()
+)
+
+corr_max = max(
+    1.10,
+    acf_mom.max(),
+    AR1[rho_col].max(),
+    AR1_1960[rho_col].max(),
+    rho_ar1_1995,
+    rho_ar1_1960
+)
+
+ax1.set_ylim(corr_min, corr_max)
+ax2_right.set_ylim(corr_min, corr_max)
+ax3_right.set_ylim(corr_min, corr_max)
+
+# Common zoomed scale for ARMA coefficients
+# Include all estimates and fixed benchmarks
+arma_min = min(
+    ARMA112[rho_col].min(),
+    ARMA13[rho_col].min(),
+    rho_arma112,
+    rho_arma13,
+    1.0
+)
+
+arma_max = max(
+    ARMA112[rho_col].max(),
+    ARMA13[rho_col].max(),
+    rho_arma112,
+    rho_arma13,
+    1.0
+)
+
+padding = max(0.02, 0.08 * (arma_max - arma_min))
+
+ax2.set_ylim(
+    arma_min - padding,
+    arma_max + padding
+)
+
+ax3.set_ylim(
+    arma_min - padding,
+    arma_max + padding
+)
+
+# ============================================================
+# UNIT-ROOT THRESHOLD
+# ============================================================
+
+for ax in [ax1, ax2, ax3]:
+
+    ax.axhline(
+        1,
+        color="#808A99",
+        linestyle="-.",
+        linewidth=0.9,
+        alpha=0.8,
+        zorder=1
+    )
+
+# ============================================================
+# COMBINED LEGENDS
+# ============================================================
+
+for ax, ax_right in [
+    (ax1, None),
+    (ax2, ax2_right),
+    (ax3, ax3_right)
+]:
+
+    handles, labels = ax.get_legend_handles_labels()
+
+    # Include secondary axis curves
+    if ax_right is not None:
+
+        handles_right, labels_right = (
+            ax_right.get_legend_handles_labels()
+        )
+
+        handles += handles_right
+        labels += labels_right
+
+    ax.legend(
+        handles,
+        labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.15),
+        ncol=2,
+        frameon=False,
+        fontsize=10,
+        handlelength=3,
+        columnspacing=1.5,
+        labelspacing=0.8
+    )
+
+# ============================================================
+# SAVE FIGURES
+# ============================================================
+
+fig1.savefig(
+    "US_TVP_AR1_MoM.png",
+    dpi=300,
+    facecolor="white"
+)
+
+fig2.savefig(
+    "US_TVP_ARMA112_YoY.png",
+    dpi=300,
+    facecolor="white"
+)
+
+fig3.savefig(
+    "US_TVP_ARMA13_MoM.png",
+    dpi=300,
+    facecolor="white"
+)
+
+plt.show()
+
+
+
+
+
+
+
+
+
+# ============================================================
+# COMMON FIGURE STYLING — DUAL Y-AXIS
+# ============================================================
+
+def style_persistence_figure(ax, ax_right, title, ylabel):
+
+    # Date boundaries
+    ax.set_xlim(start_date, end_date)
+    ax.margins(x=0)
+
+    # Date formatting
+    ax.xaxis.set_major_locator(mdates.YearLocator(3))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    ax.xaxis.set_minor_locator(mdates.YearLocator(1))
+
+    ax.tick_params(
+        axis="x",
+        which="major",
+        labelsize=11,
+        rotation=0,
+        length=5
+    )
+
+    ax.tick_params(
+        axis="x",
+        which="minor",
+        length=2.5
+    )
+
+    # Title
+    ax.set_title(
+        title,
+        loc="left",
+        fontsize=16,
+        fontweight="bold",
+        color=INK,
+        pad=18
+    )
+
+    # Left axis — AR(1)
+    ax.set_ylabel(
+        ylabel + " — AR(1)",
+        fontsize=12,
+        color=BLUE,
+        labelpad=12
+    )
+
+    ax.tick_params(
+        axis="y",
+        labelsize=11,
+        colors=BLUE
+    )
+
+    # Right axis — ARMA
+    ax_right.set_ylabel(
+        ylabel + " — ARMA",
+        fontsize=12,
+        color=ORANGE,
+        labelpad=12
+    )
+
+    ax_right.tick_params(
+        axis="y",
+        labelsize=11,
+        colors=ORANGE
+    )
+
+    ax.set_xlabel("")
+
+    # Grid — only on the primary axis
+    ax.grid(
+        axis="y",
+        which="major",
+        linestyle="-",
+        linewidth=0.6,
+        alpha=0.18
+    )
+
+    ax.grid(
+        axis="x",
+        which="major",
+        linestyle="--",
+        linewidth=0.6,
+        alpha=0.25
+    )
+
+    ax_right.grid(False)
+    ax.set_axisbelow(True)
+
+    # Spines
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    ax_right.spines["top"].set_visible(False)
+    ax_right.spines["left"].set_visible(False)
+
+    ax.spines["left"].set_color(BLUE)
+    ax_right.spines["right"].set_color(ORANGE)
+
+    # Combined legend from both axes
+    handles_left, labels_left = (
+        ax.get_legend_handles_labels()
+    )
+
+    handles_right, labels_right = (
+        ax_right.get_legend_handles_labels()
+    )
+
+    ax.legend(
+        handles_left + handles_right,
+        labels_left + labels_right,
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.12),
+        ncol=2,
+        frameon=False,
+        fontsize=10,
+        columnspacing=2.5,
+        handlelength=3
+    )
+    
 # ============================================================
 # FIGURE 1 — FILTERED PERSISTENCE VS CONSTANT ARMA
 # ============================================================
+
 fig, ax = plt.subplots(figsize=(17, 6.5))
 
-for i, (name, (df, p, q, freq, params)) in enumerate(specifications.items()):
+# Secondary y-axis for ARMA specifications
+ax_right = ax.twinx()
+
+for i, (name, (df, p, q, freq, params)) in enumerate(
+    specifications.items()
+):
 
     color = COLORS[i]
+
+    # Select the appropriate axis
+    target_ax = ax if q == 0 else ax_right
+
     rhoConstant = arma_fix[name].arparams[0]
 
     # Time-varying persistence
-    ax.plot(
+    target_ax.plot(
         df["RhoFiltered"].index,
         df["RhoFiltered"],
         color=color,
@@ -139,122 +785,60 @@ for i, (name, (df, p, q, freq, params)) in enumerate(specifications.items()):
         zorder=3
     )
 
-    # Constant ARMA benchmark
-    ax.axhline(
+    # Constant-coefficient benchmark
+    model_name = f"AR({p})" if q == 0 else f"ARMA({p},{q})"
+
+    target_ax.axhline(
         rhoConstant,
         color=color,
         linestyle=(0, (5, 3)),
         linewidth=1.2,
         alpha=0.8,
-        label=f"ARMA({p},{q}) fixed: {rhoConstant:.3f}",
+        label=f"{model_name} fixed ({freq}): {rhoConstant:.3f}",
         zorder=2
     )
 
 # ============================================================
-# AXES AND DATES
+# UNIT-ROOT THRESHOLDS
 # ============================================================
 
-# Exact date boundaries from the data
-ax.set_xlim(start_date, end_date)
-ax.margins(x=0)
-
-# Major ticks every 5 years
-ax.xaxis.set_major_locator(
-    mdates.YearLocator(3)
-)
-
-ax.xaxis.set_major_formatter(
-    mdates.DateFormatter("%Y")
-)
-
-# Minor ticks every year
-ax.xaxis.set_minor_locator(
-    mdates.YearLocator(1)
-)
-
-ax.tick_params(
-    axis="x",
-    which="major",
-    labelsize=11,
-    rotation=0,
-    length=5
-)
-
-ax.tick_params(
-    axis="x",
-    which="minor",
-    length=2.5
-)
-
-# ============================================================
-# REFERENCE LINES
-# ============================================================
-
+# Left axis — AR(1)
 ax.axhline(
     1,
-    color="#626B76",
+    color=BLUE,
     linestyle=":",
     linewidth=1.1,
-    alpha=0.8,
-    label="Unit-root threshold"
+    alpha=0.7,
+    label="Unit-root threshold — AR(1)"
 )
+
+# Right axis — ARMA
+ax_right.axhline(
+    1,
+    color=ORANGE,
+    linestyle=":",
+    linewidth=1.1,
+    alpha=0.7,
+    label="Unit-root threshold — ARMA"
+)
+
+# ============================================================
+# Y-AXIS LIMITS
+# ============================================================
+
+# Uncomment and adjust if necessary
+# ax.set_ylim(-0.1, 1.15)
+# ax_right.set_ylim(0.75, 1.15)
 
 # ============================================================
 # STYLING
 # ============================================================
 
-ax.set_title(
-    "United States : Inflation persistence (filtered estimates)",
-    loc="left",
-    fontsize=16,
-    fontweight="bold",
-    color="#202A38",
-    pad=18
-)
-
-ax.set_ylabel(
-    r"Persistence coefficient $\hat{\rho}_{t|t}$",
-    fontsize=12
-)
-
-ax.set_xlabel("")
-
-# Horizontal grid
-ax.grid(
-    axis="y",
-    which="major",
-    linestyle="-",
-    linewidth=0.6,
-    alpha=0.18
-)
-
-# Vertical grid every 5 years
-ax.grid(
-    axis="x",
-    which="major",
-    linestyle="--",
-    linewidth=0.6,
-)
-
-ax.set_axisbelow(True)
-
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-
-ax.tick_params(
-    axis="y",
-    labelsize=11
-)
-
-# Legend
-ax.legend(
-    loc="upper center",
-    bbox_to_anchor=(0.5, -0.12),
-    ncol=2,
-    frameon=False,
-    fontsize=10,
-    columnspacing=2.5,
-    handlelength=3
+style_persistence_figure(
+    ax,
+    ax_right,
+    title="United States: Inflation persistence (filtered estimates)",
+    ylabel=r"Persistence coefficient $\hat{\rho}_{t|t}$"
 )
 
 plt.tight_layout()
@@ -265,140 +849,122 @@ plt.show()
 # ============================================================
 # FIGURE 2 — SMOOTHED PERSISTENCE WITH 90% CI
 # ============================================================
-z = norm.ppf(0.95)  # Two-sided 90% CI = 1.64485
+
+z = norm.ppf(0.95)
 
 fig, ax = plt.subplots(figsize=(17, 6.5))
-i=0
-for key, model in specifications.items():
+
+# Secondary y-axis for ARMA specifications
+ax_right = ax.twinx()
+
+for i, (name, (df, p, q, freq, params)) in enumerate(
+    specifications.items()
+):
 
     color = COLORS[i]
-    df = model[0]
 
-    # Smoothed persistence and variance
-    rho = df["RhoSmoothed"].dropna()
-    variance = df['VarStateSmoothed'].dropna()
+    # Select the appropriate axis
+    target_ax = ax if q == 0 else ax_right
 
-    # Confidence intervals
+    # Align smoothed persistence and its variance
+    data = df[
+        ["RhoSmoothed", "VarStateSmoothed"]
+    ].dropna()
+
+    rho = data["RhoSmoothed"]
+
+    variance = data["VarStateSmoothed"].clip(lower=0)
+
+    # Standard errors
     se = np.sqrt(variance)
 
+    # 90% confidence intervals
     lower = rho - z * se
     upper = rho + z * se
 
     # Smoothed persistence
-    ax.plot(
+    target_ax.plot(
         rho.index,
         rho,
         color=color,
         linewidth=1.8,
-        label=key,
+        label=name,
         zorder=3
     )
 
     # 90% confidence interval
-    ax.fill_between(
+    target_ax.fill_between(
         rho.index,
         lower,
         upper,
         color=color,
         alpha=0.12,
         linewidth=0,
-        zorder=2
+        zorder=1
     )
 
-    # Long-run persistence / initial mean
-    # Replace with your estimated rho_bar values
-    rho_bar = np.mean(df["RhoFiltered"])
+    # Empirical mean of filtered persistence
+    rho_bar = df["RhoFiltered"].mean()
 
-    ax.axhline(
+    model_name = f"AR({p})" if q == 0 else f"ARMA({p},{q})"
+
+    target_ax.axhline(
         rho_bar,
         color=color,
         linestyle=(0, (5, 3)),
         linewidth=1.3,
         alpha=0.8,
-        label=rf"Empirical mean $E(\hat{{\rho}})$: {rho_bar:.2f}"
+        label=(
+            rf"{model_name} ({freq}) empirical mean: "
+            rf"{rho_bar:.3f}"
+        ),
+        zorder=2
     )
-    
-    i+=1
 
 # ============================================================
-# AXES AND DATES
-# ============================================================
-ax.set_xlim(start_date, end_date)
-ax.margins(x=0)
-
-# Major ticks every 5 years
-ax.xaxis.set_major_locator(mdates.YearLocator(3))
-ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
-
-# Minor ticks every year
-ax.xaxis.set_minor_locator(mdates.YearLocator(1))
-
-ax.tick_params(axis="x", which="major", labelsize=11)
-ax.tick_params(axis="x", which="minor", length=2.5)
-
-# ============================================================
-# REFERENCE LINE
+# UNIT-ROOT THRESHOLDS
 # ============================================================
 
 ax.axhline(
     1,
-    color="#626B76",
+    color=BLUE,
     linestyle=":",
-    linewidth=1,
+    linewidth=1.1,
     alpha=0.7,
-    label="Unit-root threshold"
+    label="Unit-root threshold — AR(1)"
 )
+
+ax_right.axhline(
+    1,
+    color=ORANGE,
+    linestyle=":",
+    linewidth=1.1,
+    alpha=0.7,
+    label="Unit-root threshold — ARMA"
+)
+
+# ============================================================
+# Y-AXIS LIMITS
+# ============================================================
+
+# Uncomment and adjust if necessary
+# ax.set_ylim(-0.1, 1.15)
+# ax_right.set_ylim(0.75, 1.15)
 
 # ============================================================
 # STYLING
 # ============================================================
 
-ax.set_title(
-    "United States : Inflation persistence (smoothed estimates)",
-    loc="left",
-    fontsize=16,
-    fontweight="bold",
-    color="#202A38",
-    pad=18
-)
-
-ax.set_ylabel(
-    r"Smoothed persistence $\hat{\rho}_{t|T}$",
-    fontsize=12
-)
-
-ax.set_xlabel("")
-
-ax.grid(
-    axis="y",
-    linestyle="-",
-    linewidth=0.6,
-    alpha=0.18
-)
-
-ax.grid(
-    axis="x",
-    which="major",
-    linestyle="--",
-    linewidth=0.6)
-
-ax.set_axisbelow(True)
-
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-
-ax.legend(
-    loc="upper center",
-    bbox_to_anchor=(0.5, -0.12),
-    ncol=2,
-    frameon=False,
-    fontsize=10,
-    columnspacing=2.5,
-    handlelength=3
+style_persistence_figure(
+    ax,
+    ax_right,
+    title="United States: Inflation persistence (smoothed estimates)",
+    ylabel=r"Smoothed persistence $\hat{\rho}_{t|T}$"
 )
 
 plt.tight_layout()
 plt.show()
+
 
 # ============================================================
 # FIGURES — ACF(1) = PACF(1)
@@ -411,19 +977,14 @@ def finite_horizon_acf(rho, maParams, lag=1, H=12):
 
     Parameters
     ----------
-    rho : float
-        Autoregressive coefficient.
-    maParams : array
-        MA polynomial [1, theta_1, ..., theta_q].
-    lag : int
-        Autocorrelation lag.
-    H : int
-        Finite propagation horizon.
+    rho : Autoregressive coefficient
+    maParams : MA polynomial [1, theta_1, ..., theta_q]
+    lag : Autocorrelation lag
+    H : Finite propagation horizon.
 
     Returns
     -------
-    float
-        Corr(x_H, x_{H-lag}).
+    float Corr(x_H, x_{H-lag}).
     """
 
     if not 1 <= lag <= H:
@@ -432,20 +993,20 @@ def finite_horizon_acf(rho, maParams, lag=1, H=12):
     if not np.isfinite(rho):
         return np.nan
 
-    # Impulse response coefficients: psi_0, ..., psi_H
+    # Impulse response coefficients
     psi = arma_impulse_response(
         ar=np.array([1.0, -rho]),
         ma=maParams,
         leads=H+1
     )
 
-    # Covariance (up to sigma_e²)
+    # Covariance 
     covariance = np.dot(
         psi[:-lag],
         psi[lag:]
     )
 
-    # Variances (up to sigma_e²)
+    # Variances 
     variance_H = np.sum(psi**2)
     variance_H_lag = np.sum(psi[:-lag]**2)
 
@@ -488,12 +1049,7 @@ labels = ["TVP-AR(1)", "TVP-ARMA(1,3)"]
 
 mom = specifications[keyArma][0]["Inflation"]
 
-# Empirical rolling first-order correlation
-window = 60
 
-empiricalACF = mom.rolling(window).corr(
-    mom.shift(lag)
-)
 
 for state in ["Filtered", "Smoothed"]:
 
@@ -513,8 +1069,8 @@ for state in ["Filtered", "Smoothed"]:
 
     # Empirical benchmark
     ax.plot(
-        empiricalACF.index,
-        empiricalACF,
+        acf_mom.index,
+        acf_mom,
         color="#808A99",
         linestyle="--",
         lw=1.3,
@@ -994,8 +1550,6 @@ for model_name, (model, p, q, freq, params) in specifications.items():
     plt.show()
 
 
-
-
 # ========================================================
 # Diagnostics sur les résidus
 # ========================================================
@@ -1032,15 +1586,11 @@ for name, (df, p, q, freq, params) in specifications.items():
     z_fixed = pd.Series(model.filter_results.standardized_forecasts_error[0])
     residuals[(fixed_name, "q")] = (z_fixed, q)
 
-
-
-
-
 results = {}
 for (name, _), (resid, q) in residuals.items():
 
     results[name] = residual_diagnostics(
-        residuals=resid,
+        z=resid,
         p=1,
         q=q
     )
@@ -1056,44 +1606,6 @@ dfDiagnostics = pd.DataFrame.from_dict(
 )
 print(dfDiagnostics.round(4))
 
-
-
-# L'AR(1) est-il stationnaire ? 
-resid = specifications['TVP-AR(1) on monthly inflation since 1960'][0]['Residuals']
-dfADF = adfSummary(resid)
-print(dfADF.round(4).to_string(index=False))
-
-
-# Attention : la réponse impulsionnelle des chocs dépend aussi de la composante MA ; c'est le rapport des racines qui compte
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-
-from statsmodels.tsa.arima.model import ARIMA
-
-# ============================================================
-# 1. MODELS — CONSTANT COEFFICIENTS
-# ============================================================
-
-# Re-estimate all models on the same monthly sample for a meaningful comparison (1960).
-orders = {
-    "AR(1)": (1, 0, 0),
-    "ARMA(1,3)": (1, 0, 3),
-    "ARMA(1,6)": (1, 0, 6)
-}
-
-fixed_models = {}
-
-for name, order in orders.items():
-
-    fixed_models[name] = ARIMA(
-        mom,
-        order=order,
-        trend="c",
-        enforce_stationarity=True,
-        enforce_invertibility=True
-    ).fit()
 
 # ============================================================
 # 2. IMPULSE RESPONSE FUNCTIONS

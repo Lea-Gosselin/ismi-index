@@ -5,6 +5,8 @@ data:
   source: ESTAT
   index: CPI
   price_url: https://www.e-stat.go.jp/en/stat-search/file-download?fileKind=1&statInfId=000040482945
+  headline_sa_url: "https://www.e-stat.go.jp/en/stat-search/file-download?fileKind=1&statInfId=000040482947"
+  headline_long_url: "https://fred.stlouisfed.org/graph/fredgraph.csv?id=JPNCPIALLMINMEI" # OECD
   historical_weights: 2000-2030 COICOP Items CPI Japan.xlsx
   mapping_coicop: Historical COICOP mapping to items.xlsx
   headline_series: "0001"
@@ -14,6 +16,16 @@ ismi:
   rolling_window: 120
   momentum_lags: 3
   inflation_lag: 1
+
+# persistence:
+#   model: rw # simple
+#   inflation_lag: 1
+#   estimate_mu: true
+#   estimate_rho_bar: true
+#   p_lag: 1
+#   q_lag: 0
+#   initial_params: [0.0005, 0.8989, 0.002238, 1] # mu, rho_bar, F, (phi if augmented), D and B ([0.000994, 0.435294, 0.950284, 0.001747, 0.043540])
+#   startDate: "2001-01-01"
 
 persistence:
   model: arma # simple
